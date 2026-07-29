@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CBT Login | Yetay 3.0</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body { font-family: 'Open Sans', sans-serif; }
+        .font-heading { font-family: 'Montserrat', sans-serif; }
+
+        .passkey-input {
+            letter-spacing: 0.3em;
+            font-family: 'Montserrat', monospace;
+        }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .fade-up { animation: fadeUp 0.5s ease forwards; }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col items-center justify-center px-4">
+
+    <div class="w-full max-w-md fade-up">
+
+        <!-- Logo / Brand -->
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-900 rounded-2xl shadow-lg mb-4">
+                <svg class="w-9 h-9 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                          d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                </svg>
+            </div>
+            <h1 class="font-heading font-black text-2xl text-blue-900 tracking-wide uppercase">Yetay 3.0</h1>
+            <p class="text-gray-500 text-sm mt-1 font-semibold tracking-widest uppercase">CBT Examination Portal</p>
+        </div>
+
+        <!-- Card -->
+        <div class="bg-white border border-gray-200 rounded-2xl p-8 shadow-md">
+            <div class="text-center mb-6">
+                <h2 class="font-heading font-bold text-blue-900 text-lg uppercase tracking-widest">Enter Your Passkey</h2>
+                <p class="text-gray-500 text-xs mt-2">Enter your category prefix (JNR / INT / SNR) followed by your church password</p>
+            </div>
+
+            <div class="space-y-5">
+                <!-- Passkey field -->
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Passkey</label>
+                    <div class="relative">
+                        <input
+                            type="password"
+                            id="passkeyInput"
+                            placeholder="e.g. JNR1234, INT1234, SNR1234"
+                            class="passkey-input w-full bg-white border border-gray-300 text-gray-900 placeholder-gray-400 rounded-xl px-4 py-3.5 text-sm focus:outline-none focus:border-blue-900 focus:ring-2 focus:ring-blue-900/20 transition-all"
+                            onkeydown="if(event.key==='Enter') attemptLogin()"
+                        >
+                        <button onclick="toggleVisibility()" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-900 transition" id="eyeBtn">
+                            <svg id="eyeIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Login Button -->
+                <button
+                    onclick="attemptLogin()"
+                    id="loginBtn"
+                    class="w-full bg-yellow-500 hover:bg-yellow-400 text-gray-900 font-black uppercase tracking-widest py-3.5 rounded-xl transition-all shadow-lg shadow-yellow-500/20 hover:shadow-yellow-500/40 hover:-translate-y-0.5 text-sm font-heading"
+                >
+                    Proceed to Examination
+                </button>
+            </div>
+
+            <!-- Error message -->
+            <div id="errorMsg" class="hidden mt-4 bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-center">
+                <p class="text-red-600 text-xs font-bold" id="errorText">Invalid passkey. Please try again.</p>
+            </div>
+        </div>
+
+        <!-- Footer note -->
+        <p class="text-center text-gray-400 text-[10px] mt-6 uppercase tracking-widest font-bold">
+            &copy; 2026 Banner Unto Nations Foundation &mdash; Yetay Memorial Project
+        </p>
+        <div class="text-center mt-3">
+            <a href="index.html" class="text-blue-900 hover:text-blue-700 text-xs transition font-semibold">&larr; Back to Main Website</a>
+        </div>
+    </div>
+
+    <script>
+        const scriptURL = "https://script.google.com/macros/s/AKfycbzMnfYQ-gfbxlnUNnzmLuY3uaBjLfHldWkXFQK0jvN31hNrDNHTsuJOsAIAdwBzR9ar/exec";
+
+        function toggleVisibility() {
+            const input = document.getElementById('passkeyInput');
+            const icon  = document.getElementById('eyeIcon');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.innerHTML = `
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.542 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
+                `;
+            } else {
+                input.type = 'password';
+                icon.innerHTML = `
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                `;
+            }
+        }
+
+        function showError(msg) {
+            const box = document.getElementById('errorMsg');
+            document.getElementById('errorText').innerText = msg;
+            box.classList.remove('hidden');
+        }
+
+        function hideError() {
+            document.getElementById('errorMsg').classList.add('hidden');
+        }
+
+        async function attemptLogin() {
+            const passkey = document.getElementById('passkeyInput').value.trim();
+            if (!passkey) { showError('Please enter your passkey.'); return; }
+
+            hideError();
+            const btn = document.getElementById('loginBtn');
+            btn.disabled = true;
+            btn.textContent = 'Verifying...';
+
+            try {
+                const params = new URLSearchParams();
+                params.append('action', 'verifyPasskey');
+                params.append('passkey', passkey);
+
+                const resp = await fetch(scriptURL, { method: 'POST', body: params });
+                const data = await resp.json();
+
+                if (data.success) {
+                    // Store session
+                    sessionStorage.setItem('cbt_church_name', data.churchName);
+                    sessionStorage.setItem('cbt_username',    data.username);
+                    sessionStorage.setItem('cbt_category',    data.category);
+
+                    // Brief success flash then redirect
+                    btn.textContent = '✓ Access Granted';
+                    btn.classList.replace('bg-yellow-500', 'bg-green-500');
+                    btn.classList.replace('hover:bg-yellow-400', 'hover:bg-green-400');
+                    btn.classList.replace('text-gray-900', 'text-white');
+
+                    setTimeout(() => {
+                        window.location.href = 'cbt_dashboard.html';
+                    }, 800);
+                } else {
+                    showError(data.message || 'Invalid passkey. Please try again.');
+                    btn.disabled = false;
+                    btn.textContent = 'Proceed to Examination';
+                }
+            } catch (err) {
+                showError('Network error. Please check your connection.');
+                btn.disabled = false;
+                btn.textContent = 'Proceed to Examination';
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CBT Dashboard | Yetay 3.0</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body { font-family: 'Open Sans', sans-serif; background-color: #f7f8fa; }
+        .font-heading { font-family: 'Montserrat', sans-serif; }
+        .tab-content { display: none; }
+        .tab-content.active { display: flex; flex-direction: column; height: 100%; min-height: 0; }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .fade-up { animation: fadeUp 0.6s ease forwards; }
+
+        .countdown-digit {
+            font-family: 'Montserrat', monospace;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* subtle background pattern echoing the main site's hero overlay */
+        .brand-pattern {
+            background-color: #1e3a8a;
+            background-image:
+                radial-gradient(circle at 15% 20%, rgba(234,179,8,0.10) 0%, transparent 45%),
+                radial-gradient(circle at 85% 80%, rgba(255,255,255,0.06) 0%, transparent 50%);
+        }
+
+        @keyframes ringPulse {
+            0% { box-shadow: 0 0 0 0 rgba(234,179,8,0.35); }
+            70% { box-shadow: 0 0 0 14px rgba(234,179,8,0); }
+            100% { box-shadow: 0 0 0 0 rgba(234,179,8,0); }
+        }
+        .pulse-ring { animation: ringPulse 2.2s ease-out infinite; }
+    </style>
+</head>
+<body class="h-screen flex flex-col overflow-hidden">
+
+    <!-- ============ IDENTITY BADGE — always visible, on every screen ============ -->
+    <div id="identity-badge-bar" class="bg-blue-900 text-white w-full shrink-0 sticky top-0 z-50">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 py-2 md:py-2.5 flex items-center justify-between gap-3">
+            <div class="flex items-center gap-2.5 min-w-0">
+                <div class="w-7 h-7 md:w-8 md:h-8 rounded-lg bg-white/10 border border-white/15 flex items-center justify-center shrink-0">
+                    <svg class="w-4 h-4 md:w-4.5 md:h-4.5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2M5 21h14M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 8v-4a1 1 0 011-1h0a1 1 0 011 1v4"/></svg>
+                </div>
+                <div class="min-w-0">
+                    <p class="text-[8px] md:text-[9px] text-blue-300 uppercase font-bold tracking-widest leading-none mb-0.5">Logged in as</p>
+                    <p class="text-[12px] md:text-sm font-bold text-white truncate leading-tight" id="barChurchName">Church Name</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-1.5 md:gap-2 bg-white/5 border border-white/10 rounded-lg pl-2.5 md:pl-3 pr-1 py-1 shrink-0">
+                <span class="text-[8px] md:text-[9px] text-blue-300 uppercase font-bold tracking-widest">Category</span>
+                <span class="bg-yellow-500 text-blue-900 rounded px-2 py-0.5 text-[10px] md:text-xs font-black uppercase tracking-wider" id="barCategory">CAT</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ TOP NAV — Brand + Logout (dashboard only) ============ -->
+    <nav id="top-nav" class="bg-blue-900 shadow-md w-full text-white shrink-0 sticky top-[44px] md:top-[52px] z-40 border-t border-white/10">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 h-14 md:h-16 flex justify-between items-center">
+            <div class="flex items-center flex-shrink-0">
+                <img src="logo.png" alt="Yetay Logo" class="h-7 md:h-9 w-auto bg-white rounded p-1 mr-2 md:mr-3" onerror="this.style.display='none'">
+                <div class="leading-tight">
+                    <span class="font-heading font-bold text-sm md:text-lg text-white block">YETAY <span class="text-yellow-400">3.0</span></span>
+                    <span class="hidden sm:block text-[9px] text-blue-200 uppercase tracking-widest font-semibold">CBT Examination Portal</span>
+                </div>
+            </div>
+            <button onclick="logout()" class="bg-yellow-500 text-blue-900 px-3 py-1.5 md:px-4 md:py-2 rounded shadow hover:bg-yellow-400 transition font-bold text-xs md:text-sm">Logout</button>
+        </div>
+    </nav>
+
+    <main class="flex-grow w-full flex flex-col overflow-hidden min-h-0">
+        <!-- ============ LANDING TAB ============ -->
+        <div id="tab-landing" class="tab-content active h-full flex-col">
+
+            <!-- Welcome strip -->
+            <div class="bg-white border-b border-gray-200 shrink-0">
+                <div class="max-w-5xl mx-auto px-4 sm:px-6 py-2.5 md:py-4 fade-up flex items-center justify-between gap-3 flex-wrap">
+                    <div>
+                        <p class="text-yellow-600 text-[9px] md:text-xs uppercase font-bold tracking-widest mb-0.5">Church Portal</p>
+                        <h1 class="text-base md:text-2xl font-black text-blue-900 font-heading leading-tight" id="churchNameDisplay">Welcome...</h1>
+                        <p class="text-gray-400 text-[9px] md:text-xs font-mono mt-0.5" id="usernameDisplay">...</p>
+                    </div>
+                    <div class="bg-blue-900 rounded-xl px-3 md:px-4 py-1.5 md:py-2 text-center shrink-0">
+                        <p class="text-blue-200 text-[8px] md:text-[9px] uppercase font-bold tracking-widest">Category</p>
+                        <p class="text-yellow-400 font-black text-xs md:text-base font-heading uppercase tracking-wider" id="categoryDisplay">...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="max-w-5xl w-full mx-auto px-4 sm:px-6 flex-grow flex flex-col items-center justify-center py-3 md:py-6 overflow-hidden">
+
+                <div class="text-center mb-4 md:mb-8 fade-up shrink-0">
+                    <h2 class="text-sm md:text-lg font-bold text-gray-700 font-heading uppercase tracking-wide">Choose a Session</h2>
+                    <div class="w-10 md:w-12 h-1 bg-yellow-500 mx-auto mt-2 md:mt-3 rounded-full"></div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-8 max-w-3xl w-full">
+
+                    <!-- Start Demo Card -->
+                    <div onclick="enterSession('demo')" class="group cursor-pointer bg-white rounded-2xl shadow-sm border border-gray-200 hover:border-blue-300 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden text-center fade-up">
+                        <div class="bg-blue-900 p-4 md:p-8 relative overflow-hidden">
+                            <div class="absolute -right-6 -top-6 w-24 h-24 rounded-full bg-yellow-500/10"></div>
+                            <div class="absolute -left-8 bottom-0 w-20 h-20 rounded-full bg-white/5"></div>
+                            <div class="relative w-10 h-10 md:w-14 md:h-14 mx-auto rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center mb-2 md:mb-3 group-hover:scale-110 transition-transform">
+                                <svg class="w-5 h-5 md:w-7 md:h-7 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            </div>
+                            <h3 class="relative text-base md:text-lg font-black text-white font-heading uppercase tracking-wide">Start Demo</h3>
+                        </div>
+                        <div class="p-3 md:p-5">
+                            <p class="text-gray-500 text-[11px] md:text-sm leading-relaxed">A short practice run so your team is comfortable with the CBT interface before exam day.</p>
+                            <p class="mt-2 md:mt-3 text-blue-900 font-bold text-[10px] md:text-xs uppercase tracking-widest group-hover:text-yellow-600 transition-colors">Tap to begin &rarr;</p>
+                        </div>
+                    </div>
+
+                    <!-- Start CBT Card -->
+                    <div onclick="enterSession('cbt')" class="group cursor-pointer bg-white rounded-2xl shadow-sm border border-gray-200 hover:border-yellow-400 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden text-center fade-up" style="animation-delay: 0.08s">
+                        <div class="bg-blue-900 p-4 md:p-8 relative overflow-hidden">
+                            <div class="absolute -right-6 -top-6 w-24 h-24 rounded-full bg-yellow-500/10"></div>
+                            <div class="absolute -left-8 bottom-0 w-20 h-20 rounded-full bg-white/5"></div>
+                            <div class="relative w-10 h-10 md:w-14 md:h-14 mx-auto rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center mb-2 md:mb-3 group-hover:scale-110 transition-transform">
+                                <svg class="w-5 h-5 md:w-7 md:h-7 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                            </div>
+                            <h3 class="relative text-base md:text-lg font-black text-white font-heading uppercase tracking-wide">Start CBT</h3>
+                        </div>
+                        <div class="p-3 md:p-5">
+                            <p class="text-gray-500 text-[11px] md:text-sm leading-relaxed">The official Computer-Based Test. Once started, your scores are recorded &mdash; make sure you're ready.</p>
+                            <p class="mt-2 md:mt-3 text-blue-900 font-bold text-[10px] md:text-xs uppercase tracking-widest group-hover:text-yellow-600 transition-colors">Tap to begin &rarr;</p>
+                        </div>
+                    </div>
+
+                </div>
+
+                <p class="text-center text-gray-400 text-[9px] md:text-xs mt-4 md:mt-10 uppercase tracking-widest font-bold shrink-0">
+                    &copy; 2026 Banner Unto Nations Foundation &mdash; Yetay Memorial Project
+                </p>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ============ FULL-SCREEN: COUNTDOWN TO START ============ -->
+    <div id="screen-countdown-start" class="hidden fixed top-[44px] md:top-[52px] left-0 right-0 bottom-0 z-[100] w-screen brand-pattern flex flex-col items-center justify-center text-center px-4">
+        <div class="bg-white/10 border border-white/20 rounded-full px-4 py-1.5 mb-5">
+            <p class="text-yellow-400 text-[10px] md:text-xs font-bold uppercase tracking-[0.25em]" id="countdownStartLabel">Demo Session</p>
+        </div>
+        <h2 class="text-white font-heading font-black text-xl md:text-3xl uppercase tracking-wide mb-2 max-w-lg">
+            Your Session Hasn't Started Yet
+        </h2>
+        <p class="text-blue-200 text-xs md:text-sm mb-8">It will begin automatically when the countdown ends</p>
+
+        <div class="flex items-center justify-center gap-3 md:gap-5 mb-10">
+            <div class="bg-white/95 rounded-xl px-4 md:px-7 py-3 md:py-4 min-w-[72px] md:min-w-[100px] shadow-lg">
+                <p class="countdown-digit text-2xl md:text-4xl font-black text-blue-900" id="cs-hours">00</p>
+                <p class="text-[9px] md:text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">Hours</p>
+            </div>
+            <div class="bg-white/95 rounded-xl px-4 md:px-7 py-3 md:py-4 min-w-[72px] md:min-w-[100px] shadow-lg">
+                <p class="countdown-digit text-2xl md:text-4xl font-black text-blue-900" id="cs-minutes">00</p>
+                <p class="text-[9px] md:text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">Minutes</p>
+            </div>
+            <div class="bg-yellow-500 rounded-xl px-4 md:px-7 py-3 md:py-4 min-w-[72px] md:min-w-[100px] shadow-lg">
+                <p class="countdown-digit text-2xl md:text-4xl font-black text-blue-900" id="cs-seconds">00</p>
+                <p class="text-[9px] md:text-[10px] text-blue-900/70 font-bold uppercase tracking-widest mt-1">Seconds</p>
+            </div>
+        </div>
+
+        <p class="text-blue-200 text-xs md:text-sm max-w-md mb-8">
+            Please stay on this page &mdash; do not close or refresh your browser.
+        </p>
+        <button onclick="reloadDashboard()" class="text-blue-200 hover:text-white text-[10px] md:text-xs font-bold uppercase tracking-widest transition border-b border-transparent hover:border-white pb-1">&larr; Back to Dashboard</button>
+    </div>
+
+    <!-- ============ FULL-SCREEN: "STARTING NOW" TRANSITION ============ -->
+    <div id="screen-starting-now" class="hidden fixed top-[44px] md:top-[52px] left-0 right-0 bottom-0 z-[100] w-screen brand-pattern flex flex-col items-center justify-center text-center px-4">
+        <div class="relative w-16 h-16 md:w-20 md:h-20 mb-6">
+            <div class="absolute inset-0 bg-yellow-500/20 rounded-full pulse-ring"></div>
+            <div class="relative w-full h-full bg-yellow-500 rounded-full flex items-center justify-center shadow-lg">
+                <svg class="w-8 h-8 md:w-10 md:h-10 text-blue-900" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+            </div>
+        </div>
+        <h2 class="text-white font-heading font-black text-2xl md:text-4xl uppercase tracking-wide mb-2" id="startingNowTitle">Quiz Is Starting</h2>
+        <p class="text-blue-200 text-xs md:text-sm">Loading your session, please wait...</p>
+    </div>
+
+    <!-- ============ FULL-SCREEN: COUNTDOWN TO END (SESSION ACTIVE) ============ -->
+    <div id="screen-countdown-end" class="hidden fixed top-[44px] md:top-[52px] left-0 right-0 bottom-0 z-[100] w-screen bg-gray-50 flex flex-col items-center justify-center text-center px-4">
+        <div class="bg-green-50 border border-green-200 rounded-full px-4 py-1.5 mb-5 flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+            <p class="text-green-700 text-[10px] md:text-xs font-bold uppercase tracking-[0.25em]" id="countdownEndLabel">Demo Session Active</p>
+        </div>
+        <h2 class="text-blue-900 font-heading font-black text-xl md:text-3xl uppercase tracking-wide mb-8 max-w-lg">
+            Time Remaining
+        </h2>
+        <div class="flex items-center justify-center gap-3 md:gap-5 mb-10">
+            <div class="bg-white border border-gray-200 shadow-sm rounded-xl px-4 md:px-7 py-3 md:py-4 min-w-[72px] md:min-w-[100px]">
+                <p class="countdown-digit text-2xl md:text-4xl font-black text-blue-900" id="ce-hours">00</p>
+                <p class="text-[9px] md:text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">Hours</p>
+            </div>
+            <div class="bg-white border border-gray-200 shadow-sm rounded-xl px-4 md:px-7 py-3 md:py-4 min-w-[72px] md:min-w-[100px]">
+                <p class="countdown-digit text-2xl md:text-4xl font-black text-blue-900" id="ce-minutes">00</p>
+                <p class="text-[9px] md:text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">Minutes</p>
+            </div>
+            <div class="bg-blue-900 shadow-sm rounded-xl px-4 md:px-7 py-3 md:py-4 min-w-[72px] md:min-w-[100px]">
+                <p class="countdown-digit text-2xl md:text-4xl font-black text-yellow-400" id="ce-seconds">00</p>
+                <p class="text-[9px] md:text-[10px] text-blue-200 font-bold uppercase tracking-widest mt-1">Seconds</p>
+            </div>
+        </div>
+        <p class="text-gray-400 text-xs md:text-sm max-w-md">
+            The exam interface will load here in the next step.
+        </p>
+    </div>
+
+    <!-- ============ FULL-SCREEN: SESSION CLOSED ============ -->
+    <div id="screen-closed" class="hidden fixed top-[44px] md:top-[52px] left-0 right-0 bottom-0 z-[100] w-screen brand-pattern flex flex-col items-center justify-center text-center px-4">
+        <div class="w-16 h-16 md:w-20 md:h-20 bg-white/10 border border-white/20 rounded-full flex items-center justify-center mb-6">
+            <svg class="w-8 h-8 md:w-10 md:h-10 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </div>
+        <h2 class="text-white font-heading font-black text-xl md:text-3xl uppercase tracking-wide mb-2">Session Window Closed</h2>
+        <p class="text-blue-200 text-xs md:text-sm max-w-md mb-8" id="closedMessage">This session is no longer available. Please contact your admin for more information.</p>
+        <button onclick="reloadDashboard()" class="bg-yellow-500 hover:bg-yellow-400 text-blue-900 font-black uppercase tracking-widest py-3 px-8 rounded-xl transition-all shadow-lg text-xs md:text-sm font-heading">&larr; Back to Dashboard</button>
+    </div>
+
+    <!-- ============ FULL-SCREEN: EXAM INTERFACE ============ -->
+    <div id="screen-exam" class="hidden fixed top-[44px] md:top-[52px] left-0 right-0 bottom-0 z-[100] w-screen bg-slate-50 flex flex-col font-sans overflow-hidden">
+        <!-- Exam header -->
+        <div class="bg-gradient-to-r from-blue-900 to-blue-800 text-white p-2 md:p-3 flex justify-between items-center shrink-0 shadow z-30 gap-2 flex-wrap">
+            <div class="flex items-center gap-2 md:gap-3 min-w-0">
+                <h3 class="font-black uppercase tracking-widest text-[9px] md:text-sm text-yellow-400 truncate hidden sm:block" id="exam-header-title">Exam</h3>
+                <button onclick="toggleExamGrid()" class="bg-white/10 hover:bg-white/20 border border-white/20 px-2 md:px-2.5 py-1.5 rounded-lg text-[10px] md:text-xs font-bold transition flex items-center shrink-0">
+                    <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg> <span class="hidden sm:inline">Map</span>
+                </button>
+                <button onclick="toggleExamGuide()" id="exam-guide-btn" class="bg-yellow-500 hover:bg-yellow-400 border border-yellow-400 px-2 md:px-2.5 py-1.5 rounded-lg text-[10px] md:text-xs font-bold text-blue-900 transition flex items-center shrink-0">
+                    <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg> <span class="hidden sm:inline">Guide</span>
+                </button>
+            </div>
+            <div class="flex items-center gap-1.5 md:gap-2.5 shrink-0 flex-wrap justify-end">
+                <!-- Question number — always visible, high-contrast white pill -->
+                <div class="bg-white text-blue-900 px-2.5 md:px-3.5 py-1.5 rounded-full text-[12px] md:text-base font-black tracking-wide shadow-md flex items-center gap-1" id="exam-qnum-badge">
+                    <span class="text-[7px] md:text-[8px] uppercase text-slate-400 font-bold hidden sm:inline mr-0.5">Q</span>
+                    <span id="exam-header-qnum">1</span><span class="text-slate-300">/</span><span id="exam-header-qtotal">0</span>
+                </div>
+                <!-- Answered / Total — white pill, green accent -->
+                <div class="bg-white text-green-700 px-2.5 md:px-3.5 py-1.5 rounded-full text-[12px] md:text-base font-black tracking-wide flex items-center gap-1.5 shadow-md transition-all" id="exam-answered-badge">
+                    <span class="w-2 h-2 rounded-full bg-green-500 shrink-0" id="exam-answered-dot"></span>
+                    <span id="exam-answered-count">0</span><span class="text-slate-300">/</span><span id="exam-answered-total">0</span>
+                </div>
+                <!-- Timer — white pill, color shifts as time runs low -->
+                <div class="bg-white px-3 md:px-4 py-1.5 rounded-full text-base md:text-xl font-mono font-black tracking-widest shadow-md transition-all" id="exam-timer">30:00</div>
+            </div>
+        </div>
+
+        <div class="flex-grow flex overflow-hidden relative w-full">
+            <div class="flex-grow flex flex-col justify-center items-center p-2 md:p-4 overflow-hidden w-full h-full" id="exam-main-area">
+                <div id="exam-questions-container" class="w-full max-w-3xl flex flex-col justify-center overflow-hidden transition-all duration-300"></div>
+            </div>
+
+            <div id="exam-grid-sidebar" class="hidden absolute md:static right-0 top-0 bottom-0 z-40 w-64 bg-white border-l border-slate-200 shadow-2xl shrink-0 flex-col h-full transition-all">
+                <div class="p-3 border-b border-slate-100 bg-slate-50 flex justify-between items-center shrink-0">
+                    <h4 class="font-bold text-slate-700 text-xs uppercase tracking-wider">Question Map</h4>
+                    <button onclick="toggleExamGrid()" class="md:hidden bg-slate-200 hover:bg-slate-300 text-slate-600 rounded-full w-6 h-6 flex items-center justify-center font-bold text-xs">X</button>
+                </div>
+                <div class="px-3 py-2.5 border-b border-slate-100 bg-white shrink-0 flex justify-between text-[10px] md:text-xs font-bold text-slate-600 uppercase">
+                    <div class="flex items-center gap-1.5"><span class="w-3.5 h-3.5 rounded-full bg-slate-100 border-2 border-slate-300 shadow-inner"></span> Unseen</div>
+                    <div class="flex items-center gap-1.5"><span class="w-3.5 h-3.5 rounded-full bg-blue-50 border-2 border-blue-400 shadow-sm"></span> Seen</div>
+                    <div class="flex items-center gap-1.5"><span class="w-3.5 h-3.5 rounded-full bg-green-500 shadow-md shadow-green-200"></span> Ans</div>
+                </div>
+                <div class="flex-grow flex flex-col items-start content-start p-3 overflow-y-auto bg-slate-50/50">
+                    <div id="exam-grid-container" class="grid grid-cols-5 gap-2.5 w-full auto-rows-min"></div>
+                </div>
+                <div id="exam-grid-pagination" class="p-3 border-t border-slate-100 bg-white shrink-0 flex justify-between items-center"></div>
+            </div>
+        </div>
+
+        <div class="bg-white border-t-2 border-slate-200 p-2 md:p-4 flex justify-between items-center shrink-0 z-30 gap-2">
+            <button onclick="navExam(-1)" id="exam-prev-btn" class="bg-slate-100 text-slate-700 border-2 border-slate-300 font-black px-4 md:px-7 py-2.5 md:py-3 rounded-xl hover:bg-slate-200 active:scale-95 transition disabled:opacity-30 text-sm md:text-base shadow-sm">&larr; Prev</button>
+            <span id="exam-progress" class="font-black text-slate-500 text-sm md:text-lg text-center tracking-widest font-mono bg-slate-100 px-3 py-1.5 rounded-lg">1 / 50</span>
+            <div class="flex items-center gap-2 md:gap-3">
+                <button onclick="navExam(1)" id="exam-next-btn" class="bg-blue-900 text-white font-black px-4 md:px-7 py-2.5 md:py-3 rounded-xl hover:bg-blue-800 active:scale-95 transition disabled:opacity-30 text-sm md:text-base shadow-md">Next &rarr;</button>
+                <button onclick="submitExam()" id="exam-submit-btn" class="bg-yellow-500 text-blue-900 font-black px-4 md:px-7 py-2.5 md:py-3 rounded-xl hover:bg-yellow-400 active:scale-95 transition-all text-sm md:text-base shadow-md ring-2 ring-yellow-300/50">Submit</button>
+            </div>
+        </div>
+
+        <!-- Exam Guide Image Overlay -->
+        <div id="exam-guide-overlay" class="hidden fixed inset-0 z-[110] bg-black/90 flex items-center justify-center p-3 md:p-6">
+            <button onclick="toggleExamGuide()" class="absolute top-3 right-3 md:top-5 md:right-5 bg-white/10 hover:bg-white/20 border border-white/30 text-white w-9 h-9 md:w-10 md:h-10 rounded-full flex items-center justify-center font-black text-lg transition">✕</button>
+            <img src="cbt_guide.png" alt="How to use the exam screen" class="max-w-full max-h-full object-contain rounded-lg shadow-2xl">
+        </div>
+    </div>
+
+    <!-- ============ FULL-SCREEN: RESULTS ============ -->
+    <div id="screen-results" class="hidden fixed top-[44px] md:top-[52px] left-0 right-0 bottom-0 z-[100] w-screen brand-pattern flex flex-col items-center justify-center text-center px-4">
+        <div class="bg-white/10 border border-white/20 rounded-full px-4 py-1.5 mb-5">
+            <p class="text-yellow-400 text-[10px] md:text-xs font-bold uppercase tracking-[0.25em]" id="resultsLabel">Demo Session</p>
+        </div>
+        <div class="w-16 h-16 md:w-20 md:h-20 bg-yellow-500 rounded-full flex items-center justify-center mb-5 shadow-lg">
+            <svg class="w-8 h-8 md:w-10 md:h-10 text-blue-900" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+        </div>
+        <h2 class="text-white font-heading font-black text-xl md:text-3xl uppercase tracking-wide mb-2">Submitted Successfully</h2>
+        <p class="text-blue-200 text-xs md:text-sm mb-6">Your responses have been recorded.</p>
+        <div class="bg-white/95 rounded-2xl px-8 md:px-12 py-5 md:py-6 shadow-lg mb-8">
+            <p class="countdown-digit text-3xl md:text-5xl font-black text-blue-900" id="resultsScore">0 <span class="text-lg md:text-2xl text-gray-400">/ 0</span></p>
+            <p class="text-[9px] md:text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">Your Score</p>
+        </div>
+        <button onclick="reloadDashboard()" class="bg-yellow-500 hover:bg-yellow-400 text-blue-900 font-black uppercase tracking-widest py-3 px-8 rounded-xl transition-all shadow-lg text-xs md:text-sm font-heading">&larr; Back to Dashboard</button>
+    </div>
+
+    <script>
+        function reloadDashboard() {
+            window.location.reload();
+        }
+
+        const scriptURL = "https://script.google.com/macros/s/AKfycbzMnfYQ-gfbxlnUNnzmLuY3uaBjLfHldWkXFQK0jvN31hNrDNHTsuJOsAIAdwBzR9ar/exec";
+
+        // ---- Session guard ----
+        const churchName = sessionStorage.getItem('cbt_church_name');
+        const username   = sessionStorage.getItem('cbt_username');
+        const category   = sessionStorage.getItem('cbt_category'); // JNR, INT, SNR
+
+        const CATEGORY_LABELS = { JNR: 'Junior', INT: 'Intermediate', SNR: 'Senior' };
+
+        if (!churchName || !category) {
+            window.location.href = 'cbt.html';
+        } else {
+            document.getElementById('churchNameDisplay').innerText = `Welcome, ${churchName}`;
+            document.getElementById('usernameDisplay').innerText   = '@' + username;
+            document.getElementById('categoryDisplay').innerText   = CATEGORY_LABELS[category] || category;
+
+            document.getElementById('barChurchName').innerText = churchName;
+            document.getElementById('barCategory').innerText   = category;
+        }
+
+        function logout() {
+            sessionStorage.clear();
+            window.location.href = 'cbt.html';
+        }
+
+        // ---- Screen helpers ----
+        const screens = ['tab-landing', 'screen-countdown-start', 'screen-starting-now', 'screen-countdown-end', 'screen-closed', 'screen-exam', 'screen-results'];
+        function showScreen(id) {
+            screens.forEach(s => document.getElementById(s).classList.add('hidden', 'tab-content'));
+            screens.forEach(s => document.getElementById(s).classList.remove('active'));
+            const el = document.getElementById(id);
+            el.classList.remove('hidden');
+            if (id === 'tab-landing') el.classList.add('active');
+
+            // Show the brand/logout nav only on the landing tab
+            const topNav = document.getElementById('top-nav');
+            if (id === 'tab-landing') {
+                topNav.classList.remove('hidden');
+            } else {
+                topNav.classList.add('hidden');
+            }
+        }
+
+        function exitToLanding() {
+            clearInterval(activeCountdownInterval);
+            showScreen('tab-landing');
+        }
+
+        // ---- Core session entry logic ----
+        let activeCountdownInterval = null;
+        let currentMode = null; // 'demo' | 'cbt'
+        let churchPassword = null;
+
+        async function enterSession(mode) {
+            currentMode = mode;
+            const sheetName = mode === 'demo' ? 'demo_time' : 'cbt_time';
+            const labelText = mode === 'demo' ? 'Demo Session' : 'CBT Session';
+
+            Swal.fire({ title: 'Checking status...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+            try {
+                // Step 1: check submission status for this category
+                const statusParams = new URLSearchParams();
+                statusParams.append('action', 'getChurchSubmissionStatus');
+                statusParams.append('username', username);
+                statusParams.append('category', category);
+
+                const statusResp = await fetch(scriptURL, { method: 'POST', body: statusParams });
+                const statusData = await statusResp.json();
+
+                if (!statusData.success) {
+                    Swal.close();
+                    Swal.fire('Error', statusData.message || 'Could not verify submission status.', 'error');
+                    return;
+                }
+
+                const alreadySubmitted = mode === 'demo' ? statusData.demoSubmitted === 'YES' : statusData.cbtSubmitted === 'YES';
+                if (alreadySubmitted) {
+                    Swal.close();
+                    Swal.fire('Already Submitted', `Your church has already completed the ${labelText} for the ${category} category. You cannot take it again.`, 'info');
+                    return;
+                }
+
+                churchPassword = statusData.password;
+
+                // Step 2: fetch category-specific timing
+                Swal.update({ title: 'Checking schedule...' });
+
+                const params = new URLSearchParams();
+                params.append('action', 'getTimingData');
+                params.append('sheet', sheetName);
+                params.append('category', category);
+
+                const resp = await fetch(scriptURL, { method: 'POST', body: params });
+                const data = await resp.json();
+                Swal.close();
+
+                if (!data.success) {
+                    Swal.fire('Unavailable', data.message || 'Could not load schedule. Please try again later.', 'error');
+                    return;
+                }
+
+                // Expected: data.timestamp (ISO string / parseable date), data.start (minutes), data.end (minutes)
+                const baseTime = new Date(data.timestamp).getTime();
+                const startTime = baseTime + (Number(data.start) * 60 * 1000);
+                const endTime   = baseTime + (Number(data.end) * 60 * 1000);
+                const now = Date.now();
+
+                if (now < startTime) {
+                    // Not yet started — show countdown to start
+                    document.getElementById('countdownStartLabel').innerText = labelText;
+                    showScreen('screen-countdown-start');
+                    runCountdown(startTime, 'cs-hours', 'cs-minutes', 'cs-seconds', () => {
+                        transitionToActive(labelText, endTime);
+                    });
+                } else if (now >= startTime && now < endTime) {
+                    // Already within window
+                    transitionToActive(labelText, endTime);
+                } else {
+                    // Past the end time
+                    document.getElementById('closedMessage').innerText =
+                        `The ${labelText} window has already ended.`;
+                    showScreen('screen-closed');
+                }
+
+            } catch (err) {
+                Swal.close();
+                Swal.fire('Network Error', 'Could not reach the server. Please check your connection.', 'error');
+            }
+        }
+
+
+        function transitionToActive(labelText, endTime) {
+            document.getElementById('startingNowTitle').innerText = `${labelText} Is Starting`;
+            showScreen('screen-starting-now');
+
+            setTimeout(() => {
+                if (Date.now() >= endTime) {
+                    document.getElementById('closedMessage').innerText =
+                        `The ${labelText} window has already ended.`;
+                    showScreen('screen-closed');
+                    return;
+                }
+                loadExam(currentMode, endTime, labelText);
+            }, 1500);
+        }
+
+        function runCountdown(targetTime, hEl, mEl, sEl, onComplete) {
+            clearInterval(activeCountdownInterval);
+
+            function tick() {
+                const diff = targetTime - Date.now();
+                if (diff <= 0) {
+                    clearInterval(activeCountdownInterval);
+                    document.getElementById(hEl).innerText = '00';
+                    document.getElementById(mEl).innerText = '00';
+                    document.getElementById(sEl).innerText = '00';
+                    onComplete();
+                    return;
+                }
+                const totalSeconds = Math.floor(diff / 1000);
+                const hours = Math.floor(totalSeconds / 3600);
+                const minutes = Math.floor((totalSeconds % 3600) / 60);
+                const seconds = totalSeconds % 60;
+
+                document.getElementById(hEl).innerText = String(hours).padStart(2, '0');
+                document.getElementById(mEl).innerText = String(minutes).padStart(2, '0');
+                document.getElementById(sEl).innerText = String(seconds).padStart(2, '0');
+            }
+
+            tick();
+            activeCountdownInterval = setInterval(tick, 1000);
+        }
+
+        // ================= EXAM LOGIC =================
+        let examQuestions = [];
+        let examAnswers = {};
+        let examCurrentIndex = 0;
+        let examViewed = new Set();
+        let examGridPage = 0;
+        let examTimerInterval;
+        let examEndTime = null;
+        let examMode = null; // 'demo' | 'cbt'
+        let examLabel = '';
+        const GRID_PAGE_SIZE = 25;
+
+        // Map category + mode to question sheet names
+        const SHEET_MAP = {
+            JNR: { demo: 'jnr_demo',  cbt: 'real_junior_cbt' },
+            INT: { demo: 'int_demo',  cbt: 'real_intermediate_cbt' },
+            SNR: { demo: 'snr_demo',  cbt: 'real_senior_cbt' }
+        };
+
+        async function loadExam(mode, endTime, labelText) {
+            examMode = mode;
+            examEndTime = endTime;
+            examLabel = labelText;
+            const sheetName = SHEET_MAP[category][mode];
+
+            try {
+                const params = new URLSearchParams();
+                params.append('action', 'fetchExamQuestions');
+                params.append('sheet', sheetName);
+                params.append('password', churchPassword);
+
+                const resp = await fetch(scriptURL, { method: 'POST', body: params });
+                const data = await resp.json();
+
+                if (!data.success || data.data.length === 0) {
+                    Swal.fire('No Questions', 'No questions are available for this session yet. Please contact your admin.', 'info');
+                    showScreen('tab-landing');
+                    return;
+                }
+
+                examQuestions = data.data;
+                examAnswers = {};
+                examQuestions.forEach(q => {
+                    if (q['_savedAnswer']) examAnswers[q['Question ID']] = q['_savedAnswer'];
+                });
+
+                examCurrentIndex = 0;
+                examGridPage = 0;
+                examViewed.clear();
+                examViewed.add(0);
+
+                document.getElementById('exam-header-title').innerText = `${labelText} — ${CATEGORY_LABELS[category]}`;
+
+                showScreen('screen-exam');
+                renderExamQuestion();
+                updateAnsweredBadge();
+
+                const sidebar = document.getElementById('exam-grid-sidebar');
+                if (window.innerWidth >= 768) {
+                    sidebar.classList.remove('hidden'); sidebar.classList.add('flex');
+                } else {
+                    sidebar.classList.add('hidden'); sidebar.classList.remove('flex');
+                }
+
+                startExamTimer(endTime);
+
+            } catch (err) {
+                Swal.fire('Network Error', 'Could not load exam questions. Please check your connection.', 'error');
+                showScreen('tab-landing');
+            }
+        }
+
+        function startExamTimer(endTime) {
+            clearInterval(examTimerInterval);
+            const display = document.getElementById('exam-timer');
+
+            function tick() {
+                const diff = endTime - Date.now();
+                if (diff <= 0) {
+                    clearInterval(examTimerInterval);
+                    display.textContent = '00:00';
+                    submitExam(true);
+                    return;
+                }
+                const totalSeconds = Math.floor(diff / 1000);
+                const minutes = Math.floor(totalSeconds / 60);
+                const seconds = totalSeconds % 60;
+                display.textContent = String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
+
+                // Dynamic color cues as time runs low — white pill stays constant, text/ring color signals urgency
+                display.classList.remove('text-blue-900','text-yellow-600','text-red-600','ring-2','ring-red-300','animate-pulse');
+                if (totalSeconds <= 60) {
+                    display.classList.add('text-red-600','ring-2','ring-red-300','animate-pulse');
+                } else if (totalSeconds <= 300) {
+                    display.classList.add('text-yellow-600');
+                } else {
+                    display.classList.add('text-blue-900');
+                }
+            }
+
+            tick();
+            examTimerInterval = setInterval(tick, 1000);
+        }
+
+        function updateAnsweredBadge() {
+            const total = examQuestions.length;
+            const answered = Object.keys(examAnswers).length;
+            const countEl = document.getElementById('exam-answered-count');
+            const totalEl = document.getElementById('exam-answered-total');
+            const badge = document.getElementById('exam-answered-badge');
+            const dot = document.getElementById('exam-answered-dot');
+            if (!countEl) return;
+
+            countEl.textContent = answered;
+            totalEl.textContent = total;
+
+            // Pulse the badge briefly whenever it updates, to draw attention
+            badge.classList.remove('scale-110');
+            void badge.offsetWidth; // restart animation
+            badge.classList.add('scale-110');
+            setTimeout(() => badge.classList.remove('scale-110'), 200);
+
+            if (answered === total) {
+                badge.classList.add('ring-2','ring-green-400');
+                dot.classList.add('animate-pulse');
+            } else {
+                badge.classList.remove('ring-2','ring-green-400');
+                dot.classList.remove('animate-pulse');
+            }
+        }
+
+        // ---- Keyboard navigation for the exam screen ----
+        document.addEventListener('keydown', (e) => {
+            const examScreen = document.getElementById('screen-exam');
+            if (examScreen.classList.contains('hidden')) return;
+
+            const key = e.key;
+
+            if (key === 'ArrowLeft') {
+                e.preventDefault();
+                if (examCurrentIndex > 0) navExam(-1);
+            } else if (key === 'ArrowRight') {
+                e.preventDefault();
+                if (examCurrentIndex < examQuestions.length - 1) navExam(1);
+            } else if (key === 'Enter') {
+                e.preventDefault();
+                submitExam();
+            } else if (['a','A','b','B','c','C','d','D'].includes(key)) {
+                const letter = key.toUpperCase();
+                const q = examQuestions[examCurrentIndex];
+                const safeType = q['Question Type'] ? q['Question Type'].toString().trim().toUpperCase() : "UNKNOWN";
+
+                if (safeType === 'MCQ' && q[`Option ${letter}`]) {
+                    recordExamAns(q['Question ID'], letter);
+                } else if (safeType === 'TRUE_FALSE') {
+                    if (letter === 'A') recordExamAns(q['Question ID'], 'TRUE');
+                    if (letter === 'B') recordExamAns(q['Question ID'], 'FALSE');
+                }
+            }
+        });
+
+        function renderExamQuestion() {
+            const container = document.getElementById('exam-questions-container');
+            const q = examQuestions[examCurrentIndex];
+            examViewed.add(examCurrentIndex);
+
+            let optionsHtml = "";
+            const safeType = q['Question Type'] ? q['Question Type'].toString().trim().toUpperCase() : "UNKNOWN";
+
+            if (safeType === 'MCQ') {
+                ['A', 'B', 'C', 'D'].forEach(letter => {
+                    let optText = q[`Option ${letter}`];
+                    if (optText) {
+                        let isChecked = examAnswers[q['Question ID']] === letter;
+                        let bgClass = isChecked ? "bg-blue-50 border-blue-500 ring-2 ring-blue-300 shadow-md" : "bg-white border-slate-200 hover:border-blue-300 hover:bg-slate-50";
+                        let badgeClass = isChecked ? "bg-blue-900 text-white border-blue-900" : "bg-slate-50 text-slate-500 border-slate-300";
+
+                        optionsHtml += `
+                            <label class="group relative flex items-center cursor-pointer rounded-2xl border-2 transition-all duration-150 w-full shrink-0 ${bgClass}" style="padding: clamp(0.4rem, 1.4vh, 1rem) clamp(0.6rem, 2vw, 1.25rem);">
+                                <input type="radio" name="exam_q" value="${letter}" onchange="recordExamAns('${q['Question ID']}', '${letter}')" class="peer sr-only">
+                                <div class="flex items-center justify-center rounded-xl border-2 shrink-0 font-black transition-colors ${badgeClass}" style="width: clamp(1.5rem, 4.5vh, 2.5rem); height: clamp(1.5rem, 4.5vh, 2.5rem); margin-right: clamp(0.5rem, 1.5vw, 1rem); font-size: clamp(0.65rem, 1.8vh, 1.125rem);">
+                                    ${letter}
+                                </div>
+                                <div class="flex flex-col flex-1 min-w-0">
+                                    <span class="text-slate-800 font-bold leading-snug break-words" style="font-size: clamp(0.95rem, 2.8vh, 1.6rem);">${optText}</span>
+                                </div>
+                                ${isChecked ? '<svg class="text-blue-900 shrink-0 ml-2" style="width: clamp(0.9rem, 2.5vh, 1.5rem); height: clamp(0.9rem, 2.5vh, 1.5rem);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>' : ''}
+                            </label>
+                        `;
+                    }
+                });
+            } else if (safeType === 'TRUE_FALSE') {
+                [{letter: 'A', text: 'TRUE'}, {letter: 'B', text: 'FALSE'}].forEach(opt => {
+                    let valToRecord = opt.text;
+                    let isChecked = examAnswers[q['Question ID']] === valToRecord;
+                    let bgClass = isChecked ? "bg-blue-50 border-blue-500 ring-2 ring-blue-300 shadow-md" : "bg-white border-slate-200 hover:border-blue-300 hover:bg-slate-50";
+                    let badgeClass = isChecked ? "bg-blue-900 text-white border-blue-900" : "bg-slate-50 text-slate-500 border-slate-300";
+
+                    optionsHtml += `
+                        <label class="group relative flex items-center cursor-pointer rounded-2xl border-2 transition-all duration-150 w-full shrink-0 ${bgClass}" style="padding: clamp(0.4rem, 1.4vh, 1rem) clamp(0.6rem, 2vw, 1.25rem);">
+                            <input type="radio" name="exam_q" value="${valToRecord}" onchange="recordExamAns('${q['Question ID']}', '${valToRecord}')" class="peer sr-only">
+                            <div class="flex items-center justify-center rounded-xl border-2 shrink-0 font-black transition-colors ${badgeClass}" style="width: clamp(1.5rem, 4.5vh, 2.5rem); height: clamp(1.5rem, 4.5vh, 2.5rem); margin-right: clamp(0.5rem, 1.5vw, 1rem); font-size: clamp(0.65rem, 1.8vh, 1.125rem);">
+                                ${opt.letter}
+                            </div>
+                            <span class="text-slate-800 font-black break-words flex-1" style="font-size: clamp(0.95rem, 2.8vh, 1.6rem);">${opt.text}</span>
+                            ${isChecked ? '<svg class="text-blue-900 shrink-0 ml-2" style="width: clamp(0.9rem, 2.5vh, 1.5rem); height: clamp(0.9rem, 2.5vh, 1.5rem);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>' : ''}
+                        </label>
+                    `;
+                });
+            }
+
+            const numOptions = (safeType === 'MCQ')
+                ? ['A','B','C','D'].filter(l => q[`Option ${l}`]).length
+                : 2;
+
+            container.innerHTML = `
+                <div class="w-full max-w-4xl h-full max-h-full flex flex-col bg-white p-3 md:p-6 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.06)] border border-slate-100 overflow-hidden" style="justify-content: flex-start; padding-top: clamp(2rem, 6vh, 4.5rem);">
+                    <div class="shrink-0 flex items-center justify-center" style="flex: 0 1 auto;">
+                        <h4 class="font-black text-slate-800 leading-snug font-heading text-center break-words" style="font-size: clamp(1rem, 3vh, 2rem); margin-bottom: clamp(0.6rem, 2vh, 1.5rem);">
+                            <span class="text-blue-900 mr-1 md:mr-2">Q${examCurrentIndex + 1}.</span> ${q['Question Text']}
+                        </h4>
+                    </div>
+                    <div class="flex-1 flex flex-col w-full max-w-2xl mx-auto min-h-0 justify-start" style="gap: clamp(0.5rem, 1.8vh, 1.1rem); padding-top: clamp(0.5rem, 1.8vh, 1.25rem);">
+                        ${optionsHtml}
+                    </div>
+                </div>
+            `;
+
+            updateAnsweredBadge();
+
+            const progressEl = document.getElementById('exam-progress');
+            if (progressEl) progressEl.innerText = `${examCurrentIndex + 1} / ${examQuestions.length}`;
+
+            const qnumEl = document.getElementById('exam-header-qnum');
+            const qtotalEl = document.getElementById('exam-header-qtotal');
+            if (qnumEl) qnumEl.textContent = examCurrentIndex + 1;
+            if (qtotalEl) qtotalEl.textContent = examQuestions.length;
+
+            // Brief pulse on the question badge so a jump/nav is noticeable
+            const qBadge = document.getElementById('exam-qnum-badge');
+            if (qBadge) {
+                qBadge.classList.remove('scale-110');
+                void qBadge.offsetWidth;
+                qBadge.classList.add('scale-110');
+                setTimeout(() => qBadge.classList.remove('scale-110'), 200);
+            }
+
+            document.getElementById('exam-prev-btn').disabled = examCurrentIndex === 0;
+            document.getElementById('exam-next-btn').disabled = examCurrentIndex === examQuestions.length - 1;
+
+            renderExamGrid();
+        }
+
+        function renderExamGrid() {
+            const grid = document.getElementById('exam-grid-container');
+            const pagination = document.getElementById('exam-grid-pagination');
+            grid.innerHTML = "";
+            pagination.innerHTML = "";
+
+            const totalPages = Math.ceil(examQuestions.length / GRID_PAGE_SIZE);
+            const startIdx = examGridPage * GRID_PAGE_SIZE;
+            const endIdx = Math.min(startIdx + GRID_PAGE_SIZE, examQuestions.length);
+
+            for (let i = startIdx; i < endIdx; i++) {
+                let q = examQuestions[i];
+                let statusClass = "bg-slate-100 text-slate-500 border-slate-200 hover:bg-slate-200";
+                if (examAnswers[q['Question ID']]) {
+                    statusClass = "bg-green-500 text-white border-green-600 shadow-sm shadow-green-200";
+                } else if (examViewed.has(i)) {
+                    statusClass = "bg-blue-50 text-blue-700 border-blue-400 border-2";
+                }
+                let activeClass = (i === examCurrentIndex) ? "ring-2 ring-blue-400 ring-offset-1 scale-110 z-10" : "";
+                grid.innerHTML += `<button onclick="jumpToExam(${i})" class="w-10 h-10 md:w-11 md:h-11 rounded-full border-2 flex items-center justify-center font-black text-xs md:text-sm transition-all duration-200 ${statusClass} ${activeClass}">${i + 1}</button>`;
+            }
+
+            if (totalPages > 1) {
+                pagination.innerHTML = `
+                    <button onclick="changeExamGridPage(-1)" class="text-blue-900 hover:text-blue-700 font-bold px-2 py-1 disabled:opacity-30 disabled:cursor-not-allowed transition text-[10px] md:text-xs" ${examGridPage === 0 ? 'disabled' : ''}>&larr; Prev</button>
+                    <span class="text-[9px] md:text-[10px] font-bold text-slate-400 font-mono tracking-widest">PG ${examGridPage + 1}/${totalPages}</span>
+                    <button onclick="changeExamGridPage(1)" class="text-blue-900 hover:text-blue-700 font-bold px-2 py-1 disabled:opacity-30 disabled:cursor-not-allowed transition text-[10px] md:text-xs" ${examGridPage === totalPages - 1 ? 'disabled' : ''}>Next &rarr;</button>
+                `;
+            }
+        }
+
+        function changeExamGridPage(dir) { examGridPage += dir; renderExamGrid(); }
+
+        function jumpToExam(index) {
+            examCurrentIndex = index;
+            examGridPage = Math.floor(index / GRID_PAGE_SIZE);
+            renderExamQuestion();
+            if (window.innerWidth < 768) toggleExamGrid();
+        }
+
+        function navExam(dir) {
+            examCurrentIndex += dir;
+            examGridPage = Math.floor(examCurrentIndex / GRID_PAGE_SIZE);
+            renderExamQuestion();
+        }
+
+        function toggleExamGrid() {
+            const sidebar = document.getElementById('exam-grid-sidebar');
+            if (sidebar.classList.contains('hidden')) { sidebar.classList.remove('hidden'); sidebar.classList.add('flex'); }
+            else { sidebar.classList.add('hidden'); sidebar.classList.remove('flex'); }
+        }
+
+        function toggleExamGuide() {
+            document.getElementById('exam-guide-overlay').classList.toggle('hidden');
+        }
+
+        // Record answer locally AND push to backend immediately
+        async function recordExamAns(qId, val) {
+            examAnswers[qId] = val;
+            renderExamQuestion();
+
+            const sheetName = SHEET_MAP[category][examMode];
+            try {
+                const params = new URLSearchParams();
+                params.append('action', 'recordAnswer');
+                params.append('sheet', sheetName);
+                params.append('questionId', qId);
+                params.append('password', churchPassword);
+                params.append('answer', val);
+
+                fetch(scriptURL, { method: 'POST', body: params });
+            } catch (err) {
+                // Silent fail — answer still held locally and re-sent on next click/submit
+            }
+        }
+
+        async function submitExam(auto = false) {
+            if (!auto) {
+                const answered = Object.keys(examAnswers).length;
+                const total = examQuestions.length;
+                const conf = await Swal.fire({
+                    title: 'Submit Exam?',
+                    html: `You have answered <strong>${answered} of ${total}</strong> questions.<br><br>Are you sure you want to submit? This cannot be undone.`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, Submit',
+                    cancelButtonText: 'Go Back'
+                });
+                if (!conf.isConfirmed) return;
+            }
+
+            clearInterval(examTimerInterval);
+            const btn = document.getElementById('exam-submit-btn');
+            if (btn) { btn.disabled = true; btn.textContent = "Grading..."; }
+
+            const sheetName = SHEET_MAP[category][examMode];
+            const modeUpper = examMode === 'demo' ? 'DEMO' : 'CBT';
+
+            try {
+                const params = new URLSearchParams();
+                params.append('action', 'submitExam');
+                params.append('sheet', sheetName);
+                params.append('username', username);
+                params.append('category', category);
+                params.append('mode', modeUpper);
+
+                const resp = await fetch(scriptURL, { method: 'POST', body: params });
+                const data = await resp.json();
+
+                if (data.success) {
+                    document.getElementById('resultsLabel').innerText = examLabel;
+                    document.getElementById('resultsScore').innerHTML = `${data.score} <span class="text-lg md:text-2xl text-gray-400">/ ${data.total}</span>`;
+                    showScreen('screen-results');
+                } else {
+                    Swal.fire('Error', data.message || 'Could not submit exam.', 'error');
+                    if (btn) { btn.disabled = false; btn.textContent = "Submit"; }
+                }
+            } catch (err) {
+                Swal.fire('Network Error', 'Could not reach the server. Your answers are saved — please try submitting again.', 'error');
+                if (btn) { btn.disabled = false; btn.textContent = "Submit"; }
+            }
+        }
+    </script>
+</body>
+</html>

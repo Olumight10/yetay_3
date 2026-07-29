@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control Panel | Yetay 3.0 Moderator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="shared.css">
+</head>
+<body class="h-screen w-screen flex flex-col overflow-hidden" data-page="control">
+
+    <div id="nav-placeholder"></div>
+
+    <main class="flex-grow w-full overflow-hidden">
+        <div id="page-root" class="h-full flex flex-col">
+            <div class="max-w-6xl w-full mx-auto px-4 sm:px-6 h-full flex flex-col py-3 md:py-4 overflow-hidden">
+
+                <!-- Header -->
+                <div class="shrink-0 mb-3 md:mb-4 fade-up">
+                    <p class="text-yellow-600 text-[10px] md:text-xs uppercase font-bold tracking-widest mb-1">Session Scheduling</p>
+                    <h1 class="text-lg md:text-2xl font-black text-blue-900 font-heading leading-tight">Set Demo &amp; CBT Timing</h1>
+                    <p class="text-gray-500 text-[10px] md:text-xs mt-1 max-w-3xl">Submitting a window records the current time as the reference. The session opens after <strong>Start (min)</strong> and closes after <strong>End (min)</strong> from that reference.</p>
+                </div>
+
+                <!-- Body -->
+                <div class="flex-grow overflow-y-auto pr-1 custom-scroll">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-5">
+
+                        <!-- DEMO CARD -->
+                        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden fade-up flex flex-col">
+                            <div class="bg-blue-900 p-3 md:p-4 relative overflow-hidden shrink-0">
+                                <div class="absolute -right-6 -top-6 w-20 h-20 rounded-full bg-yellow-500/10"></div>
+                                <div class="relative flex items-center gap-2.5">
+                                    <div class="w-9 h-9 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center shrink-0">
+                                        <svg class="w-4.5 h-4.5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    </div>
+                                    <div>
+                                        <h2 class="font-heading font-black text-white text-sm md:text-base uppercase tracking-wide">Demo Session</h2>
+                                        <p class="text-blue-200 text-[9px] md:text-[10px]">demo_time &middot; church_login.DEMO_SUBMITTED</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="p-3 md:p-4 space-y-2.5 md:space-y-3">
+
+                                <div>
+                                    <label class="block text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Category</label>
+                                    <div class="grid grid-cols-4 gap-1.5" id="demoCategoryPicker">
+                                        <button type="button" onclick="selectCategory('demo','JNR')" data-cat="JNR" class="cat-pill-demo bg-blue-900 text-white font-bold text-[10px] md:text-xs py-2 rounded-lg uppercase tracking-wide transition">JNR</button>
+                                        <button type="button" onclick="selectCategory('demo','INT')" data-cat="INT" class="cat-pill-demo bg-gray-100 text-gray-600 font-bold text-[10px] md:text-xs py-2 rounded-lg uppercase tracking-wide transition">INT</button>
+                                        <button type="button" onclick="selectCategory('demo','SNR')" data-cat="SNR" class="cat-pill-demo bg-gray-100 text-gray-600 font-bold text-[10px] md:text-xs py-2 rounded-lg uppercase tracking-wide transition">SNR</button>
+                                        <button type="button" onclick="selectCategory('demo','ALL')" data-cat="ALL" class="cat-pill-demo bg-gray-100 text-gray-600 font-bold text-[10px] md:text-xs py-2 rounded-lg uppercase tracking-wide transition">ALL</button>
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-2.5">
+                                    <div>
+                                        <label class="block text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Start (min)</label>
+                                        <input type="number" min="0" step="1" id="demoStart" placeholder="5"
+                                            class="w-full bg-white border border-gray-300 text-gray-900 placeholder-gray-400 rounded-lg px-3 py-2 text-sm font-bold focus:outline-none focus:border-blue-900 focus:ring-2 focus:ring-blue-900/20 transition-all">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">End (min)</label>
+                                        <input type="number" min="0" step="1" id="demoEnd" placeholder="35"
+                                            class="w-full bg-white border border-gray-300 text-gray-900 placeholder-gray-400 rounded-lg px-3 py-2 text-sm font-bold focus:outline-none focus:border-blue-900 focus:ring-2 focus:ring-blue-900/20 transition-all">
+                                    </div>
+                                </div>
+
+                                <button onclick="submitTiming('demo')" id="btnDemoSubmit"
+                                    class="w-full bg-yellow-500 hover:bg-yellow-400 text-blue-900 font-black uppercase tracking-widest py-2.5 rounded-xl transition-all shadow shadow-yellow-500/20 hover:shadow-yellow-500/40 hover:-translate-y-0.5 text-xs md:text-sm font-heading">
+                                    Set Demo Timing
+                                </button>
+
+                                <div class="bg-gray-50 border border-gray-100 rounded-lg px-3 py-2 text-[10px] text-gray-500 leading-relaxed" id="demoStatus">
+                                    Submitting records "now" as the reference timestamp.
+                                </div>
+
+                                <div class="pt-1.5 border-t border-gray-100"></div>
+
+                                <div>
+                                    <label class="block text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Demo Submit All &mdash; bulk override</label>
+                                    <div class="grid grid-cols-4 gap-1.5 mb-2">
+                                        <button type="button" onclick="selectCategory('demoBulk','JNR')" data-cat="JNR" class="cat-pill-demoBulk bg-blue-900 text-white font-bold text-[10px] py-1.5 rounded-lg uppercase tracking-wide transition">JNR</button>
+                                        <button type="button" onclick="selectCategory('demoBulk','INT')" data-cat="INT" class="cat-pill-demoBulk bg-gray-100 text-gray-600 font-bold text-[10px] py-1.5 rounded-lg uppercase tracking-wide transition">INT</button>
+                                        <button type="button" onclick="selectCategory('demoBulk','SNR')" data-cat="SNR" class="cat-pill-demoBulk bg-gray-100 text-gray-600 font-bold text-[10px] py-1.5 rounded-lg uppercase tracking-wide transition">SNR</button>
+                                        <button type="button" onclick="selectCategory('demoBulk','ALL')" data-cat="ALL" class="cat-pill-demoBulk bg-gray-100 text-gray-600 font-bold text-[10px] py-1.5 rounded-lg uppercase tracking-wide transition">ALL</button>
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-2.5">
+                                        <button onclick="bulkSubmit('demo', 'YES')" id="btnDemoYes"
+                                            class="bg-green-600 hover:bg-green-500 text-white font-black uppercase tracking-widest py-2.5 rounded-xl transition-all shadow text-[11px] md:text-xs font-heading">
+                                            Set All YES
+                                        </button>
+                                        <button onclick="bulkSubmit('demo', 'NO')" id="btnDemoNo"
+                                            class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-black uppercase tracking-widest py-2.5 rounded-xl transition-all shadow text-[11px] md:text-xs font-heading">
+                                            Reset All NO
+                                        </button>
+                                    </div>
+                                    <p class="text-[9px] text-gray-400 mt-1.5 leading-relaxed">Only overwrites <span class="font-mono">DEMO_SUBMITTED</span> for every church in <span class="font-mono">church_login</span>. Answers &amp; scores are untouched.</p>
+
+                                    <div class="grid grid-cols-2 gap-2.5 mt-2">
+                                        <button onclick="eraseTestData('demo')" id="btnDemoErase"
+                                            class="bg-orange-500 hover:bg-orange-400 text-white font-black uppercase tracking-widest py-2.5 rounded-xl transition-all shadow text-[11px] md:text-xs font-heading">
+                                            Erase Data
+                                        </button>
+                                        <button onclick="randomizeTestData('demo')" id="btnDemoRandomize"
+                                            class="bg-purple-600 hover:bg-purple-500 text-white font-black uppercase tracking-widest py-2.5 rounded-xl transition-all shadow text-[11px] md:text-xs font-heading">
+                                            Randomize Data
+                                        </button>
+                                    </div>
+                                    <p class="text-[9px] text-gray-400 mt-1.5 leading-relaxed"><span class="font-mono">Erase Data</span> clears answers &amp; zeroes scores. <span class="font-mono">Randomize Data</span> fills random answers &amp; computes scores — for testing only.</p>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!-- CBT CARD -->
+                        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden fade-up flex flex-col" style="animation-delay: 0.06s">
+                            <div class="bg-blue-900 p-3 md:p-4 relative overflow-hidden shrink-0">
+                                <div class="absolute -right-6 -top-6 w-20 h-20 rounded-full bg-yellow-500/10"></div>
+                                <div class="relative flex items-center gap-2.5">
+                                    <div class="w-9 h-9 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center shrink-0">
+                                        <svg class="w-4.5 h-4.5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                                    </div>
+                                    <div>
+                                        <h2 class="font-heading font-black text-white text-sm md:text-base uppercase tracking-wide">CBT Session</h2>
+                                        <p class="text-blue-200 text-[9px] md:text-[10px]">cbt_time &middot; church_login.CBT_SUBMITTED</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="p-3 md:p-4 space-y-2.5 md:space-y-3">
+
+                                <div>
+                                    <label class="block text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Category</label>
+                                    <div class="grid grid-cols-4 gap-1.5" id="cbtCategoryPicker">
+                                        <button type="button" onclick="selectCategory('cbt','JNR')" data-cat="JNR" class="cat-pill-cbt bg-blue-900 text-white font-bold text-[10px] md:text-xs py-2 rounded-lg uppercase tracking-wide transition">JNR</button>
+                                        <button type="button" onclick="selectCategory('cbt','INT')" data-cat="INT" class="cat-pill-cbt bg-gray-100 text-gray-600 font-bold text-[10px] md:text-xs py-2 rounded-lg uppercase tracking-wide transition">INT</button>
+                                        <button type="button" onclick="selectCategory('cbt','SNR')" data-cat="SNR" class="cat-pill-cbt bg-gray-100 text-gray-600 font-bold text-[10px] md:text-xs py-2 rounded-lg uppercase tracking-wide transition">SNR</button>
+                                        <button type="button" onclick="selectCategory('cbt','ALL')" data-cat="ALL" class="cat-pill-cbt bg-gray-100 text-gray-600 font-bold text-[10px] md:text-xs py-2 rounded-lg uppercase tracking-wide transition">ALL</button>
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-2.5">
+                                    <div>
+                                        <label class="block text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Start (min)</label>
+                                        <input type="number" min="0" step="1" id="cbtStart" placeholder="10"
+                                            class="w-full bg-white border border-gray-300 text-gray-900 placeholder-gray-400 rounded-lg px-3 py-2 text-sm font-bold focus:outline-none focus:border-blue-900 focus:ring-2 focus:ring-blue-900/20 transition-all">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">End (min)</label>
+                                        <input type="number" min="0" step="1" id="cbtEnd" placeholder="70"
+                                            class="w-full bg-white border border-gray-300 text-gray-900 placeholder-gray-400 rounded-lg px-3 py-2 text-sm font-bold focus:outline-none focus:border-blue-900 focus:ring-2 focus:ring-blue-900/20 transition-all">
+                                    </div>
+                                </div>
+
+                                <button onclick="submitTiming('cbt')" id="btnCbtSubmit"
+                                    class="w-full bg-blue-900 hover:bg-blue-800 text-white font-black uppercase tracking-widest py-2.5 rounded-xl transition-all shadow shadow-blue-900/20 hover:-translate-y-0.5 text-xs md:text-sm font-heading">
+                                    Set CBT Timing
+                                </button>
+
+                                <div class="bg-gray-50 border border-gray-100 rounded-lg px-3 py-2 text-[10px] text-gray-500 leading-relaxed" id="cbtStatus">
+                                    Submitting records "now" as the reference timestamp.
+                                </div>
+
+                                <div class="pt-1.5 border-t border-gray-100"></div>
+
+                                <div>
+                                    <label class="block text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">CBT Submit All &mdash; bulk override</label>
+                                    <div class="grid grid-cols-4 gap-1.5 mb-2">
+                                        <button type="button" onclick="selectCategory('cbtBulk','JNR')" data-cat="JNR" class="cat-pill-cbtBulk bg-blue-900 text-white font-bold text-[10px] py-1.5 rounded-lg uppercase tracking-wide transition">JNR</button>
+                                        <button type="button" onclick="selectCategory('cbtBulk','INT')" data-cat="INT" class="cat-pill-cbtBulk bg-gray-100 text-gray-600 font-bold text-[10px] py-1.5 rounded-lg uppercase tracking-wide transition">INT</button>
+                                        <button type="button" onclick="selectCategory('cbtBulk','SNR')" data-cat="SNR" class="cat-pill-cbtBulk bg-gray-100 text-gray-600 font-bold text-[10px] py-1.5 rounded-lg uppercase tracking-wide transition">SNR</button>
+                                        <button type="button" onclick="selectCategory('cbtBulk','ALL')" data-cat="ALL" class="cat-pill-cbtBulk bg-gray-100 text-gray-600 font-bold text-[10px] py-1.5 rounded-lg uppercase tracking-wide transition">ALL</button>
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-2.5">
+                                        <button onclick="bulkSubmit('cbt', 'YES')" id="btnCbtYes"
+                                            class="bg-green-600 hover:bg-green-500 text-white font-black uppercase tracking-widest py-2.5 rounded-xl transition-all shadow text-[11px] md:text-xs font-heading">
+                                            Set All YES
+                                        </button>
+                                        <button onclick="bulkSubmit('cbt', 'NO')" id="btnCbtNo"
+                                            class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-black uppercase tracking-widest py-2.5 rounded-xl transition-all shadow text-[11px] md:text-xs font-heading">
+                                            Reset All NO
+                                        </button>
+                                    </div>
+                                    <p class="text-[9px] text-gray-400 mt-1.5 leading-relaxed">Only overwrites <span class="font-mono">CBT_SUBMITTED</span> for every church in <span class="font-mono">church_login</span>. Answers &amp; scores are untouched.</p>
+
+                                    <div class="grid grid-cols-2 gap-2.5 mt-2">
+                                        <button onclick="eraseTestData('cbt')" id="btnCbtErase"
+                                            class="bg-orange-500 hover:bg-orange-400 text-white font-black uppercase tracking-widest py-2.5 rounded-xl transition-all shadow text-[11px] md:text-xs font-heading">
+                                            Erase Data
+                                        </button>
+                                        <button onclick="randomizeTestData('cbt')" id="btnCbtRandomize"
+                                            class="bg-purple-600 hover:bg-purple-500 text-white font-black uppercase tracking-widest py-2.5 rounded-xl transition-all shadow text-[11px] md:text-xs font-heading">
+                                            Randomize Data
+                                        </button>
+                                    </div>
+                                    <p class="text-[9px] text-gray-400 mt-1.5 leading-relaxed"><span class="font-mono">Erase Data</span> clears answers &amp; zeroes scores. <span class="font-mono">Randomize Data</span> fills random answers &amp; computes scores — for testing only.</p>
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Column Manager -->
+                    <div class="mt-3 md:mt-4 bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden fade-up">
+                        <div class="bg-blue-900 px-4 py-3 flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-yellow-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 6h18M3 14h18M3 18h18"/></svg>
+                                <h3 class="text-white font-black text-sm uppercase tracking-wide font-heading">Top Ten Column Manager</h3>
+                            </div>
+                            <div class="flex gap-1">
+                                <button onclick="selectColMgrCat('JNR')" id="colmgr-pill-JNR" class="text-[9px] font-black uppercase px-2.5 py-1 rounded-lg border transition bg-yellow-500 text-blue-900 border-yellow-400">JNR</button>
+                                <button onclick="selectColMgrCat('INT')" id="colmgr-pill-INT" class="text-[9px] font-black uppercase px-2.5 py-1 rounded-lg border transition bg-white/10 text-white border-white/20">INT</button>
+                                <button onclick="selectColMgrCat('SNR')" id="colmgr-pill-SNR" class="text-[9px] font-black uppercase px-2.5 py-1 rounded-lg border transition bg-white/10 text-white border-white/20">SNR</button>
+                            </div>
+                        </div>
+
+                        <div class="p-3 md:p-4 space-y-3">
+
+                            <div class="bg-gray-50 border border-gray-200 rounded-xl p-3">
+                                <p class="text-[9px] font-black text-gray-500 uppercase tracking-widest mb-2">Quick Setup — Add Rounds</p>
+                                <div class="flex flex-wrap gap-2 items-end">
+                                    <div>
+                                        <label class="block text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1">Rounds</label>
+                                        <input type="number" id="colmgr-rounds" min="1" max="20" value="5" class="w-16 border border-gray-300 rounded-lg px-2 py-1.5 text-xs font-bold focus:outline-none focus:border-blue-900">
+                                    </div>
+                                    <label class="flex items-center gap-1.5 cursor-pointer mb-1.5">
+                                        <input type="checkbox" id="colmgr-tiebreak" checked class="w-3.5 h-3.5 accent-blue-900">
+                                        <span class="text-[10px] font-bold text-gray-600 uppercase tracking-wide">Tie Break</span>
+                                    </label>
+                                    <label class="flex items-center gap-1.5 cursor-pointer mb-1.5">
+                                        <input type="checkbox" id="colmgr-total" checked class="w-3.5 h-3.5 accent-blue-900">
+                                        <span class="text-[10px] font-bold text-gray-600 uppercase tracking-wide">Total</span>
+                                    </label>
+                                    <button onclick="runSetupRounds()" class="bg-blue-900 hover:bg-blue-800 text-white text-[10px] font-black uppercase px-3 py-1.5 rounded-lg transition border border-blue-800 whitespace-nowrap mb-1.5">
+                                        Apply Structure
+                                    </button>
+                                </div>
+                                <p class="text-[8px] text-gray-400 mt-1.5 leading-relaxed">This will rebuild the selected sheet header as: <span class="font-mono">Church Name, CBT_score, Round 1...N, Tie Break, Total</span></p>
+                            </div>
+
+                            <div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <p class="text-[9px] font-black text-gray-500 uppercase tracking-widest">Current Columns <span class="text-blue-900" id="colmgr-cat-label">(JNR)</span></p>
+                                    <button onclick="loadColMgrColumns()" class="text-[8px] font-bold text-blue-900 hover:underline uppercase tracking-wide">↻ Refresh</button>
+                                </div>
+                                <div id="colmgr-columns-list" class="flex flex-wrap gap-1.5 min-h-[32px]">
+                                    <span class="text-gray-300 text-[10px] font-bold italic">Loading...</span>
+                                </div>
+                            </div>
+
+                            <div class="pt-2 border-t border-gray-100">
+                                <p class="text-[9px] font-black text-gray-500 uppercase tracking-widest mb-2">Add Column Manually</p>
+                                <div class="flex gap-2 items-center">
+                                    <input type="text" id="colmgr-new-col-name" placeholder="e.g. Quarter Final" class="flex-1 border border-gray-300 rounded-lg px-3 py-1.5 text-xs font-bold focus:outline-none focus:border-blue-900 transition">
+                                    <button onclick="addColMgrColumn()" class="bg-yellow-500 hover:bg-yellow-400 text-blue-900 text-[10px] font-black uppercase px-3 py-1.5 rounded-lg transition border border-yellow-400 whitespace-nowrap">+ Add</button>
+                                </div>
+                            </div>
+
+                            <div class="pt-2 border-t border-gray-100">
+                                <p class="text-[9px] font-black text-gray-500 uppercase tracking-widest mb-2">Scoreboard Fill &mdash; testing only <span class="text-gray-400 normal-case">(fills the churches already in Top Ten)</span></p>
+
+                                <div class="flex flex-wrap gap-2 items-center mb-2">
+                                    <input type="number" id="colmgr-fill-min" placeholder="Min" value="0" class="w-16 border border-gray-300 rounded-lg px-2 py-1.5 text-xs font-bold focus:outline-none focus:border-blue-900">
+                                    <span class="text-gray-400 text-xs font-bold">to</span>
+                                    <input type="number" id="colmgr-fill-max" placeholder="Max" value="10" class="w-16 border border-gray-300 rounded-lg px-2 py-1.5 text-xs font-bold focus:outline-none focus:border-blue-900">
+                                    <button onclick="runScoreboardFillAllRounds()" class="bg-purple-600 hover:bg-purple-500 text-white text-[10px] font-black uppercase px-3 py-1.5 rounded-lg transition border border-purple-700 whitespace-nowrap">🎲 Fill All Rounds</button>
+                                </div>
+                                <p class="text-[8px] text-gray-400 mb-2 leading-relaxed">Fills every existing <span class="font-mono">Round N</span> column with random scores (default 0–10), then recalculates <span class="font-mono">Total</span> automatically.</p>
+
+                                <div class="flex flex-wrap gap-2 items-center pt-2 border-t border-gray-100">
+                                    <input type="text" id="colmgr-fill-col" placeholder="e.g. Round 1" class="flex-1 min-w-[100px] border border-gray-300 rounded-lg px-3 py-1.5 text-xs font-bold focus:outline-none focus:border-blue-900 transition">
+                                    <button onclick="runScoreboardFill()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 text-[10px] font-black uppercase px-3 py-1.5 rounded-lg transition border border-gray-300 whitespace-nowrap">Fill One Column</button>
+                                </div>
+                                <p class="text-[8px] text-gray-400 mt-1.5 mb-2 leading-relaxed">Or fill just one specific column by name, using the same Min/Max above.</p>
+
+                                <div class="pt-2 border-t border-gray-100">
+                                    <button onclick="runScoreboardErase()" class="w-full bg-orange-500 hover:bg-orange-400 text-white text-[10px] font-black uppercase px-3 py-2 rounded-lg transition border border-orange-600 whitespace-nowrap">🧹 Erase Scoreboard (Rounds + Total → 0)</button>
+                                    <p class="text-[8px] text-gray-400 mt-1.5 leading-relaxed">Wipes every <span class="font-mono">Round N</span> column and <span class="font-mono">Tie Break</span> completely blank (as if never filled), and resets <span class="font-mono">Total</span> to zero — leaves Church Name, Alias, and CBT_score untouched.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Info note -->
+                    <div class="mt-3 md:mt-4 bg-blue-50 border border-blue-100 rounded-xl p-3 md:p-4 flex gap-2.5 items-start fade-up">
+                        <svg class="w-4 h-4 text-blue-900 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <p class="text-blue-900 text-[10px] md:text-xs leading-relaxed">
+                            Churches viewing the CBT dashboard count down to <strong>Start</strong> minutes from the moment you submit a timing, then the session stays open until <strong>End</strong> minutes from that same moment. The bulk triggers are independent &mdash; use them to reset submission flags before opening a new session, or to lock everyone out after grading.
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <script src="shared.js"></script>
+    <script>
+        loadSharedNav();
+
+        // Track selected category per control group, default JNR
+        const selectedCategory = { demo: 'JNR', cbt: 'JNR', demoBulk: 'JNR', cbtBulk: 'JNR' };
+
+        function selectCategory(group, cat) {
+            selectedCategory[group] = cat;
+            document.querySelectorAll('.cat-pill-' + group).forEach(btn => {
+                if (btn.dataset.cat === cat) {
+                    btn.classList.remove('bg-gray-100', 'text-gray-600');
+                    btn.classList.add('bg-blue-900', 'text-white');
+                } else {
+                    btn.classList.remove('bg-blue-900', 'text-white');
+                    btn.classList.add('bg-gray-100', 'text-gray-600');
+                }
+            });
+        }
+
+        async function submitTiming(type) {
+            const startEl = document.getElementById(type + 'Start');
+            const endEl   = document.getElementById(type + 'End');
+            const btn     = document.getElementById('btn' + (type === 'demo' ? 'Demo' : 'Cbt') + 'Submit');
+            const statusEl = document.getElementById(type + 'Status');
+
+            const startVal = startEl.value.trim();
+            const endVal   = endEl.value.trim();
+
+            if (startVal === '' || endVal === '') {
+                Swal.fire('Missing Values', 'Please enter both Start and End minutes.', 'warning');
+                return;
+            }
+
+            const start = Number(startVal);
+            const end   = Number(endVal);
+
+            if (isNaN(start) || isNaN(end) || start < 0 || end < 0) {
+                Swal.fire('Invalid Input', 'Start and End must be numbers of 0 or greater.', 'warning');
+                return;
+            }
+
+            if (end <= start) {
+                Swal.fire('Invalid Range', 'End (minutes) must be greater than Start (minutes).', 'warning');
+                return;
+            }
+
+            const sheetName = type === 'demo' ? 'demo_time' : 'cbt_time';
+            const labelText = type === 'demo' ? 'Demo' : 'CBT';
+
+            btn.disabled = true;
+            const originalText = btn.textContent;
+            btn.textContent = 'Saving...';
+
+            const category = selectedCategory[type];
+
+            try {
+                const params = new URLSearchParams();
+                params.append('action', 'setTimingData');
+                params.append('sheet', sheetName);
+                params.append('start', start);
+                params.append('end', end);
+                params.append('category', category);
+
+                const resp = await fetch(scriptURL, { method: 'POST', body: params });
+                const data = await resp.json();
+
+                if (data.success) {
+                    const catLabel = category === 'ALL' ? 'JNR, INT &amp; SNR' : category;
+                    Swal.fire({
+                        title: `${labelText} Timing Set!`,
+                        html: `<p class="text-sm text-gray-600 mt-2">Category: <strong>${catLabel}</strong></p>
+                               <p class="text-sm text-gray-600 mt-2">Reference time recorded as <strong>${new Date(data.timestamp).toLocaleString()}</strong>.</p>
+                               <p class="text-sm text-gray-600 mt-2">Session opens in <strong>${start} min</strong> and closes <strong>${end} min</strong> from now.</p>`,
+                        icon: 'success'
+                    });
+                    statusEl.innerHTML = `<span class="text-green-700 font-bold">Saved (${catLabel}).</span> Reference: ${new Date(data.timestamp).toLocaleString()} &middot; Opens in ${start}m &middot; Closes in ${end}m.`;
+                } else {
+                    Swal.fire('Error', data.message || 'Could not save timing.', 'error');
+                }
+            } catch (err) {
+                Swal.fire('Network Error', 'Could not reach the server. Please check your connection.', 'error');
+            }
+
+            btn.disabled = false;
+            btn.textContent = originalText;
+        }
+
+        async function eraseTestData(type) {
+            const bulkGroup = type === 'demo' ? 'demoBulk' : 'cbtBulk';
+            const category = selectedCategory[bulkGroup];
+            const catLabel = category === 'ALL' ? 'JNR, INT & SNR' : category;
+            const labelText = type === 'demo' ? 'Demo' : 'CBT';
+
+            const confirm = await Swal.fire({
+                title: `Erase ${catLabel} ${labelText} Data?`,
+                html: `<p class="text-sm text-gray-600">This clears all recorded answers and resets scores to zero for <strong>${catLabel} ${labelText}</strong>. Submission status is left untouched.</p>`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Erase',
+                confirmButtonColor: '#ea580c'
+            });
+            if (!confirm.isConfirmed) return;
+
+            const btn = document.getElementById('btn' + (type === 'demo' ? 'Demo' : 'Cbt') + 'Erase');
+            btn.disabled = true;
+            const originalText = btn.textContent;
+            btn.textContent = 'Erasing...';
+
+            try {
+                const params = new URLSearchParams();
+                params.append('action', 'eraseData');
+                params.append('mode', type);
+                params.append('category', category);
+                const resp = await fetch(scriptURL, { method: 'POST', body: params });
+                const data = await resp.json();
+                if (data.success) {
+                    Swal.fire('Erased!', `Answers cleared and scores reset for ${data.updated} churches.`, 'success');
+                } else {
+                    Swal.fire('Error', data.message || 'Could not erase data.', 'error');
+                }
+            } catch (err) {
+                Swal.fire('Network Error', 'Could not reach the server.', 'error');
+            }
+
+            btn.disabled = false;
+            btn.textContent = originalText;
+        }
+
+        async function randomizeTestData(type) {
+            const bulkGroup = type === 'demo' ? 'demoBulk' : 'cbtBulk';
+            const category = selectedCategory[bulkGroup];
+            const catLabel = category === 'ALL' ? 'JNR, INT & SNR' : category;
+            const labelText = type === 'demo' ? 'Demo' : 'CBT';
+
+            const confirm = await Swal.fire({
+                title: `Randomize ${catLabel} ${labelText} Data?`,
+                html: `<p class="text-sm text-gray-600">This fills random answers for every church and computes their score for <strong>${catLabel} ${labelText}</strong>. Use this for testing/simulation only.</p>`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Randomize',
+                confirmButtonColor: '#9333ea'
+            });
+            if (!confirm.isConfirmed) return;
+
+            const btn = document.getElementById('btn' + (type === 'demo' ? 'Demo' : 'Cbt') + 'Randomize');
+            btn.disabled = true;
+            const originalText = btn.textContent;
+            btn.textContent = 'Randomizing...';
+
+            try {
+                const params = new URLSearchParams();
+                params.append('action', 'randomizeData');
+                params.append('mode', type);
+                params.append('category', category);
+                const resp = await fetch(scriptURL, { method: 'POST', body: params });
+                const data = await resp.json();
+                if (data.success) {
+                    Swal.fire('Randomized!', `Random answers and scores generated for ${data.updated} churches.`, 'success');
+                } else {
+                    Swal.fire('Error', data.message || 'Could not randomize data.', 'error');
+                }
+            } catch (err) {
+                Swal.fire('Network Error', 'Could not reach the server.', 'error');
+            }
+
+            btn.disabled = false;
+            btn.textContent = originalText;
+        }
+
+        async function bulkSubmit(type, value) {
+            const labelText = type === 'demo' ? 'Demo' : 'CBT';
+            const column = type === 'demo' ? 'DEMO_SUBMITTED' : 'CBT_SUBMITTED';
+            const bulkGroup = type === 'demo' ? 'demoBulk' : 'cbtBulk';
+            const category = selectedCategory[bulkGroup];
+            const catLabel = category === 'ALL' ? 'JNR, INT & SNR' : category;
+
+            const actionDetail = value === 'YES'
+                ? `Sets <strong>${catLabel} ${labelText}</strong> to YES for all churches and computes each church's score from their recorded answers.`
+                : `Sets <strong>${catLabel} ${labelText}</strong> to NO, resets all scores to zero, and clears all recorded answers for that session.`;
+
+            const confirm = await Swal.fire({
+                title: `Set all ${catLabel} ${labelText} to ${value}?`,
+                html: `<p class="text-sm text-gray-600">${actionDetail}</p>`,
+                icon: value === 'YES' ? 'question' : 'warning',
+                showCancelButton: true,
+                confirmButtonText: `Yes, set all ${value}`,
+                confirmButtonColor: value === 'YES' ? '#16a34a' : '#dc2626'
+            });
+            if (!confirm.isConfirmed) return;
+
+            const btnId = 'btn' + (type === 'demo' ? 'Demo' : 'Cbt') + (value === 'YES' ? 'Yes' : 'No');
+            const btn = document.getElementById(btnId);
+            btn.disabled = true;
+            const originalText = btn.textContent;
+            btn.textContent = 'Working...';
+
+            try {
+                const params = new URLSearchParams();
+                params.append('action', 'bulkSetSubmission');
+                params.append('field', column);
+                params.append('value', value);
+                params.append('category', category);
+
+                const resp = await fetch(scriptURL, { method: 'POST', body: params });
+                const data = await resp.json();
+
+                if (data.success) {
+                    const doneMsg = value === 'YES'
+                        ? `${catLabel} ${column} set to YES and scores computed for ${data.updated} churches.`
+                        : `${catLabel} ${column} reset to NO, scores zeroed, and answers cleared for ${data.updated} churches.`;
+                    Swal.fire('Done!', doneMsg, 'success');
+                } else {
+                    Swal.fire('Error', data.message || 'Could not update records.', 'error');
+                }
+            } catch (err) {
+                Swal.fire('Network Error', 'Could not reach the server. Please check your connection.', 'error');
+            }
+
+            btn.disabled = false;
+            btn.textContent = originalText;
+        }
+
+        // ================= COLUMN MANAGER LOGIC =================
+        let colMgrCat = 'JNR';
+
+        function selectColMgrCat(cat) {
+            colMgrCat = cat;
+            document.getElementById('colmgr-cat-label').textContent = `(${cat})`;
+            ['JNR','INT','SNR'].forEach(c => {
+                const pill = document.getElementById(`colmgr-pill-${c}`);
+                if (c === cat) {
+                    pill.classList.remove('bg-white/10','text-white','border-white/20');
+                    pill.classList.add('bg-yellow-500','text-blue-900','border-yellow-400');
+                } else {
+                    pill.classList.remove('bg-yellow-500','text-blue-900','border-yellow-400');
+                    pill.classList.add('bg-white/10','text-white','border-white/20');
+                }
+            });
+            loadColMgrColumns();
+        }
+
+        async function loadColMgrColumns() {
+            const listEl = document.getElementById('colmgr-columns-list');
+            listEl.innerHTML = `<span class="text-gray-300 text-[10px] font-bold italic">Loading...</span>`;
+            try {
+                const params = new URLSearchParams();
+                params.append('action', 'getTopTenColumns');
+                params.append('category', colMgrCat);
+                const resp = await fetch(scriptURL, { method: 'POST', body: params });
+                const data = await resp.json();
+
+                if (!data.success || data.columns.length === 0) {
+                    listEl.innerHTML = `<span class="text-gray-300 text-[10px] font-bold italic">No columns yet</span>`;
+                    return;
+                }
+
+                listEl.innerHTML = data.columns.map((col, i) => {
+                    const isProtected = i < 2;
+                    return `
+                        <div class="flex items-center gap-1 bg-white border ${isProtected ? 'border-blue-200 bg-blue-50' : 'border-gray-200'} rounded-lg px-2.5 py-1">
+                            <span class="text-[10px] font-bold ${isProtected ? 'text-blue-900' : 'text-gray-700'} uppercase tracking-wide">${col.name}</span>
+                            ${!isProtected ? `<button onclick="deleteColMgrColumn(${col.index})" class="text-red-400 hover:text-red-600 font-black text-[10px] ml-1 transition" title="Delete column">✕</button>` : ''}
+                        </div>
+                    `;
+                }).join('');
+            } catch (err) {
+                listEl.innerHTML = `<span class="text-red-400 text-[10px] font-bold italic">Error loading columns</span>`;
+            }
+        }
+
+        async function runSetupRounds() {
+            const rounds = document.getElementById('colmgr-rounds').value;
+            const tieBreak = document.getElementById('colmgr-tiebreak').checked;
+            const total = document.getElementById('colmgr-total').checked;
+
+            if (!rounds || parseInt(rounds) < 1) {
+                Swal.fire('Invalid', 'Please enter at least 1 round.', 'warning');
+                return;
+            }
+
+            const preview = ['Church Name', 'CBT_score'];
+            for (let r = 1; r <= parseInt(rounds); r++) preview.push(`Round ${r}`);
+            if (tieBreak) preview.push('Tie Break');
+            if (total) preview.push('Total');
+
+            const confirm = await Swal.fire({
+                title: `Setup ${colMgrCat} Top Ten Structure?`,
+                html: `<p class="text-sm text-gray-600 mt-1">This will <strong>replace the current header</strong> for <code>${colMgrCat.toLowerCase()}_top_ten</code> with:</p>
+                       <p class="mt-2 font-mono text-xs bg-gray-100 rounded p-2 text-left">${preview.join(' → ')}</p>
+                       <p class="text-xs text-gray-400 mt-2">Existing data rows are kept. Only headers are restructured.</p>`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Apply'
+            });
+            if (!confirm.isConfirmed) return;
+
+            try {
+                const params = new URLSearchParams();
+                params.append('action', 'setupTopTenRounds');
+                params.append('category', colMgrCat);
+                params.append('rounds', rounds);
+                params.append('tieBreak', tieBreak.toString());
+                params.append('total', total.toString());
+                const resp = await fetch(scriptURL, { method: 'POST', body: params });
+                const data = await resp.json();
+
+                if (data.success) {
+                    Swal.fire('Done!', `Structure applied: ${data.columns.join(', ')}`, 'success');
+                    loadColMgrColumns();
+                } else {
+                    Swal.fire('Error', data.message || 'Could not apply structure.', 'error');
+                }
+            } catch (err) {
+                Swal.fire('Network Error', 'Could not reach the server.', 'error');
+            }
+        }
+
+        async function deleteColMgrColumn(colIndex) {
+            const confirm = await Swal.fire({
+                title: 'Delete this column?',
+                text: 'All data in this column will be permanently removed.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Delete',
+                confirmButtonColor: '#dc2626'
+            });
+            if (!confirm.isConfirmed) return;
+
+            try {
+                const params = new URLSearchParams();
+                params.append('action', 'deleteTopTenColumn');
+                params.append('category', colMgrCat);
+                params.append('colIndex', colIndex);
+                const resp = await fetch(scriptURL, { method: 'POST', body: params });
+                const data = await resp.json();
+
+                if (data.success) {
+                    loadColMgrColumns();
+                } else {
+                    Swal.fire('Error', data.message || 'Could not delete column.', 'error');
+                }
+            } catch (err) {
+                Swal.fire('Network Error', 'Could not reach the server.', 'error');
+            }
+        }
+
+        async function runScoreboardFillAllRounds() {
+            const min = document.getElementById('colmgr-fill-min').value;
+            const max = document.getElementById('colmgr-fill-max').value;
+
+            const confirm = await Swal.fire({
+                title: `Randomly Fill All Rounds — ${colMgrCat}?`,
+                html: `<p class="text-sm text-gray-600">This fills <strong>every "Round N" column</strong> in <code>${colMgrCat.toLowerCase()}_top_ten</code> with random scores between ${min} and ${max}, then recalculates the <strong>Total</strong> column. Use for testing only.</p>`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Fill All',
+                confirmButtonColor: '#9333ea'
+            });
+            if (!confirm.isConfirmed) return;
+
+            try {
+                const params = new URLSearchParams();
+                params.append('action', 'scoreboardFillAllRounds');
+                params.append('category', colMgrCat);
+                params.append('min', min);
+                params.append('max', max);
+                const resp = await fetch(scriptURL, { method: 'POST', body: params });
+                const data = await resp.json();
+                if (data.success) {
+                    Swal.fire('Filled!', `${data.roundsFilled} round column(s) filled for ${data.updated} churches, and Total recalculated.`, 'success');
+                } else {
+                    Swal.fire('Error', data.message || 'Could not fill rounds.', 'error');
+                }
+            } catch (err) {
+                Swal.fire('Network Error', 'Could not reach the server.', 'error');
+            }
+        }
+
+        async function runScoreboardErase() {
+            const confirm = await Swal.fire({
+                title: `Erase Scoreboard — ${colMgrCat}?`,
+                html: `<p class="text-sm text-gray-600">This wipes every <strong>Round</strong> column and <strong>Tie Break</strong> completely blank, and resets <strong>Total</strong> to <strong>0</strong>, in <code>${colMgrCat.toLowerCase()}_top_ten</code>. Church Name, Alias, and CBT_score are left untouched.</p>`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Erase',
+                confirmButtonColor: '#ea580c'
+            });
+            if (!confirm.isConfirmed) return;
+
+            try {
+                const params = new URLSearchParams();
+                params.append('action', 'scoreboardErase');
+                params.append('category', colMgrCat);
+                const resp = await fetch(scriptURL, { method: 'POST', body: params });
+                const data = await resp.json();
+                if (data.success) {
+                    Swal.fire('Erased!', `${data.columnsErased} column(s) reset to zero for ${data.updated} churches.`, 'success');
+                } else {
+                    Swal.fire('Error', data.message || 'Could not erase scoreboard.', 'error');
+                }
+            } catch (err) {
+                Swal.fire('Network Error', 'Could not reach the server.', 'error');
+            }
+        }
+
+        async function runScoreboardFill() {
+            const colName = document.getElementById('colmgr-fill-col').value.trim();
+            const min = document.getElementById('colmgr-fill-min').value;
+            const max = document.getElementById('colmgr-fill-max').value;
+
+            if (!colName) {
+                Swal.fire('Missing Column', 'Please enter the column name to fill (e.g. Round 1).', 'warning');
+                return;
+            }
+
+            const confirm = await Swal.fire({
+                title: `Randomly Fill "${colName}"?`,
+                html: `<p class="text-sm text-gray-600">This fills <strong>${colMgrCat}_top_ten &rarr; ${colName}</strong> with random scores between ${min} and ${max} for every church, to simulate a moderation round. Use for testing only.</p>`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Fill',
+                confirmButtonColor: '#9333ea'
+            });
+            if (!confirm.isConfirmed) return;
+
+            try {
+                const params = new URLSearchParams();
+                params.append('action', 'scoreboardFill');
+                params.append('category', colMgrCat);
+                params.append('colName', colName);
+                params.append('min', min);
+                params.append('max', max);
+                const resp = await fetch(scriptURL, { method: 'POST', body: params });
+                const data = await resp.json();
+                if (data.success) {
+                    Swal.fire('Filled!', `${data.updated} churches given random scores in "${colName}".`, 'success');
+                } else {
+                    Swal.fire('Error', data.message || 'Could not fill column.', 'error');
+                }
+            } catch (err) {
+                Swal.fire('Network Error', 'Could not reach the server.', 'error');
+            }
+        }
+
+        async function addColMgrColumn() {
+            const nameEl = document.getElementById('colmgr-new-col-name');
+            const colName = nameEl.value.trim();
+            if (!colName) {
+                Swal.fire('Missing Name', 'Please enter a column name.', 'warning');
+                return;
+            }
+
+            try {
+                const params = new URLSearchParams();
+                params.append('action', 'addTopTenColumn');
+                params.append('category', colMgrCat);
+                params.append('colName', colName);
+                const resp = await fetch(scriptURL, { method: 'POST', body: params });
+                const data = await resp.json();
+
+                if (data.success) {
+                    nameEl.value = '';
+                    loadColMgrColumns();
+                } else {
+                    Swal.fire('Error', data.message || 'Could not add column.', 'error');
+                }
+            } catch (err) {
+                Swal.fire('Network Error', 'Could not reach the server.', 'error');
+            }
+        }
+
+        // Load columns as soon as the page is ready (this WAS triggered by
+        // openTab('tab-control') in the old single-file version — now that
+        // this page IS the control tab, we just run it on load).
+        loadColMgrColumns();
+    </script>
+</body>
+</html>

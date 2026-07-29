@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Results | Yetay 3.0 Moderator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="shared.css">
+</head>
+<body class="h-screen w-screen flex flex-col overflow-hidden" data-page="results">
+
+    <div id="nav-placeholder"></div>
+
+    <main id="main-content" class="flex-grow w-full overflow-auto">
+        <div id="page-root" class="h-full flex flex-col overflow-hidden relative bg-gray-50">
+
+            <!-- Top bar -->
+            <div id="results-top-bar" class="shrink-0 w-full flex items-center justify-between px-4 py-2.5 border-b border-gray-200 bg-blue-900 gap-3">
+                <div class="flex items-center gap-2 shrink-0">
+                    <svg class="w-4 h-4 text-yellow-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                    <span class="text-white font-black text-sm md:text-base font-heading uppercase tracking-wide">CBT Results</span>
+                </div>
+
+                <div class="relative flex-1 max-w-[180px] md:max-w-[220px]">
+                    <svg class="w-3 h-3 absolute left-2.5 top-1/2 -translate-y-1/2 text-blue-300 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/></svg>
+                    <input type="text" id="results-search" oninput="filterResults(this.value)" placeholder="Search church..." class="w-full bg-white/10 border border-white/20 text-white placeholder-blue-300 rounded-lg pl-7 pr-2.5 py-1.5 text-[10px] font-bold focus:outline-none focus:bg-white/20 focus:border-white/40 transition">
+                </div>
+
+                <div class="flex items-center gap-2 shrink-0">
+                    <span class="text-blue-200 text-[9px] font-bold uppercase tracking-widest" id="results-mode-label">Full List</span>
+                    <button onclick="FullscreenManager.toggle('page-root','btn-results-fullscreen')" id="btn-results-fullscreen" class="bg-yellow-500 hover:bg-yellow-400 text-blue-900 text-[9px] font-black uppercase px-3 py-1.5 rounded-lg transition border border-yellow-400 whitespace-nowrap tracking-wide shadow">
+                        ⛶ Fullscreen
+                    </button>
+                </div>
+            </div>
+
+            <!-- Action toolbar -->
+            <div id="results-toolbar" class="shrink-0 w-full border-b border-gray-200 bg-white flex items-stretch shadow-sm" style="min-height: 44px;">
+
+                <div class="flex items-center gap-1.5 px-3 py-2 border-r border-gray-200 flex-1">
+                    <span class="text-blue-900 text-[9px] font-black uppercase tracking-widest mr-1 hidden sm:block">JNR</span>
+                    <button onclick="toggleResultsColumn('JNR')" id="res-toggle-JNR" class="bg-blue-900 hover:bg-blue-800 text-white text-[9px] font-black uppercase px-2 py-1.5 rounded-lg transition border border-blue-800 whitespace-nowrap">👁 Hide</button>
+                    <button onclick="extractTopTen('JNR')" class="bg-yellow-500 hover:bg-yellow-400 text-blue-900 text-[9px] font-black uppercase px-2 py-1.5 rounded-lg transition border border-yellow-400 whitespace-nowrap">🏆 Top 10</button>
+                    <button onclick="showFullList('JNR')" class="bg-gray-100 hover:bg-gray-200 text-gray-700 text-[9px] font-bold uppercase px-2 py-1.5 rounded-lg transition border border-gray-300 whitespace-nowrap">↩ Full List</button>
+                </div>
+
+                <div class="flex items-center gap-1.5 px-3 py-2 border-r border-gray-200 flex-1 justify-center">
+                    <span class="text-blue-900 text-[9px] font-black uppercase tracking-widest mr-1 hidden sm:block">INT</span>
+                    <button onclick="toggleResultsColumn('INT')" id="res-toggle-INT" class="bg-blue-900 hover:bg-blue-800 text-white text-[9px] font-black uppercase px-2 py-1.5 rounded-lg transition border border-blue-800 whitespace-nowrap">👁 Hide</button>
+                    <button onclick="extractTopTen('INT')" class="bg-yellow-500 hover:bg-yellow-400 text-blue-900 text-[9px] font-black uppercase px-2 py-1.5 rounded-lg transition border border-yellow-400 whitespace-nowrap">🏆 Top 10</button>
+                    <button onclick="showFullList('INT')" class="bg-gray-100 hover:bg-gray-200 text-gray-700 text-[9px] font-bold uppercase px-2 py-1.5 rounded-lg transition border border-gray-300 whitespace-nowrap">↩ Full List</button>
+                </div>
+
+                <div class="flex items-center gap-1.5 px-3 py-2 flex-1 justify-end">
+                    <span class="text-blue-900 text-[9px] font-black uppercase tracking-widest mr-1 hidden sm:block">SNR</span>
+                    <button onclick="toggleResultsColumn('SNR')" id="res-toggle-SNR" class="bg-blue-900 hover:bg-blue-800 text-white text-[9px] font-black uppercase px-2 py-1.5 rounded-lg transition border border-blue-800 whitespace-nowrap">👁 Hide</button>
+                    <button onclick="extractTopTen('SNR')" class="bg-yellow-500 hover:bg-yellow-400 text-blue-900 text-[9px] font-black uppercase px-2 py-1.5 rounded-lg transition border border-yellow-400 whitespace-nowrap">🏆 Top 10</button>
+                    <button onclick="showFullList('SNR')" class="bg-gray-100 hover:bg-gray-200 text-gray-700 text-[9px] font-bold uppercase px-2 py-1.5 rounded-lg transition border border-gray-300 whitespace-nowrap">↩ Full List</button>
+                </div>
+            </div>
+
+            <!-- Three column results board -->
+            <div id="results-board" class="flex flex-1 w-full gap-0 min-h-0">
+
+                <div id="res-col-JNR" class="flex-1 flex flex-col min-w-0 border-r border-gray-200">
+                    <div class="shrink-0 px-4 py-3 border-b border-gray-200 bg-blue-900 flex items-center justify-between">
+                        <div>
+                            <p class="text-[9px] text-blue-200 font-bold uppercase tracking-widest">Category</p>
+                            <h3 class="text-white font-black text-sm md:text-base font-heading uppercase tracking-wide">Junior</h3>
+                        </div>
+                        <span class="bg-yellow-500 text-blue-900 text-[9px] font-black px-2 py-0.5 rounded uppercase tracking-widest" id="res-count-JNR">0</span>
+                    </div>
+                    <div class="shrink-0 grid grid-cols-3 px-4 py-1.5 border-b border-gray-200 bg-gray-100 text-[8px] md:text-[9px] font-black uppercase tracking-widest text-gray-500">
+                        <span>S/N</span><span>Church</span><span class="text-right">Score</span>
+                    </div>
+                    <div id="res-list-JNR" class="flex-grow overflow-y-auto">
+                        <div class="flex items-center justify-center h-full text-gray-300 text-xs font-bold uppercase tracking-widest">Loading...</div>
+                    </div>
+                    <div id="res-add-JNR" class="hidden shrink-0 border-t border-gray-200 bg-white p-2 flex gap-1.5 items-center">
+                        <input id="res-add-name-JNR" type="text" placeholder="Church name" class="flex-1 border border-gray-300 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:border-blue-900">
+                        <input id="res-add-score-JNR" type="number" placeholder="Score" class="w-16 border border-gray-300 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:border-blue-900">
+                        <button onclick="addTopTenRow('JNR')" class="bg-blue-900 text-white text-[9px] font-black uppercase px-2 py-1.5 rounded-lg transition border border-blue-800 whitespace-nowrap">+ Add</button>
+                    </div>
+                </div>
+
+                <div id="res-col-INT" class="flex-1 flex flex-col min-w-0 border-r border-gray-200">
+                    <div class="shrink-0 px-4 py-3 border-b border-gray-200 bg-blue-900 flex items-center justify-between">
+                        <div>
+                            <p class="text-[9px] text-blue-200 font-bold uppercase tracking-widest">Category</p>
+                            <h3 class="text-white font-black text-sm md:text-base font-heading uppercase tracking-wide">Intermediate</h3>
+                        </div>
+                        <span class="bg-yellow-500 text-blue-900 text-[9px] font-black px-2 py-0.5 rounded uppercase tracking-widest" id="res-count-INT">0</span>
+                    </div>
+                    <div class="shrink-0 grid grid-cols-3 px-4 py-1.5 border-b border-gray-200 bg-gray-100 text-[8px] md:text-[9px] font-black uppercase tracking-widest text-gray-500">
+                        <span>S/N</span><span>Church</span><span class="text-right">Score</span>
+                    </div>
+                    <div id="res-list-INT" class="flex-grow overflow-y-auto">
+                        <div class="flex items-center justify-center h-full text-gray-300 text-xs font-bold uppercase tracking-widest">Loading...</div>
+                    </div>
+                    <div id="res-add-INT" class="hidden shrink-0 border-t border-gray-200 bg-white p-2 flex gap-1.5 items-center">
+                        <input id="res-add-name-INT" type="text" placeholder="Church name" class="flex-1 border border-gray-300 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:border-blue-900">
+                        <input id="res-add-score-INT" type="number" placeholder="Score" class="w-16 border border-gray-300 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:border-blue-900">
+                        <button onclick="addTopTenRow('INT')" class="bg-blue-900 text-white text-[9px] font-black uppercase px-2 py-1.5 rounded-lg transition border border-blue-800 whitespace-nowrap">+ Add</button>
+                    </div>
+                </div>
+
+                <div id="res-col-SNR" class="flex-1 flex flex-col min-w-0">
+                    <div class="shrink-0 px-4 py-3 border-b border-gray-200 bg-blue-900 flex items-center justify-between">
+                        <div>
+                            <p class="text-[9px] text-blue-200 font-bold uppercase tracking-widest">Category</p>
+                            <h3 class="text-white font-black text-sm md:text-base font-heading uppercase tracking-wide">Senior</h3>
+                        </div>
+                        <span class="bg-yellow-500 text-blue-900 text-[9px] font-black px-2 py-0.5 rounded uppercase tracking-widest" id="res-count-SNR">0</span>
+                    </div>
+                    <div class="shrink-0 grid grid-cols-3 px-4 py-1.5 border-b border-gray-200 bg-gray-100 text-[8px] md:text-[9px] font-black uppercase tracking-widest text-gray-500">
+                        <span>S/N</span><span>Church</span><span class="text-right">Score</span>
+                    </div>
+                    <div id="res-list-SNR" class="flex-grow overflow-y-auto">
+                        <div class="flex items-center justify-center h-full text-gray-300 text-xs font-bold uppercase tracking-widest">Loading...</div>
+                    </div>
+                    <div id="res-add-SNR" class="hidden shrink-0 border-t border-gray-200 bg-white p-2 flex gap-1.5 items-center">
+                        <input id="res-add-name-SNR" type="text" placeholder="Church name" class="flex-1 border border-gray-300 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:border-blue-900">
+                        <input id="res-add-score-SNR" type="number" placeholder="Score" class="w-16 border border-gray-300 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:border-blue-900">
+                        <button onclick="addTopTenRow('SNR')" class="bg-blue-900 text-white text-[9px] font-black uppercase px-2 py-1.5 rounded-lg transition border border-blue-800 whitespace-nowrap">+ Add</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Zoom Control Bar (separate from nav/menu) -->
+    <div id="zoom-bar" class="fixed bottom-4 right-4 z-[9999] flex items-center gap-1 bg-blue-900/95 backdrop-blur border border-blue-700 rounded-xl shadow-2xl px-2 py-1.5 select-none" style="touch-action:none;">
+        <span id="zoom-drag-handle" title="Drag to move" class="cursor-grab active:cursor-grabbing text-blue-300 hover:text-white px-1.5 text-xs font-black tracking-widest">⠿⠿</span>
+        <span class="text-blue-200 text-[8px] font-black uppercase tracking-widest px-1.5 hidden sm:block">Zoom</span>
+        <button onclick="zoomOut()" title="Zoom out" class="w-8 h-8 flex items-center justify-center bg-white/10 hover:bg-white/20 active:bg-white/30 text-white font-black text-base rounded-lg transition">−</button>
+        <span id="zoom-level" class="text-white text-[10px] font-black uppercase tracking-widest w-11 text-center tabular-nums">100%</span>
+        <button onclick="zoomIn()" title="Zoom in" class="w-8 h-8 flex items-center justify-center bg-white/10 hover:bg-white/20 active:bg-white/30 text-white font-black text-base rounded-lg transition">+</button>
+        <div class="w-px h-5 bg-white/20 mx-0.5"></div>
+        <button onclick="zoomReset()" title="Reset zoom" class="px-2.5 h-8 flex items-center justify-center bg-yellow-500 hover:bg-yellow-400 text-blue-900 text-[9px] font-black uppercase rounded-lg transition tracking-wide">Reset</button>
+    </div>
+
+    <script src="shared.js"></script>
+    <script>
+        loadSharedNav();
+
+        let resultsColumnVisible = { JNR: true, INT: true, SNR: true };
+        let resultsMode = { JNR: 'full', INT: 'full', SNR: 'full' }; // 'full' | 'topten'
+        let fullScoresData = { JNR: [], INT: [], SNR: [] };
+        let topTenData = { JNR: [], INT: [], SNR: [] };
+
+        function toggleResultsColumn(cat) {
+            const col = document.getElementById(`res-col-${cat}`);
+            const btn = document.getElementById(`res-toggle-${cat}`);
+            resultsColumnVisible[cat] = !resultsColumnVisible[cat];
+            if (resultsColumnVisible[cat]) {
+                col.classList.remove('hidden');
+                btn.textContent = '👁 Hide';
+                btn.classList.remove('bg-white/10');
+                btn.classList.add('bg-blue-900');
+            } else {
+                col.classList.add('hidden');
+                btn.textContent = '👁 Show';
+                btn.classList.remove('bg-blue-900');
+                btn.classList.add('bg-white/10');
+            }
+        }
+
+        async function fetchResultScores() {
+            try {
+                const params = new URLSearchParams();
+                params.append('action', 'getResultScores');
+                const resp = await fetch(scriptURL, { method: 'POST', body: params });
+                const data = await resp.json();
+                if (data.success) {
+                    fullScoresData = data.data;
+                    ['JNR','INT','SNR'].forEach(cat => {
+                        if (resultsMode[cat] === 'full') renderResultsList(cat, fullScoresData[cat], false);
+                    });
+                }
+            } catch (err) {}
+        }
+
+        function renderResultsList(cat, rows, isTopTen) {
+            const container = document.getElementById(`res-list-${cat}`);
+            const countEl = document.getElementById(`res-count-${cat}`);
+            const addForm = document.getElementById(`res-add-${cat}`);
+            if (!container) return;
+
+            countEl.textContent = rows.length;
+            if (addForm) {
+                isTopTen ? addForm.classList.remove('hidden') : addForm.classList.add('hidden');
+            }
+
+            if (rows.length === 0) {
+                container.innerHTML = `<div class="flex items-center justify-center h-full text-gray-300 text-xs font-bold uppercase tracking-widest">No data</div>`;
+                return;
+            }
+
+            const rowsHtml = rows.map((r, i) => {
+                const isTop = i === 0;
+                const isTied = rows.filter(x => x.score === r.score).length > 1;
+                const rowBg = isTop
+                    ? 'background: #fefce8; border-left: 3px solid #eab308;'
+                    : (i % 2 === 0 ? 'background: #ffffff;' : 'background: #f9fafb;');
+                const tieTag = isTied && isTopTen
+                    ? `<span class="ml-1 text-[7px] font-black uppercase bg-orange-100 text-orange-600 border border-orange-300 px-1 rounded">TIE</span>`
+                    : '';
+                const deleteBtn = isTopTen
+                    ? `<button onclick="deleteTopTenRow('${cat}', ${i})" class="ml-1 text-red-400 hover:text-red-600 font-black text-[10px] transition" title="Remove">✕</button>`
+                    : '';
+                const aliasHtml = r.alias
+                    ? `<p class="text-[9px] text-gray-400 font-bold truncate">@${r.alias}</p>`
+                    : '';
+
+                return `
+                    <div class="grid items-center px-4 py-2.5 border-b border-gray-100 transition-all" style="grid-template-columns: 2rem 1fr auto; ${rowBg}" data-name="${r.name.toLowerCase()}">
+                        <span class="font-black text-gray-400 text-xs">${i + 1}</span>
+                        <div class="min-w-0 pr-2">
+                            <p class="font-bold text-blue-900 truncate text-xs md:text-sm leading-tight flex items-center">
+                                ${r.name}${tieTag}
+                            </p>
+                            ${aliasHtml}
+                        </div>
+                        <div class="flex items-center justify-end gap-1">
+                            <span class="font-black text-blue-900 text-sm md:text-base">${r.score}</span>
+                            ${deleteBtn}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = `<div id="res-inner-${cat}">${rowsHtml}</div>`;
+        }
+
+        async function extractTopTen(cat) {
+            const all = fullScoresData[cat];
+            if (!all || all.length === 0) {
+                Swal.fire('No Data', `No scores found for ${cat}.`, 'info');
+                return;
+            }
+
+            const sorted = [...all].sort((a, b) => b.score - a.score);
+            const tenthScore = sorted[Math.min(9, sorted.length - 1)].score;
+            const topRows = sorted.filter(r => r.score >= tenthScore);
+
+            const hasTies = topRows.length > 10;
+
+            const confirm = await Swal.fire({
+                title: `Extract Top 10 — ${cat}?`,
+                html: hasTies
+                    ? `<p class="text-sm text-gray-600">There are <strong>${topRows.length} churches</strong> tied at or above the 10th score (${tenthScore} pts).<br><br>All ${topRows.length} will be saved to <code>${cat.toLowerCase()}_top_ten</code>. You can remove ties manually after.</p>`
+                    : `<p class="text-sm text-gray-600"><strong>${topRows.length} churches</strong> will be saved to <code>${cat.toLowerCase()}_top_ten</code>.</p>`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Extract'
+            });
+            if (!confirm.isConfirmed) return;
+
+            try {
+                const params = new URLSearchParams();
+                params.append('action', 'saveTopTen');
+                params.append('category', cat);
+                params.append('rows', JSON.stringify(topRows));
+                const resp = await fetch(scriptURL, { method: 'POST', body: params });
+                const data = await resp.json();
+
+                if (data.success) {
+                    topTenData[cat] = topRows;
+                    resultsMode[cat] = 'topten';
+                    renderResultsList(cat, topRows, true);
+                    document.getElementById('results-mode-label').textContent = 'Top 10 View';
+                    Swal.fire('Saved!', `${data.saved} churches saved to ${cat.toLowerCase()}_top_ten.`, 'success');
+                } else {
+                    Swal.fire('Error', 'Could not save top ten.', 'error');
+                }
+            } catch (err) {
+                Swal.fire('Network Error', 'Could not reach the server.', 'error');
+            }
+        }
+
+        async function showFullList(cat) {
+            resultsMode[cat] = 'full';
+            renderResultsList(cat, fullScoresData[cat], false);
+            document.getElementById('results-mode-label').textContent = 'Full List';
+        }
+
+        async function deleteTopTenRow(cat, rowIndex) {
+            const confirm = await Swal.fire({
+                title: 'Remove this church?',
+                text: 'This will delete the row from the top ten sheet.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Remove',
+                confirmButtonColor: '#dc2626'
+            });
+            if (!confirm.isConfirmed) return;
+
+            try {
+                const params = new URLSearchParams();
+                params.append('action', 'deleteTopTenRow');
+                params.append('category', cat);
+                params.append('rowIndex', rowIndex);
+                const resp = await fetch(scriptURL, { method: 'POST', body: params });
+                const data = await resp.json();
+
+                if (data.success) {
+                    topTenData[cat].splice(rowIndex, 1);
+                    renderResultsList(cat, topTenData[cat], true);
+                } else {
+                    Swal.fire('Error', 'Could not delete row.', 'error');
+                }
+            } catch (err) {
+                Swal.fire('Network Error', 'Could not reach the server.', 'error');
+            }
+        }
+
+        async function addTopTenRow(cat) {
+            const nameEl = document.getElementById(`res-add-name-${cat}`);
+            const scoreEl = document.getElementById(`res-add-score-${cat}`);
+            const name = nameEl.value.trim();
+            const score = scoreEl.value.trim();
+
+            if (!name || score === '') {
+                Swal.fire('Missing Fields', 'Please enter both a church name and a score.', 'warning');
+                return;
+            }
+
+            const match = (fullScoresData[cat] || []).find(r => r.name.toLowerCase() === name.toLowerCase());
+            const alias = match ? match.alias : '';
+
+            try {
+                const params = new URLSearchParams();
+                params.append('action', 'addTopTenRow');
+                params.append('category', cat);
+                params.append('name', name);
+                params.append('alias', alias);
+                params.append('score', score);
+                const resp = await fetch(scriptURL, { method: 'POST', body: params });
+                const data = await resp.json();
+
+                if (data.success) {
+                    topTenData[cat].push({ name: name, alias: alias, score: Number(score) });
+                    topTenData[cat].sort((a, b) => b.score - a.score);
+                    renderResultsList(cat, topTenData[cat], true);
+                    nameEl.value = '';
+                    scoreEl.value = '';
+                } else {
+                    Swal.fire('Error', 'Could not add row.', 'error');
+                }
+            } catch (err) {
+                Swal.fire('Network Error', 'Could not reach the server.', 'error');
+            }
+        }
+
+        function filterResults(query) {
+            const q = query.toLowerCase().trim();
+            ['JNR', 'INT', 'SNR'].forEach(cat => {
+                const inner = document.getElementById(`res-inner-${cat}`);
+                if (!inner) return;
+                const rows = inner.querySelectorAll('[data-name]');
+                rows.forEach(row => {
+                    const name = row.getAttribute('data-name').toLowerCase();
+                    row.style.display = (!q || name.includes(q)) ? '' : 'none';
+                });
+            });
+        }
+
+        // ===== Zoom control (page content, independent of nav/menu) =====
+        const ZOOM_MIN = 50;
+        const ZOOM_MAX = 200;
+        const ZOOM_STEP = 10;
+        const ZOOM_STORAGE_KEY = 'yetay_zoom_level';
+
+        let zoomLevel = parseInt(localStorage.getItem(ZOOM_STORAGE_KEY), 10);
+        if (isNaN(zoomLevel) || zoomLevel < ZOOM_MIN || zoomLevel > ZOOM_MAX) {
+            zoomLevel = 100;
+        }
+
+        function applyZoom() {
+            const target = document.getElementById('page-root');
+            if (target) {
+                if (CSS.supports('zoom', '1')) {
+                    target.style.zoom = zoomLevel / 100;
+                } else {
+                    target.style.transformOrigin = 'top left';
+                    target.style.transform = `scale(${zoomLevel / 100})`;
+                    target.style.width = `${10000 / zoomLevel}%`;
+                }
+            }
+            const label = document.getElementById('zoom-level');
+            if (label) label.textContent = zoomLevel + '%';
+            localStorage.setItem(ZOOM_STORAGE_KEY, zoomLevel);
+        }
+
+        function zoomIn() {
+            if (zoomLevel < ZOOM_MAX) { zoomLevel += ZOOM_STEP; applyZoom(); }
+        }
+
+        function zoomOut() {
+            if (zoomLevel > ZOOM_MIN) { zoomLevel -= ZOOM_STEP; applyZoom(); }
+        }
+
+        function zoomReset() {
+            zoomLevel = 100;
+            applyZoom();
+        }
+
+        applyZoom();
+
+        // ===== Drag to reposition the zoom bar =====
+        function makeZoomBarDraggable() {
+            const bar = document.getElementById('zoom-bar');
+            const handle = document.getElementById('zoom-drag-handle');
+            if (!bar || !handle) return;
+
+            const POS_KEY = 'yetay_zoom_bar_pos';
+            let dragging = false, offsetX = 0, offsetY = 0;
+
+            function setPosition(x, y) {
+                const maxX = window.innerWidth - bar.offsetWidth;
+                const maxY = window.innerHeight - bar.offsetHeight;
+                x = Math.min(Math.max(x, 0), Math.max(maxX, 0));
+                y = Math.min(Math.max(y, 0), Math.max(maxY, 0));
+                bar.style.left = x + 'px';
+                bar.style.top = y + 'px';
+                bar.style.right = 'auto';
+                bar.style.bottom = 'auto';
+            }
+
+            const savedPos = JSON.parse(localStorage.getItem(POS_KEY) || 'null');
+            if (savedPos) setPosition(savedPos.x, savedPos.y);
+
+            handle.addEventListener('pointerdown', (e) => {
+                dragging = true;
+                const rect = bar.getBoundingClientRect();
+                offsetX = e.clientX - rect.left;
+                offsetY = e.clientY - rect.top;
+                handle.setPointerCapture(e.pointerId);
+            });
+
+            handle.addEventListener('pointermove', (e) => {
+                if (!dragging) return;
+                setPosition(e.clientX - offsetX, e.clientY - offsetY);
+            });
+
+            ['pointerup', 'pointercancel'].forEach(evt => {
+                handle.addEventListener(evt, () => {
+                    if (!dragging) return;
+                    dragging = false;
+                    const rect = bar.getBoundingClientRect();
+                    localStorage.setItem(POS_KEY, JSON.stringify({ x: rect.left, y: rect.top }));
+                });
+            });
+        }
+
+        makeZoomBarDraggable();
+
+        // This page IS the Results tab, so load scores immediately
+        // (this used to run only when openTab('tab-results') fired).
+        fetchResultScores();
+    </script>
+</body>
+</html>

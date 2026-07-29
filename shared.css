@@ -1,0 +1,42 @@
+/* ============================================================
+   Yetay 3.0 — Moderator Console — SHARED STYLES
+   Include this on every tab page, AFTER the Tailwind CDN script
+   and AFTER the Google Fonts <link> tag.
+   ============================================================ */
+
+html, body {
+    font-family: 'Open Sans', sans-serif;
+    background-color: #f7f8fa;
+    height: 100%;
+    overflow: hidden;
+}
+
+.font-heading { font-family: 'Montserrat', sans-serif; }
+
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.fade-up { animation: fadeUp 0.5s ease forwards; }
+
+.brand-pattern {
+    background-color: #1e3a8a;
+    background-image:
+        radial-gradient(circle at 15% 20%, rgba(234,179,8,0.10) 0%, transparent 45%),
+        radial-gradient(circle at 85% 80%, rgba(255,255,255,0.06) 0%, transparent 50%);
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type="number"] { -moz-appearance: textfield; }
+
+/* Each tab page is now a full standalone page — no more .tab-content
+   show/hide needed. The old .tab-content / .tab-content.active rules
+   have been dropped on purpose. If a split page still has a wrapper
+   div that used those classes, just give it a plain `h-full flex flex-col`
+   instead (see the per-tab split instructions). */

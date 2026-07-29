@@ -1,0 +1,37 @@
+<!-- ============================================================
+     Yetay 3.0 — Moderator Console — SHARED NAV FRAGMENT
+     This is NOT a full page. It gets fetched and injected by
+     shared.js (see loadSharedNav()) into a placeholder div that
+     must sit as the very first thing inside <body>:
+
+       <body data-page="control">
+         <div id="nav-placeholder"></div>
+         ... rest of the page ...
+
+     data-page must be one of: control | live | results | online | leaderboard
+     ============================================================ -->
+
+<nav class="bg-blue-900 shadow-md w-full h-14 md:h-16 text-white shrink-0 z-40">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-full flex justify-between items-center">
+        <div class="flex items-center flex-shrink-0">
+            <img src="logo.png" alt="Yetay Logo" class="h-7 md:h-9 w-auto bg-white rounded p-1 mr-2 md:mr-3" onerror="this.style.display='none'">
+            <div class="leading-tight">
+                <span class="font-heading font-bold text-sm md:text-lg text-white block">YETAY <span class="text-yellow-400">3.0</span></span>
+                <span class="hidden sm:block text-[9px] text-blue-200 uppercase tracking-widest font-semibold">Moderator Console</span>
+            </div>
+        </div>
+        <a href="index.html" class="text-blue-200 hover:text-white text-xs md:text-sm font-semibold transition">&larr; Main Site</a>
+    </div>
+</nav>
+
+<div id="secondary-bar" class="bg-white shadow-sm border-b border-gray-200 shrink-0 z-30">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6">
+        <div class="flex space-x-6 md:space-x-10">
+            <a href="control.html"     data-page="control"     class="portal-tab py-2.5 md:py-3 text-sm md:text-base font-bold border-b-2 transition">Control Panel</a>
+            <a href="live.html"        data-page="live"        class="portal-tab py-2.5 md:py-3 text-sm md:text-base font-bold border-b-2 transition">🔴 Live</a>
+            <a href="results.html"     data-page="results"     class="portal-tab py-2.5 md:py-3 text-sm md:text-base font-bold border-b-2 transition">🏆 Results</a>
+            <a href="online.html"      data-page="online"      class="portal-tab py-2.5 md:py-3 text-sm md:text-base font-bold border-b-2 transition">🎬 Online</a>
+            <a href="leaderboard.html" data-page="leaderboard" class="portal-tab py-2.5 md:py-3 text-sm md:text-base font-bold border-b-2 transition">🥇 Leaderboard</a>
+        </div>
+    </div>
+</div>

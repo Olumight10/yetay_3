@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yetay 3.0 | Banner Unto Nations Foundation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Open Sans', sans-serif; }
+        h1, h2, h3, h4, h5, .font-heading { font-family: 'Montserrat', sans-serif; }
+        
+        /* Simple crossfade animation for Hero Carousel */
+        .carousel-bg {
+            transition: background-image 1s ease-in-out;
+            background-size: cover;
+            background-position: center;
+        }
+        
+        /* Pulse for Anticipate Text */
+        @keyframes pulse-slow {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        .animate-pulse-slow { animation: pulse-slow 2s infinite; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 overflow-x-hidden">
+
+    <nav class="bg-white shadow-md fixed w-full z-50 top-0 h-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
+            <div class="flex justify-between items-center h-full w-full">
+                
+                <div class="flex items-center flex-shrink-0 max-w-[70%]">
+                    <img src="logo.png" alt="Yetay Logo" class="h-10 w-auto object-contain mr-3" onerror="this.style.display='none'">
+                    <span class="font-heading font-bold text-xl text-blue-900 truncate">YETAY</span>
+                </div>
+                
+                <div class="hidden md:flex items-center space-x-6 lg:space-x-8">
+                    <a href="index.html" class="text-blue-900 font-semibold border-b-2 border-yellow-500">Home</a>
+                    <a href="about.html" class="text-gray-600 hover:text-blue-900 transition">About</a>
+                    <a href="highlights.html" class="text-gray-600 hover:text-blue-900 transition">Highlights</a>
+                    <a href="editions.html" class="text-gray-600 hover:text-blue-900 transition">Editions</a>
+                    <a href="yetay3.html" class="text-gray-600 hover:text-blue-900 transition">Yetay 3.0</a>
+                    <a href="register.html" class="text-gray-600 hover:text-blue-900 transition">Registration</a>
+                    <a href="login.html" class="bg-blue-900 text-white px-5 py-2 rounded shadow-md hover:bg-blue-800 transition font-semibold tracking-wide uppercase text-sm">Login</a>
+                </div>
+
+                <div class="flex items-center md:hidden flex-shrink-0">
+                    <button id="mobile-menu-btn" class="text-blue-900 hover:text-yellow-500 focus:outline-none p-2 rounded-md">
+                        <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-200 shadow-2xl absolute w-full left-0 top-20">
+            <div class="px-4 pt-2 pb-6 space-y-1">
+                <a href="index.html" class="block px-3 py-3 text-blue-900 font-semibold border-l-4 border-yellow-500 bg-blue-50">Home</a>
+                <a href="about.html" class="block px-3 py-3 text-gray-600 hover:bg-blue-50 hover:text-blue-900 transition">About</a>
+                <a href="highlights.html" class="block px-3 py-3 text-gray-600 hover:bg-blue-50 hover:text-blue-900 transition">Highlights</a>
+                <a href="editions.html" class="block px-3 py-3 text-gray-600 hover:bg-blue-50 hover:text-blue-900 transition">Editions</a>
+                <a href="yetay3.html" class="block px-3 py-3 text-gray-600 hover:bg-blue-50 hover:text-blue-900 transition">Yetay 3.0</a>
+                <a href="register.html" class="block px-3 py-3 text-gray-600 hover:bg-blue-50 hover:text-blue-900 transition">Registration</a>
+                <a href="login.html" class="block px-3 py-3 mt-4 bg-blue-900 text-white text-center rounded shadow font-semibold">Login</a>
+            </div>
+        </div>
+    </nav>
+
+    <section id="hero" class="relative pt-20 h-screen carousel-bg flex items-center justify-center text-center" style="background-image: url('MAK_7257.jpg');">
+        <div class="absolute inset-0 bg-blue-900 bg-opacity-70"></div>
+        
+        <div class="relative z-10 px-4 max-w-4xl mx-auto w-full">
+            <img src="logo.png" alt="Yetay Logo" class="mx-auto h-24 md:h-32 mb-6" onerror="this.style.display='none'">
+            <h1 class="text-4xl md:text-6xl font-bold text-white mb-4 drop-shadow-lg break-words">YETAY Interdenominational Bible Competition</h1>
+            <p class="text-xl md:text-2xl text-yellow-400 font-semibold italic drop-shadow-md">Banner Unto Nations Foundation</p>
+        </div>
+    </section>
+
+    <section class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-blue-900 animate-pulse-slow">ANTICIPATE YETAY 3.0</h2>
+                <div class="w-24 h-1 bg-yellow-500 mx-auto mt-4"></div>
+            </div>
+            
+            <div class="flex flex-col md:flex-row items-center justify-center gap-8">
+                <div class="w-full md:w-1/2 max-w-md">
+                    <img src="yetay_register.jpeg" alt="Yetay 3.0 Anticipate Flyer" class="rounded-lg shadow-xl w-full h-auto object-contain">
+                </div>
+                <div class="w-full md:w-1/2 text-center md:text-left">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4">The Next Level of Bible Trivia</h3>
+                    <p class="text-gray-600 mb-6 text-lg">Prepare your young minds for a rigorous, spirit-filled engagement with the Word of God. The stage is getting set.</p>
+                    <a href="register.html" class="inline-block bg-yellow-500 text-blue-900 px-8 py-3 rounded shadow font-bold hover:bg-yellow-400 transition">Register Your Church Now</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-16 bg-blue-50">
+        <div class="max-w-4xl mx-auto px-4 text-center">
+            <h2 class="text-3xl font-bold text-blue-900 mb-6">Who We Are</h2>
+            <p class="text-gray-700 text-lg mb-8 leading-relaxed">
+                Banner Unto Nations Foundation is committed to proffering sustainable solutions to environmental, social, and economic challenges in West Africa. The Yetay Memorial Project is our faith-based initiative created to stir up a positive hunger for God's word among children and young adults.
+            </p>
+            <a href="about.html" class="text-blue-900 font-bold border-b-2 border-yellow-500 pb-1 hover:text-blue-700 transition">Read More About Us &rarr;</a>
+        </div>
+    </section>
+
+    <section class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-end mb-10">
+                <div>
+                    <h2 class="text-3xl font-bold text-blue-900">Capturing Moments</h2>
+                    <div class="w-16 h-1 bg-yellow-500 mt-2"></div>
+                </div>
+                <a href="highlights.html" class="hidden md:inline-block text-blue-900 font-semibold hover:underline">See More Moments &rarr;</a>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-gray-50 rounded-lg overflow-hidden shadow-md">
+                    <img src="MAK_7404.jpg" alt="Highlight 1" class="w-full h-64 object-cover">
+                    <div class="p-4 text-center">
+                        <p class="text-gray-700 font-semibold">Intense concentration during the Junior Category finals.</p>
+                    </div>
+                </div>
+                <div class="bg-gray-50 rounded-lg overflow-hidden shadow-md">
+                    <img src="MAK_7500.jpg" alt="Highlight 2" class="w-full h-64 object-cover">
+                    <div class="p-4 text-center">
+                        <p class="text-gray-700 font-semibold">Trophy presentation to the winning parish.</p>
+                    </div>
+                </div>
+                <div class="bg-gray-50 rounded-lg overflow-hidden shadow-md">
+                    <img src="MAK_7502.jpg" alt="Highlight 3" class="w-full h-64 object-cover">
+                    <div class="p-4 text-center">
+                        <p class="text-gray-700 font-semibold">Victory smiles after the assessments.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-8 text-center md:hidden">
+                <a href="highlights.html" class="text-blue-900 font-semibold hover:underline">See More Moments &rarr;</a>
+            </div>
+
+        </div>
+    </section>
+
+    <section class="py-20 bg-gray-900">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-3xl font-bold text-white mb-2">Gallery</h2>
+            <div class="w-16 h-1 bg-yellow-500 mx-auto mb-10"></div>
+
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-10">
+                <img src="MAK_7368.jpg" alt="Gallery" class="rounded shadow w-full h-48 md:h-64 object-cover">
+                <img src="MAK_7372.jpg" alt="Gallery" class="rounded shadow w-full h-48 md:h-64 object-cover">
+                <img src="MAK_7385.jpg" alt="Gallery" class="rounded shadow w-full h-48 md:h-64 object-cover">
+                <img src="MAK_7177.jpg" alt="Gallery" class="rounded shadow w-full h-48 md:h-64 object-cover">
+                <img src="MAK_7180.jpg" alt="Gallery" class="rounded shadow w-full h-48 md:h-64 object-cover">
+                <img src="MAK_7490.jpg" alt="Gallery" class="rounded shadow w-full h-48 md:h-64 object-cover">
+            </div>
+
+            <a href="highlights.html" class="inline-block border-2 border-yellow-500 text-yellow-500 px-8 py-2 rounded hover:bg-yellow-500 hover:text-blue-900 transition font-bold">View Full Gallery</a>
+        </div>
+    </section>
+
+    <footer class="bg-blue-900 text-white py-12 mt-auto w-full border-t border-blue-800">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <img src="logo.png" alt="Logo" class="h-12 mx-auto mb-4" onerror="this.style.display='none'">
+            <h3 class="text-xl font-bold mb-1 font-heading">Yetay Memorial Project</h3>
+            <p class="text-blue-200 mb-6 text-sm">Banner Unto Nations Foundation</p>
+
+            <div class="flex justify-center items-center space-x-5 md:space-x-6 mb-8">
+                
+                <a href="https://web.facebook.com/profile.php?id=61560969430207" target="_blank" rel="noopener noreferrer" class="group">
+                    <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-white flex items-center justify-center text-[#1877F2] group-hover:bg-[#1877F2] group-hover:text-white transition-all duration-300 shadow-lg transform group-hover:-translate-y-1">
+                        <svg class="w-5 h-5 md:w-6 md:h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                </a>
+
+                <a href="https://www.instagram.com/yetaybiblequiz/" target="_blank" rel="noopener noreferrer" class="group">
+                    <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-white flex items-center justify-center text-[#E1306C] group-hover:bg-gradient-to-tr group-hover:from-[#F58529] group-hover:via-[#DD2A7B] group-hover:to-[#8134AF] group-hover:text-white transition-all duration-300 shadow-lg transform group-hover:-translate-y-1">
+                        <svg class="w-5 h-5 md:w-6 md:h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.45 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                </a>
+
+                <a href="https://www.youtube.com/@Yetay-quiz" target="_blank" rel="noopener noreferrer" class="group">
+                    <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-white flex items-center justify-center text-[#FF0000] group-hover:bg-[#FF0000] group-hover:text-white transition-all duration-300 shadow-lg transform group-hover:-translate-y-1">
+                        <svg class="w-5 h-5 md:w-6 md:h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M19.812 5.418c.861.23 1.538.907 1.768 1.768C21.998 8.746 22 12 22 12s0 3.255-.418 4.814a2.504 2.504 0 0 1-1.768 1.768c-1.56.419-7.814.419-7.814.419s-6.255 0-7.814-.419a2.505 2.505 0 0 1-1.768-1.768C2 15.255 2 12 2 12s0-3.255.417-4.814a2.507 2.507 0 0 1 1.768-1.768C5.744 5 11.998 5 11.998 5s6.255 0 7.814.418ZM15.194 12 10 15V9l5.194 3Z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                </a>
+
+                <a href="https://chat.whatsapp.com/D2seJ7Uaxr2Lizx5ZHaI3d" target="_blank" rel="noopener noreferrer" class="group">
+                    <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-white flex items-center justify-center text-[#25D366] group-hover:bg-[#25D366] group-hover:text-white transition-all duration-300 shadow-lg transform group-hover:-translate-y-1">
+                        <svg class="w-5 h-5 md:w-6 md:h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M12.031 2C6.495 2 2 6.495 2 12.031c0 1.77.464 3.5 1.348 5.01L2 22l5.093-1.336A9.98 9.98 0 0012.031 22c5.536 0 10.031-4.495 10.031-10.031S17.567 2 12.031 2zm5.556 14.48c-.244.686-1.42 1.31-1.968 1.393-.526.08-1.2.22-3.805-.85-3.328-1.36-5.46-4.78-5.624-5.006-.164-.226-1.346-1.79-1.346-3.418 0-1.628.847-2.43 1.15-2.733.303-.303.662-.379.882-.379.22 0 .44.004.64.013.208.01.488-.08.761.58.286.686.974 2.378 1.059 2.543.085.165.143.356.033.58-.11.224-.165.362-.33.551-.165.188-.344.408-.495.551-.165.165-.337.34-.148.665.19.324.846 1.398 1.821 2.268 1.258 1.121 2.302 1.466 2.632 1.631.33.165.523.148.718-.066.195-.214.846-.983 1.074-1.319.229-.336.458-.28.756-.169.298.11 1.884.891 2.207 1.056.323.165.539.248.618.384.079.136.079.79-.165 1.476z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                </a>
+            </div>
+            
+            <p class="text-gray-400 text-sm">&copy; 2026 Banner Unto Nations Foundation. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile Menu Toggle Logic
+        const btn = document.getElementById('mobile-menu-btn');
+        const menu = document.getElementById('mobile-menu');
+        btn.addEventListener('click', () => {
+            menu.classList.toggle('hidden');
+        });
+
+        // Close menu if clicking outside
+        document.addEventListener('click', (event) => {
+            if (!menu.contains(event.target) && !btn.contains(event.target)) {
+                menu.classList.add('hidden');
+            }
+        });
+
+        // Hero Background Carousel Logic
+        const heroSection = document.getElementById('hero');
+        
+        // Using your actual local images
+        const images = [
+            'MAK_7257.jpg',
+            'MAK_7180.jpg',
+            'MAK_7490.jpg'
+        ];
+
+        let currentIndex = 0;
+
+        function changeHeroBackground() {
+            currentIndex = (currentIndex + 1) % images.length;
+            heroSection.style.backgroundImage = `url('${images[currentIndex]}')`;
+        }
+
+        setInterval(changeHeroBackground, 5000);
+    </script>
+</body>
+</html>

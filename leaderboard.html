@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaderboard | Yetay 3.0 Moderator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+    <link rel="stylesheet" href="shared.css">
+</head>
+<body class="h-screen w-screen flex flex-col overflow-hidden" data-page="leaderboard">
+
+    <div id="nav-placeholder"></div>
+
+    <main id="main-content" class="flex-grow w-full overflow-auto">
+        <div id="page-root" class="h-full flex flex-col overflow-hidden relative bg-gray-50">
+
+            <!-- Top bar -->
+            <div class="shrink-0 w-full flex items-center justify-between px-4 py-2.5 border-b border-gray-200 bg-blue-900 gap-3">
+                <div class="flex items-center gap-2 shrink-0">
+                    <svg class="w-4 h-4 text-yellow-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                    <span class="text-white font-black text-sm md:text-base font-heading uppercase tracking-wide">Leaderboard</span>
+                </div>
+
+                <div class="flex items-center gap-2 shrink-0">
+                    <button onclick="refreshLbView()" class="bg-white/10 hover:bg-white/20 text-white text-[9px] font-black uppercase px-2.5 py-1.5 rounded-lg transition border border-white/20 whitespace-nowrap">↻ Refresh</button>
+                    <button onclick="FullscreenManager.toggle('page-root','btn-lb-fullscreen')" id="btn-lb-fullscreen" class="bg-yellow-500 hover:bg-yellow-400 text-blue-900 text-[9px] font-black uppercase px-3 py-1.5 rounded-lg transition border border-yellow-400 whitespace-nowrap tracking-wide shadow">⛶ Fullscreen</button>
+                </div>
+            </div>
+
+            <!-- 7-view instant switcher -->
+            <div class="shrink-0 w-full border-b border-gray-200 bg-white px-4 py-2 flex flex-wrap gap-1.5 items-center">
+                <button onclick="setLbView('JNR_SB')" id="lb-view-btn-JNR_SB" class="lb-view-btn text-[9px] font-black uppercase px-2.5 py-1.5 rounded-lg border transition">JNR Board</button>
+                <button onclick="setLbView('INT_SB')" id="lb-view-btn-INT_SB" class="lb-view-btn text-[9px] font-black uppercase px-2.5 py-1.5 rounded-lg border transition">INT Board</button>
+                <button onclick="setLbView('SNR_SB')" id="lb-view-btn-SNR_SB" class="lb-view-btn text-[9px] font-black uppercase px-2.5 py-1.5 rounded-lg border transition">SNR Board</button>
+                <span class="text-gray-200">|</span>
+                <button onclick="setLbView('JNR_T3')" id="lb-view-btn-JNR_T3" class="lb-view-btn text-[9px] font-black uppercase px-2.5 py-1.5 rounded-lg border transition">🏆 JNR Top 3</button>
+                <button onclick="setLbView('INT_T3')" id="lb-view-btn-INT_T3" class="lb-view-btn text-[9px] font-black uppercase px-2.5 py-1.5 rounded-lg border transition">🏆 INT Top 3</button>
+                <button onclick="setLbView('SNR_T3')" id="lb-view-btn-SNR_T3" class="lb-view-btn text-[9px] font-black uppercase px-2.5 py-1.5 rounded-lg border transition">🏆 SNR Top 3</button>
+                <span class="text-gray-200">|</span>
+                <button onclick="setLbView('ALL_T3')" id="lb-view-btn-ALL_T3" class="lb-view-btn text-[9px] font-black uppercase px-2.5 py-1.5 rounded-lg border transition">🏆 All Top 3</button>
+            </div>
+
+            <!-- Column visibility toggles / mode label -->
+            <div id="lb-col-toggles" class="shrink-0 w-full border-b border-gray-200 bg-white px-4 py-2 flex flex-wrap gap-1.5 items-center min-h-[40px]">
+                <span class="text-gray-300 text-[9px] italic">Loading...</span>
+            </div>
+
+            <!-- Table / podium content -->
+            <div class="flex-grow overflow-auto" id="lb-table-container">
+                <div class="flex items-center justify-center h-full text-gray-300 text-xs font-bold uppercase tracking-widest">Select a view to load</div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Zoom Control Bar (separate from nav/menu) -->
+    <div id="zoom-bar" class="fixed bottom-4 right-4 z-[9999] flex items-center gap-1 bg-blue-900/95 backdrop-blur border border-blue-700 rounded-xl shadow-2xl px-2 py-1.5 select-none" style="touch-action:none;">
+        <span id="zoom-drag-handle" title="Drag to move" class="cursor-grab active:cursor-grabbing text-blue-300 hover:text-white px-1.5 text-xs font-black tracking-widest">⠿⠿</span>
+        <span class="text-blue-200 text-[8px] font-black uppercase tracking-widest px-1.5 hidden sm:block">Zoom</span>
+        <button onclick="zoomOut()" title="Zoom out" class="w-8 h-8 flex items-center justify-center bg-white/10 hover:bg-white/20 active:bg-white/30 text-white font-black text-base rounded-lg transition">−</button>
+        <span id="zoom-level" class="text-white text-[10px] font-black uppercase tracking-widest w-11 text-center tabular-nums">100%</span>
+        <button onclick="zoomIn()" title="Zoom in" class="w-8 h-8 flex items-center justify-center bg-white/10 hover:bg-white/20 active:bg-white/30 text-white font-black text-base rounded-lg transition">+</button>
+        <div class="w-px h-5 bg-white/20 mx-0.5"></div>
+        <button onclick="zoomReset()" title="Reset zoom" class="px-2.5 h-8 flex items-center justify-center bg-yellow-500 hover:bg-yellow-400 text-blue-900 text-[9px] font-black uppercase rounded-lg transition tracking-wide">Reset</button>
+    </div>
+
+    <script src="shared.js"></script>
+    <script>
+        loadSharedNav();
+
+        let lbViewMode = null;
+        let lbCategory = 'JNR';
+        let lbColumns = [];
+        let lbRows = [];
+        let lbNotShowCols = [];
+        let lbCache = {};
+        let lbPodiumRows = [];
+        let lbConfettiInterval = null;
+
+        function updateLbToolbarActive() {
+            ['JNR_SB','INT_SB','SNR_SB','JNR_T3','INT_T3','SNR_T3','ALL_T3'].forEach(v => {
+                const btn = document.getElementById(`lb-view-btn-${v}`);
+                if (!btn) return;
+                if (v === lbViewMode) {
+                    btn.classList.remove('bg-gray-100','text-gray-600','border-gray-200');
+                    btn.classList.add('bg-blue-900','text-white','border-blue-800');
+                } else {
+                    btn.classList.remove('bg-blue-900','text-white','border-blue-800');
+                    btn.classList.add('bg-gray-100','text-gray-600','border-gray-200');
+                }
+            });
+        }
+
+        function setLbView(view) {
+            if (lbViewMode === view) return;
+            stopContinuousConfetti();
+            lbViewMode = view;
+            updateLbToolbarActive();
+
+            if (view === 'ALL_T3') {
+                renderAllTopThree();
+            } else if (view.endsWith('_T3')) {
+                const cat = view.split('_')[0];
+                lbCategory = cat;
+                renderSingleTopThree(cat);
+            } else {
+                const cat = view.split('_')[0];
+                lbCategory = cat;
+                fetchLbScoreboard(cat, false);
+            }
+        }
+
+        function refreshLbView() {
+            if (!lbViewMode) return;
+            if (lbViewMode === 'ALL_T3') { renderAllTopThree(); }
+            else if (lbViewMode.endsWith('_T3')) { renderSingleTopThree(lbViewMode.split('_')[0]); }
+            else { fetchLbScoreboard(lbViewMode.split('_')[0], false); }
+        }
+
+        async function ensureLbDataLoaded(cat) {
+            try {
+                const sParams = new URLSearchParams();
+                sParams.append('action', 'getScoreboardData');
+                sParams.append('category', cat);
+                const sResp = await fetch(scriptURL, { method: 'POST', body: sParams });
+                const sData = await sResp.json();
+                if (!sData.success) return false;
+
+                const nParams = new URLSearchParams();
+                nParams.append('action', 'getNotShowColumns');
+                nParams.append('category', cat);
+                const nResp = await fetch(scriptURL, { method: 'POST', body: nParams });
+                const nData = await nResp.json();
+                const notShow = nData.success ? nData.columns : [];
+
+                lbCache[cat] = { columns: sData.columns, rows: sData.rows, notShow: notShow };
+                return true;
+            } catch (err) {
+                return false;
+            }
+        }
+
+        function lbRowTotalFor(cat, cells) {
+            const data = lbCache[cat];
+            if (!data) return 0;
+            const totalColIndex = data.columns.indexOf('Total');
+            if (totalColIndex !== -1 && cells[totalColIndex] !== undefined && cells[totalColIndex] !== '') {
+                return Number(cells[totalColIndex]) || 0;
+            }
+            let total = 0;
+            for (let c = 1; c < data.columns.length; c++) {
+                if (data.columns[c] === 'Total' || data.columns[c] === 'Visible Total') continue;
+                if (data.notShow.includes(data.columns[c])) continue;
+                const v = Number(cells[c]);
+                if (!isNaN(v)) total += v;
+            }
+            return total;
+        }
+
+        function computeTopThree(cat) {
+            const data = lbCache[cat];
+            if (!data) return [];
+            const sorted = [...data.rows].sort((a, b) => lbRowTotalFor(cat, b.cells) - lbRowTotalFor(cat, a.cells));
+            return sorted.slice(0, 3).map(r => ({
+                name: r.cells[0] || '—',
+                alias: r.alias || '',
+                total: lbRowTotalFor(cat, r.cells)
+            }));
+        }
+
+        function saveTopThreeSilently(cat, rows) {
+            const params = new URLSearchParams();
+            params.append('action', 'saveTopThree');
+            params.append('category', cat);
+            params.append('rows', JSON.stringify(rows));
+            fetch(scriptURL, { method: 'POST', body: params }).catch(() => {});
+        }
+
+        async function fetchLbScoreboard(cat, silent) {
+            const container = document.getElementById('lb-table-container');
+            const togglesEl = document.getElementById('lb-col-toggles');
+
+            if (!silent) {
+                const cached = lbCache[cat];
+                if (cached) {
+                    lbColumns = cached.columns; lbRows = cached.rows; lbNotShowCols = cached.notShow;
+                    paintLeaderboard();
+                } else {
+                    container.innerHTML = `<div class="flex items-center justify-center h-full text-gray-300 text-xs font-bold uppercase tracking-widest">Loading...</div>`;
+                    togglesEl.innerHTML = `<span class="text-gray-300 text-[9px] italic">Loading...</span>`;
+                }
+            }
+
+            const ok = await ensureLbDataLoaded(cat);
+            if (!ok) {
+                if (!lbCache[cat] && !silent) container.innerHTML = `<div class="p-6 text-red-400 font-bold text-xs">Could not load leaderboard.</div>`;
+                return;
+            }
+            if (lbViewMode !== `${cat}_SB`) return;
+
+            const cached = lbCache[cat];
+            lbColumns = cached.columns; lbRows = cached.rows; lbNotShowCols = cached.notShow;
+            paintLeaderboard();
+        }
+
+        function paintLeaderboard() {
+            const container = document.getElementById('lb-table-container');
+            container.style.overflow = 'auto';
+            const togglesEl = document.getElementById('lb-col-toggles');
+            const totalColIndex = lbColumns.indexOf('Total');
+            const legacyVTIndex = lbColumns.indexOf('Visible Total');
+
+            togglesEl.innerHTML = `<span class="text-[9px] text-gray-400 font-black uppercase tracking-widest">👁 View Only — columns are controlled from the Online tab's Scoreboard</span>`;
+
+            const visibleDataCols = [];
+            for (let c = 1; c < lbColumns.length; c++) {
+                if (c === totalColIndex || c === legacyVTIndex) continue;
+                if (lbNotShowCols.includes(lbColumns[c])) continue;
+                visibleDataCols.push(c);
+            }
+
+            const sorted = [...lbRows].sort((a, b) => lbRowTotalFor(lbCategory, b.cells) - lbRowTotalFor(lbCategory, a.cells));
+
+            const headerHtml = `
+                <th class="px-3 py-2 text-left sticky left-0 bg-gray-100 z-10 font-black text-blue-900">Pos</th>
+                <th class="px-3 py-2 text-left font-black text-blue-900">Church</th>
+                <th class="px-3 py-2 text-left font-black text-blue-900">Alias</th>
+                ${visibleDataCols.map(c => `<th class="px-3 py-2 text-left font-black text-blue-900">${lbColumns[c]}</th>`).join('')}
+                <th class="px-3 py-2 text-right font-black text-blue-900">Total</th>
+            `;
+
+            const posIcons = ['🥇', '🥈', '🥉'];
+
+            const bodyHtml = sorted.map((r, i) => {
+                const total = lbRowTotalFor(lbCategory, r.cells);
+                const pos = i < 3 ? posIcons[i] : `${i + 1}`;
+                const rowBg = i === 0
+                    ? 'background:#fef9c3; border-left: 3px solid #eab308;'
+                    : i === 1
+                        ? 'background:#f0f9ff; border-left: 3px solid #60a5fa;'
+                        : i === 2
+                            ? 'background:#fdf4ff; border-left: 3px solid #c084fc;'
+                            : (i % 2 === 0 ? 'background:#ffffff;' : 'background:#f9fafb;');
+
+                const cellsHtml = visibleDataCols.map(c => `
+                    <td class="px-3 py-2 text-xs text-gray-700">${r.cells[c] !== undefined ? r.cells[c] : ''}</td>
+                `).join('');
+
+                return `
+                    <tr class="border-b border-gray-100" style="${rowBg}">
+                        <td class="px-3 py-2 font-black text-base sticky left-0" style="${rowBg}">${pos}</td>
+                        <td class="px-3 py-2 text-sm font-bold text-blue-900">${r.cells[0]}</td>
+                        <td class="px-3 py-2 text-sm text-gray-500">${r.alias || ''}</td>
+                        ${cellsHtml}
+                        <td class="px-3 py-2 text-sm font-black text-blue-900 text-right">${total}</td>
+                    </tr>
+                `;
+            }).join('');
+
+            container.innerHTML = `
+                <table class="w-full">
+                    <thead class="sticky top-0 bg-gray-100 text-[9px] font-black uppercase tracking-widest text-gray-500">
+                        <tr>${headerHtml}</tr>
+                    </thead>
+                    <tbody>${bodyHtml || '<tr><td class="p-4 text-center text-gray-300 text-xs font-bold uppercase" colspan="99">No data yet</td></tr>'}</tbody>
+                </table>
+            `;
+        }
+
+        async function renderSingleTopThree(cat) {
+            const container = document.getElementById('lb-table-container');
+            const togglesEl = document.getElementById('lb-col-toggles');
+            togglesEl.innerHTML = `<span class="text-[9px] text-yellow-600 font-black uppercase tracking-widest">🏆 ${cat} Podium</span>`;
+
+            const cached = lbCache[cat];
+            if (cached) {
+                lbPodiumRows = computeTopThree(cat);
+                paintLbPodiumTable();
+                startContinuousConfetti();
+            } else {
+                container.innerHTML = `<div class="flex items-center justify-center h-full text-gray-300 text-xs font-bold uppercase tracking-widest">Loading...</div>`;
+            }
+
+            const ok = await ensureLbDataLoaded(cat);
+            if (!ok) {
+                if (!cached) container.innerHTML = `<div class="p-6 text-red-400 font-bold text-xs">Could not load data.</div>`;
+                return;
+            }
+            if (lbViewMode !== `${cat}_T3`) return;
+
+            lbPodiumRows = computeTopThree(cat);
+            paintLbPodiumTable();
+            startContinuousConfetti();
+            saveTopThreeSilently(cat, lbPodiumRows);
+        }
+
+        function paintLbPodiumTable() {
+            const container = document.getElementById('lb-table-container');
+            container.style.overflow = 'hidden';
+            const posIcons = ['🥇', '🥈', '🥉'];
+            const posLabels = ['Winner', '1st Runner Up', '2nd Runner Up'];
+            const rowColors = ['#fef9c3', '#f0f9ff', '#fdf4ff'];
+            const borderColors = ['#eab308', '#60a5fa', '#c084fc'];
+
+            const bodyHtml = lbPodiumRows.map((r, i) => `
+                <tr class="border-b border-gray-100" style="background:${rowColors[i]}; border-left: 4px solid ${borderColors[i]};">
+                    <td class="px-4 py-4 font-black text-3xl">${posIcons[i]}</td>
+                    <td class="px-4 py-4">
+                        <p class="text-[9px] text-gray-400 font-black uppercase tracking-widest">${posLabels[i]}</p>
+                        <p class="text-blue-900 font-black text-lg break-words">${r.name}</p>
+                        ${r.alias ? `<p class="text-gray-400 text-xs font-bold break-words">@${r.alias}</p>` : ''}
+                    </td>
+                    <td class="px-4 py-4 text-right font-black text-blue-900 text-xl">${r.total}</td>
+                </tr>
+            `).join('');
+
+            container.innerHTML = `
+                <div class="h-full flex flex-col items-center justify-center p-4 gap-4">
+                    <table class="w-full max-w-xl">
+                        <tbody>${bodyHtml || '<tr><td class="p-6 text-center text-gray-300 text-xs font-bold uppercase">No podium data</td></tr>'}</tbody>
+                    </table>
+                    <button onclick="triggerConfettiBurst()" class="bg-yellow-500 hover:bg-yellow-400 text-blue-900 text-xl px-5 py-2.5 rounded-full shadow-lg transition transform hover:scale-105 active:scale-95" title="Tap for confetti!">
+                        🎉
+                    </button>
+                </div>
+            `;
+        }
+
+        async function renderAllTopThree() {
+            const togglesEl = document.getElementById('lb-col-toggles');
+            togglesEl.innerHTML = `<span class="text-[9px] text-yellow-600 font-black uppercase tracking-widest">🏆 All Category Podium</span>`;
+
+            paintAllTopThree();
+
+            await Promise.all(['JNR', 'INT', 'SNR'].map(c => ensureLbDataLoaded(c)));
+            if (lbViewMode !== 'ALL_T3') return;
+
+            paintAllTopThree();
+            startContinuousConfetti();
+            ['JNR', 'INT', 'SNR'].forEach(c => saveTopThreeSilently(c, computeTopThree(c)));
+        }
+
+        function paintAllTopThree() {
+            const container = document.getElementById('lb-table-container');
+            container.style.overflow = 'hidden';
+            const catLabels = { JNR: 'Junior', INT: 'Intermediate', SNR: 'Senior' };
+            const posIcons = ['🥇', '🥈', '🥉'];
+            const posLabels = ['Winner', '1st Runner Up', '2nd Runner Up'];
+            const rowColors = ['#fef9c3', '#f0f9ff', '#fdf4ff'];
+            const borderColors = ['#eab308', '#60a5fa', '#c084fc'];
+
+            const panels = ['JNR', 'INT', 'SNR'].map(cat => {
+                const rows = computeTopThree(cat);
+                const rowsHtml = rows.length ? rows.map((r, i) => `
+                    <div class="flex-1 min-h-0 rounded-xl px-2.5 flex items-center gap-2" style="background:${rowColors[i]}; border-left:4px solid ${borderColors[i]};">
+                        <span class="text-xl shrink-0">${posIcons[i]}</span>
+                        <div class="min-w-0 flex-1">
+                            <p class="text-[8px] text-gray-400 font-black uppercase tracking-widest leading-tight">${posLabels[i]}</p>
+                            <p class="text-blue-900 font-black text-xs leading-tight break-words">${r.name}</p>
+                            ${r.alias ? `<p class="text-gray-400 text-[9px] font-bold leading-tight break-words">@${r.alias}</p>` : ''}
+                        </div>
+                        <span class="font-black text-blue-900 text-base shrink-0">${r.total}</span>
+                    </div>
+                `).join('') : `<p class="text-gray-300 text-xs font-bold uppercase text-center py-6">No data</p>`;
+
+                return `
+                    <div class="flex-1 h-full min-w-0 flex flex-col bg-white border border-gray-200 rounded-2xl p-2.5 md:p-3">
+                        <h3 class="text-blue-900 font-black text-sm md:text-base font-heading uppercase tracking-wide mb-2 text-center shrink-0">${catLabels[cat]}</h3>
+                        <div class="flex-1 flex flex-col gap-1.5 min-h-0">${rowsHtml}</div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = `
+                <div class="h-full w-full flex flex-col p-3 md:p-4">
+                    <div class="flex-1 flex flex-col md:flex-row gap-3 md:gap-4 w-full min-h-0">${panels}</div>
+                    <div class="shrink-0 flex justify-center pt-3">
+                        <button onclick="triggerConfettiBurst()" class="bg-yellow-500 hover:bg-yellow-400 text-blue-900 text-xl md:text-2xl px-5 py-2.5 rounded-full shadow-lg transition transform hover:scale-105 active:scale-95" title="Tap for confetti!">
+                            🎉
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function startContinuousConfetti() {
+            stopContinuousConfetti();
+            const colors = ['#1e3a8a', '#eab308', '#ffffff', '#fbbf24', '#60a5fa'];
+            lbConfettiInterval = setInterval(() => {
+                confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 }, colors: colors });
+                confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 }, colors: colors });
+            }, 350);
+        }
+
+        function stopContinuousConfetti() {
+            clearInterval(lbConfettiInterval);
+            lbConfettiInterval = null;
+        }
+
+        function triggerConfettiBurst() {
+            const colors = ['#1e3a8a', '#eab308', '#ffffff', '#fbbf24', '#60a5fa'];
+            const end = Date.now() + 1200;
+
+            confetti({ particleCount: 150, spread: 100, startVelocity: 45, origin: { x: 0.5, y: 0.6 }, colors: colors });
+
+            (function frame() {
+                confetti({ particleCount: 6, angle: 60, spread: 70, origin: { x: 0 }, colors: colors });
+                confetti({ particleCount: 6, angle: 120, spread: 70, origin: { x: 1 }, colors: colors });
+                if (Date.now() < end) requestAnimationFrame(frame);
+            })();
+        }
+
+        // ===== Zoom control (page content, independent of nav/menu) =====
+        const ZOOM_MIN = 50;
+        const ZOOM_MAX = 200;
+        const ZOOM_STEP = 10;
+        const ZOOM_STORAGE_KEY = 'yetay_zoom_level';
+
+        let zoomLevel = parseInt(localStorage.getItem(ZOOM_STORAGE_KEY), 10);
+        if (isNaN(zoomLevel) || zoomLevel < ZOOM_MIN || zoomLevel > ZOOM_MAX) {
+            zoomLevel = 100;
+        }
+
+        function applyZoom() {
+            const target = document.getElementById('page-root');
+            if (target) {
+                if (CSS.supports('zoom', '1')) {
+                    target.style.zoom = zoomLevel / 100;
+                } else {
+                    target.style.transformOrigin = 'top left';
+                    target.style.transform = `scale(${zoomLevel / 100})`;
+                    target.style.width = `${10000 / zoomLevel}%`;
+                }
+            }
+            const label = document.getElementById('zoom-level');
+            if (label) label.textContent = zoomLevel + '%';
+            localStorage.setItem(ZOOM_STORAGE_KEY, zoomLevel);
+        }
+
+        function zoomIn() {
+            if (zoomLevel < ZOOM_MAX) { zoomLevel += ZOOM_STEP; applyZoom(); }
+        }
+
+        function zoomOut() {
+            if (zoomLevel > ZOOM_MIN) { zoomLevel -= ZOOM_STEP; applyZoom(); }
+        }
+
+        function zoomReset() {
+            zoomLevel = 100;
+            applyZoom();
+        }
+
+        applyZoom();
+
+        // ===== Drag to reposition the zoom bar =====
+        function makeZoomBarDraggable() {
+            const bar = document.getElementById('zoom-bar');
+            const handle = document.getElementById('zoom-drag-handle');
+            if (!bar || !handle) return;
+
+            const POS_KEY = 'yetay_zoom_bar_pos';
+            let dragging = false, offsetX = 0, offsetY = 0;
+
+            function setPosition(x, y) {
+                const maxX = window.innerWidth - bar.offsetWidth;
+                const maxY = window.innerHeight - bar.offsetHeight;
+                x = Math.min(Math.max(x, 0), Math.max(maxX, 0));
+                y = Math.min(Math.max(y, 0), Math.max(maxY, 0));
+                bar.style.left = x + 'px';
+                bar.style.top = y + 'px';
+                bar.style.right = 'auto';
+                bar.style.bottom = 'auto';
+            }
+
+            const savedPos = JSON.parse(localStorage.getItem(POS_KEY) || 'null');
+            if (savedPos) setPosition(savedPos.x, savedPos.y);
+
+            handle.addEventListener('pointerdown', (e) => {
+                dragging = true;
+                const rect = bar.getBoundingClientRect();
+                offsetX = e.clientX - rect.left;
+                offsetY = e.clientY - rect.top;
+                handle.setPointerCapture(e.pointerId);
+            });
+
+            handle.addEventListener('pointermove', (e) => {
+                if (!dragging) return;
+                setPosition(e.clientX - offsetX, e.clientY - offsetY);
+            });
+
+            ['pointerup', 'pointercancel'].forEach(evt => {
+                handle.addEventListener(evt, () => {
+                    if (!dragging) return;
+                    dragging = false;
+                    const rect = bar.getBoundingClientRect();
+                    localStorage.setItem(POS_KEY, JSON.stringify({ x: rect.left, y: rect.top }));
+                });
+            });
+        }
+
+        makeZoomBarDraggable();
+
+        // This page IS the Leaderboard tab — default to JNR Board and load
+        // immediately (this used to run only when openTab('tab-leaderboard') fired).
+        lbViewMode = 'JNR_SB';
+        updateLbToolbarActive();
+        refreshLbView();
+    </script>
+</body>
+</html>

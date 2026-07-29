@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super Admin | Yetay 3.0</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body { font-family: 'Open Sans', sans-serif; background-color: #f3f4f6; }
+        h1, h2, h3, .font-heading { font-family: 'Montserrat', sans-serif; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .loading-pulse { animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+    </style>
+</head>
+<body class="pt-16 md:pt-20 flex flex-col min-h-screen">
+
+    <nav class="bg-gray-900 shadow-md fixed w-full z-50 top-0 h-16 md:h-20 text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
+            <div class="flex justify-between items-center h-full w-full">
+                <div class="flex items-center flex-shrink-0">
+                    <img src="logo.png" alt="Yetay Logo" class="h-8 md:h-10 w-auto bg-white rounded p-1 mr-2 md:mr-3" onerror="this.style.display='none'">
+                    <span class="font-heading font-bold text-sm md:text-xl text-red-500">SYSTEM <span class="hidden sm:inline">CONTROL</span></span>
+                </div>
+                <div class="flex items-center space-x-3 md:space-x-4">
+                    <a href="index.html" class="text-xs md:text-sm font-semibold text-gray-300 hover:text-white whitespace-nowrap">&larr; <span class="md:hidden">Website</span><span class="hidden md:inline">Main Website</span></a>
+                    <a href="login.html" onclick="localStorage.clear()" class="bg-red-600 text-white px-3 py-1.5 md:px-4 md:py-2 rounded shadow hover:bg-red-700 transition font-bold text-xs md:text-sm">Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 overflow-x-auto whitespace-nowrap hide-scrollbar">
+            <div class="flex space-x-4 md:space-x-6 py-3">
+                <button onclick="openTab('tab-dashboard')" id="btn-tab-dashboard" class="portal-tab text-sm md:text-base text-blue-900 font-bold border-b-2 border-yellow-500 px-2 pb-1">Dashboard</button>
+                <button onclick="openTab('tab-registrations')" id="btn-tab-registrations" class="portal-tab text-sm md:text-base text-gray-500 hover:text-blue-900 font-semibold px-2 pb-1">CRM</button>
+                <button onclick="openTab('tab-tasks')" id="btn-tab-tasks" class="portal-tab text-sm md:text-base text-gray-500 hover:text-blue-900 font-semibold px-2 pb-1">Task Manager</button>
+                <button onclick="openTab('tab-assessments')" id="btn-tab-assessments" class="portal-tab text-sm md:text-base text-gray-500 hover:text-blue-900 font-semibold px-2 pb-1">Assessments</button>
+                <button onclick="openTab('tab-maincbt')" id="btn-tab-maincbt" class="portal-tab text-sm md:text-base text-gray-500 hover:text-blue-900 font-semibold px-2 pb-1">CBT Config</button>
+                <button onclick="openTab('tab-archives')" id="btn-tab-archives" class="portal-tab text-sm md:text-base text-gray-500 hover:text-blue-900 font-semibold px-2 pb-1">Archive Manager</button>
+                <button onclick="openTab('tab-quest')" id="btn-tab-quest" class="portal-tab text-sm md:text-base text-gray-500 hover:text-blue-900 font-semibold px-2 pb-1">Quest Validation</button>
+                <button onclick="openTab('tab-churchparticipants')" id="btn-tab-churchparticipants" class="portal-tab text-sm md:text-base text-gray-500 hover:text-blue-900 font-semibold px-2 pb-1">Church Participants</button>
+                <button onclick="openTab('tab-controlroom')" id="btn-tab-controlroom" class="portal-tab text-sm md:text-base text-red-600 hover:text-red-800 font-bold px-2 pb-1">Control Room</button>
+            </div>
+        </div>
+    </div>
+
+    <main class="flex-grow max-w-7xl mx-auto w-full px-4 py-6 md:py-8">
+        
+        <div class="bg-white rounded-lg shadow-sm border-l-4 border-red-600 p-4 md:p-6 mb-6 md:mb-8 flex justify-between items-center gap-4">
+            <div>
+                <h1 class="text-lg md:text-2xl font-bold text-gray-900">Welcome, Super Admin</h1>
+                <div class="flex flex-wrap gap-2 mt-2">
+                    <span class="bg-red-100 text-red-800 px-2 py-1 rounded text-[10px] md:text-xs font-bold uppercase tracking-tight">MASTER ACCESS</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-dashboard" class="tab-content active">
+            <div class="bg-gray-900 rounded-xl p-8 text-center text-white shadow-xl mb-8">
+                <h3 class="text-2xl font-bold font-heading text-red-500 mb-2 uppercase tracking-widest">Master Terminal Active</h3>
+                <p class="text-gray-300 text-sm max-w-lg mx-auto">You have full override access. Use this terminal to manage the database, assign internal tasks, push out church assessments, and trigger live examinations.</p>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-8">
+                <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100 text-center border-b-4 border-blue-900">
+                    <p class="text-[10px] text-gray-500 font-bold uppercase mb-1">Active Admins</p>
+                    <p class="text-2xl font-bold text-blue-900" id="stat-admins">...</p>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100 text-center border-b-4 border-yellow-500">
+                    <p class="text-[10px] text-gray-500 font-bold uppercase mb-1">Total Churches</p>
+                    <p class="text-2xl font-bold text-gray-800 loading-pulse" id="stat-churches-overview">...</p>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100 text-center border-b-4 border-green-500">
+                    <p class="text-[10px] text-gray-500 font-bold uppercase mb-1">Tasks Assigned</p>
+                    <p class="text-2xl font-bold text-green-600">0</p>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100 text-center border-b-4 border-red-500">
+                    <p class="text-[10px] text-gray-500 font-bold uppercase mb-1">Pending Alerts</p>
+                    <p class="text-2xl font-bold text-red-600">0</p>
+                </div>
+            </div>
+
+            <div class="bg-red-50 border border-red-200 rounded-lg p-5 md:p-6 relative overflow-hidden shadow-sm mb-8 max-w-3xl mx-auto">
+                <div class="absolute top-0 right-0 bg-red-600 text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg uppercase tracking-wider">Latest Activity</div>
+                <h3 class="font-bold text-red-900 mb-1">Last Task Completed</h3>
+                <p class="text-sm text-red-800 font-semibold mb-4">Portal Onboarding & Initial Setup</p>
+                
+                <div class="flex flex-wrap justify-center gap-6 items-center">
+                    <div class="bg-white px-4 py-2 rounded shadow-sm border border-red-100">
+                        <span class="text-[10px] uppercase font-bold text-gray-500 block mb-0.5">Previous Points</span>
+                        <span class="font-mono font-bold text-gray-800 text-sm">0</span>
+                    </div>
+                    <div class="text-red-500 font-black text-xl">+</div>
+                    <div class="bg-white px-4 py-2 rounded shadow-sm border border-red-100">
+                        <span class="text-[10px] uppercase font-bold text-gray-500 block mb-0.5">Points Earned</span>
+                        <span class="font-mono font-bold text-green-600 text-sm">10</span>
+                    </div>
+                    <div class="text-red-500 font-black text-xl">=</div>
+                    <div class="bg-white px-4 py-2 rounded shadow-sm border-2 border-red-600">
+                        <span class="text-[10px] uppercase font-bold text-red-700 block mb-0.5">Total Ranking Pts</span>
+                        <span class="font-mono font-black text-blue-900 text-lg">10</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mb-6"><h2 class="text-xl md:text-2xl font-bold text-blue-900">Yetay Team Standings</h2></div>
+            <div class="max-w-3xl mx-auto bg-white rounded-lg shadow-sm border overflow-hidden">
+                <table class="w-full text-left text-xs md:text-sm">
+                    <thead class="bg-blue-900 text-white">
+                        <tr><th class="p-4 font-bold">Admin Name</th><th class="p-4 font-bold">Role</th><th class="p-4 text-right">Points</th></tr>
+                    </thead>
+                    <tbody id="leaderboard-body" class="text-gray-700">
+                        <tr><td colspan="3" class="p-6 text-center text-gray-400">Loading Leaderboard...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="tab-registrations" class="tab-content">
+            
+            <h3 class="text-lg md:text-xl font-bold text-blue-900 mb-4 border-b pb-2">Yetay 3.0 Dashboard</h3>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 md:gap-4 mb-6 md:mb-8">
+                <div onclick="filterRegistry('all')" class="bg-blue-900 p-3 md:p-4 rounded-lg shadow-md text-center cursor-pointer hover:scale-105 transition text-white">
+                    <p class="text-[10px] md:text-xs text-blue-200 font-bold uppercase mb-1">Total Churches</p>
+                    <p id="stat-total" class="text-xl md:text-3xl font-bold loading-pulse">...</p>
+                </div>
+                <div onclick="filterRegistry('junior')" class="bg-white p-3 md:p-4 rounded-lg shadow-sm border text-center cursor-pointer hover:border-yellow-500 transition">
+                    <p class="text-[10px] md:text-xs text-gray-500 font-bold uppercase mb-1">Junior Enrolled</p>
+                    <p id="stat-junior" class="text-xl md:text-2xl font-bold text-gray-800 loading-pulse">...</p>
+                </div>
+                <div onclick="filterRegistry('intermediate')" class="bg-white p-3 md:p-4 rounded-lg shadow-sm border text-center cursor-pointer hover:border-green-500 transition">
+                    <p class="text-[10px] md:text-xs text-gray-500 font-bold uppercase mb-1">Inter Enrolled</p>
+                    <p id="stat-inter" class="text-xl md:text-2xl font-bold text-gray-800 loading-pulse">...</p>
+                </div>
+                <div onclick="filterRegistry('senior')" class="bg-white p-3 md:p-4 rounded-lg shadow-sm border text-center cursor-pointer hover:border-red-500 transition">
+                    <p class="text-[10px] md:text-xs text-gray-500 font-bold uppercase mb-1">Senior Enrolled</p>
+                    <p id="stat-senior" class="text-xl md:text-2xl font-bold text-gray-800 loading-pulse">...</p>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-sm border overflow-x-auto">
+                <div class="p-4 border-b bg-gray-50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                    <h3 class="font-bold text-gray-800" id="crm-table-title">Master Church Registry</h3>
+                    <input type="text" id="crmSearch" onkeyup="filterRegistryBySearch()" placeholder="Search churches..." class="border rounded px-3 py-1.5 text-sm focus:outline-none focus:border-blue-900 w-full sm:w-64">
+                </div>
+                <table class="w-full text-left text-xs md:text-sm whitespace-nowrap">
+                    <thead class="text-gray-500 uppercase text-[10px] bg-gray-50">
+                        <tr><th class="p-4">Church Name</th><th class="p-4">Username (Alias)</th><th class="p-4">Contact</th><th class="p-4 text-right">Action</th></tr>
+                    </thead>
+                    <tbody id="registry-body" class="text-gray-700">
+                        <tr><td colspan="4" class="p-8 text-center text-gray-400">Fetching live registry...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="tab-tasks" class="tab-content">
+            <h2 class="text-xl font-bold text-blue-900 mb-6">Task Delegation Board</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-1 bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                    <h3 class="font-bold text-gray-800 mb-4 border-b pb-2">Assign New Task</h3>
+                    <form onsubmit="event.preventDefault(); Swal.fire('Pending Phase 5', 'Task backend integration is coming soon.', 'info');" class="space-y-4">
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Task Title</label>
+                            <input type="text" class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:border-blue-900 focus:outline-none" required placeholder="e.g. Draft opening speech">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Assignee (Yetay Admin)</label>
+                            <select id="taskAssigneeDropdown" class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:border-blue-900 focus:outline-none" required>
+                                <option value="">Loading Admins...</option>
+                            </select>
+                        </div>
+                        <div class="flex gap-4">
+                            <div class="w-1/2">
+                                <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Points</label>
+                                <input type="number" class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:border-blue-900 focus:outline-none" required placeholder="e.g. 150">
+                            </div>
+                            <div class="w-1/2">
+                                <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Due Date</label>
+                                <input type="date" class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:border-blue-900 focus:outline-none" required>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Description</label>
+                            <textarea class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:border-blue-900 focus:outline-none" rows="3" required placeholder="Detail the task expectations..."></textarea>
+                        </div>
+                        <button type="submit" class="w-full bg-blue-900 text-white font-bold py-2.5 rounded hover:bg-blue-800 transition text-sm">Deploy Task</button>
+                    </form>
+                </div>
+                
+                <div class="lg:col-span-2 bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                    <h3 class="font-bold text-gray-800 mb-4 border-b pb-2">Active Team Tasks</h3>
+                    <div class="space-y-4">
+                        <div class="bg-gray-50 p-4 rounded shadow-sm border border-l-4 border-l-green-500 opacity-75">
+                            <p class="font-bold text-gray-800 line-through">Portal Onboarding & Initial Setup</p>
+                            <div class="flex justify-between items-center mt-2">
+                                <span class="text-xs font-bold text-green-600">+10 Pts (Earned)</span>
+                                <span class="text-xs text-gray-500">All Admins</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-assessments" class="tab-content">
+            <h2 class="text-xl font-bold text-blue-900 mb-6">Church Assessment Deployment</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-1 bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                    <h3 class="font-bold text-gray-800 mb-4 border-b pb-2">Create New Assessment</h3>
+                    <form onsubmit="event.preventDefault(); Swal.fire('Pending Phase 5', 'Assessment linking is coming soon.', 'info');" class="space-y-4">
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Assessment Title</label>
+                            <input type="text" class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:border-green-600 focus:outline-none" required placeholder="e.g. May Pre-Qualifier Test">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Target Category</label>
+                            <select class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:border-green-600 focus:outline-none" required>
+                                <option value="">Select Target...</option>
+                                <option value="All">All Categories</option>
+                                <option value="Junior">Junior Only</option>
+                                <option value="Intermediate">Intermediate Only</option>
+                                <option value="Senior">Senior Only</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">External Link (Google Form / Test Portal)</label>
+                            <input type="url" class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:border-green-600 focus:outline-none" required placeholder="https://forms.gle/...">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Closing Date & Time</label>
+                            <input type="datetime-local" class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:border-green-600 focus:outline-none" required>
+                        </div>
+                        <button type="submit" class="w-full bg-green-600 text-white font-bold py-2.5 rounded hover:bg-green-700 transition text-sm">Push to Church Portals</button>
+                    </form>
+                </div>
+                
+                <div class="lg:col-span-2 bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                    <h3 class="font-bold text-gray-800 mb-4 border-b pb-2">Active Assessments Overview</h3>
+                    <div class="flex flex-col items-center justify-center h-48 border-2 border-dashed border-gray-200 rounded bg-gray-50">
+                        <svg class="w-12 h-12 text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                        <p class="text-sm font-bold text-gray-400">No Active Assessments</p>
+                        <p class="text-xs text-gray-400">Church portals currently show 'No Assessments Found'.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-maincbt" class="tab-content text-center py-12">
+            <div class="mb-8 text-center">
+                <h2 class="text-2xl font-bold text-gray-900 font-heading uppercase tracking-wide">Main CBT Portal</h2>
+                <p class="text-gray-500 text-sm mt-1">Select your access level to proceed.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+                <a href="cbt.html" target="_blank" class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden text-center hover:shadow-xl hover:-translate-y-1 transition-all group block">
+                    <div class="bg-gray-900 p-8 text-white">
+                        <svg class="w-14 h-14 mx-auto text-yellow-400 mb-3 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+                        <h3 class="text-xl font-bold font-heading">CBT ENGINE</h3>
+                    </div>
+                    <div class="p-6">
+                        <p class="text-gray-600 text-sm mb-4">Access the main examination interface for participants.</p>
+                        <span class="bg-yellow-100 border border-yellow-400 rounded px-4 py-2 text-xs font-bold text-yellow-700 uppercase">Enter CBT</span>
+                    </div>
+                </a>
+                <a href="moderator.html" target="_blank" class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden text-center hover:shadow-xl hover:-translate-y-1 transition-all group block">
+                    <div class="bg-blue-900 p-8 text-white">
+                        <svg class="w-14 h-14 mx-auto text-blue-300 mb-3 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                        <h3 class="text-xl font-bold font-heading">MODERATOR PANEL</h3>
+                    </div>
+                    <div class="p-6">
+                        <p class="text-gray-600 text-sm mb-4">Access exam oversight, controls and live monitoring tools.</p>
+                        <span class="bg-blue-100 border border-blue-400 rounded px-4 py-2 text-xs font-bold text-blue-700 uppercase">Enter Moderator</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <div id="tab-archives" class="tab-content">
+            <h2 class="text-xl md:text-2xl font-bold text-blue-900 mb-6 border-b pb-2">Archive Manager (Past Questions)</h2>
+            
+            <div class="bg-white p-6 rounded-lg shadow-sm border border-blue-200 max-w-2xl mx-auto">
+                <div class="bg-blue-50 p-4 rounded text-sm text-gray-700 mb-6 border border-blue-100">
+                    <strong class="text-blue-900">Upload Protocol:</strong>
+                    <ul class="list-disc pl-5 mt-2 space-y-1 text-xs">
+                        <li>Select your specific <b>Target Category</b> and intended <b>Target Engine</b>.</li>
+                        <li>Upload your correctly formatted .csv file here.</li>
+                        <li>The system will securely push the questions exactly as they are to your selected database without any automatic splitting.</li>
+                    </ul>
+                </div>
+
+                <form id="pqUploadForm" class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Target Category</label>
+                            <select id="pqCategory" required class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:border-blue-900 focus:outline-none">
+                                <option value="">Select Category...</option>
+                                <option value="junior">Junior Category</option>
+                                <option value="intermediate">Intermediate Category</option>
+                                <option value="senior">Senior Category</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Target Engine (Destination)</label>
+                            <select id="pqType" required class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:border-blue-900 focus:outline-none">
+                                <option value="">Select Destination...</option>
+                                <option value="cbt">CBT Engine</option>
+                                <option value="quiz">Interactive Quiz</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Select Question CSV File</label>
+                        <input type="file" id="pqFile" accept=".csv" required class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:border-blue-900 focus:outline-none bg-gray-50">
+                    </div>
+                    <button type="submit" id="pqUploadBtn" class="w-full bg-blue-900 text-white font-bold py-2.5 mt-2 rounded hover:bg-blue-800 transition text-sm shadow">Parse & Upload to Selected Database</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="tab-churchparticipants" class="tab-content">
+            <h3 class="text-lg md:text-xl font-bold text-blue-900 mb-4 border-b pb-2">Church Participant Submissions — Control Panel</h3>
+
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 md:gap-4 mb-6 md:mb-8">
+                <div class="bg-blue-900 p-3 md:p-4 rounded-lg shadow-md text-center text-white">
+                    <p class="text-[10px] md:text-xs text-blue-200 font-bold uppercase mb-1">Churches Submitted</p>
+                    <p id="cp-stat-total" class="text-xl md:text-3xl font-bold">...</p>
+                </div>
+                <div class="bg-white p-3 md:p-4 rounded-lg shadow-sm border text-center">
+                    <p class="text-[10px] md:text-xs text-gray-500 font-bold uppercase mb-1">Junior Filled</p>
+                    <p id="cp-stat-junior" class="text-xl md:text-2xl font-bold text-yellow-600">...</p>
+                </div>
+                <div class="bg-white p-3 md:p-4 rounded-lg shadow-sm border text-center">
+                    <p class="text-[10px] md:text-xs text-gray-500 font-bold uppercase mb-1">Intermediate Filled</p>
+                    <p id="cp-stat-inter" class="text-xl md:text-2xl font-bold text-green-600">...</p>
+                </div>
+                <div class="bg-white p-3 md:p-4 rounded-lg shadow-sm border text-center">
+                    <p class="text-[10px] md:text-xs text-gray-500 font-bold uppercase mb-1">Locked Churches</p>
+                    <p id="cp-stat-locked" class="text-xl md:text-2xl font-bold text-red-600">...</p>
+                </div>
+            </div>
+
+            <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                <div>
+                    <p class="font-bold text-gray-800 text-sm">Bulk Edit Control</p>
+                    <p class="text-[11px] text-gray-500">Lock or unlock participant editing for every submitted church at once.</p>
+                </div>
+                <div class="flex gap-2 shrink-0">
+                    <button onclick="bulkSetChurchEditLock('LOCKED')" class="bg-red-600 text-white font-bold px-4 py-2 rounded text-xs md:text-sm hover:bg-red-700 transition shadow">🔒 Lock All</button>
+                    <button onclick="bulkSetChurchEditLock('OPEN')" class="bg-green-600 text-white font-bold px-4 py-2 rounded text-xs md:text-sm hover:bg-green-700 transition shadow">Unlock All</button>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-sm border overflow-x-auto">
+                <div class="p-4 border-b bg-gray-50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                    <h3 class="font-bold text-gray-800 text-sm md:text-base">Submitted Churches</h3>
+                    <div class="flex items-center gap-2 w-full sm:w-auto">
+                        <input type="text" id="cpSearch" onkeyup="filterParticipantsBySearch()" placeholder="Search churches..." class="border rounded px-3 py-1.5 text-sm focus:outline-none focus:border-blue-900 w-full sm:w-64 transition">
+                        <button onclick="fetchAllParticipants()" class="bg-blue-900 text-white text-xs font-bold px-3 py-2 rounded hover:bg-blue-800 transition shrink-0">Refresh</button>
+                    </div>
+                </div>
+                <table class="w-full text-left text-xs md:text-sm whitespace-nowrap">
+                    <thead class="text-gray-500 uppercase text-[10px] md:text-xs bg-gray-50">
+                        <tr>
+                            <th class="p-4">Church Name</th>
+                            <th class="p-4">Alias</th>
+                            <th class="p-4">Categories</th>
+                            <th class="p-4">Submitted On</th>
+                            <th class="p-4">Edit Status</th>
+                            <th class="p-4 text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cp-registry-body" class="text-gray-700">
+                        <tr><td colspan="6" class="p-8 text-center text-gray-400">Fetching submissions...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="tab-quest" class="tab-content">
+            <h2 class="text-xl md:text-2xl font-bold text-blue-900 mb-6">Quest Team: Validation & Checker</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-white p-6 rounded-lg shadow-sm border border-blue-200">
+                    <h3 class="font-bold text-gray-800 border-b pb-2 mb-4">Upload Questions (.xlsx)</h3>
+                    <div class="bg-blue-50 p-4 rounded text-sm text-gray-700 mb-4 border border-blue-100">
+                        <strong class="text-blue-900">Format Guidelines:</strong>
+                        <ul class="list-disc pl-5 mt-2 space-y-1 text-xs">
+                            <li>Headers must exactly match: Question ID, Question Type, Question Text, Option A, Option B, Option C, Option D, Correct Answer, Explanation, Difficulty.</li>
+                            <li>Supported Question Types: MCQ, TRUE_FALSE, FGAP, QUOTE.</li>
+                            <li>For Multiple Choice (MCQ), the Correct Answer column must contain ONLY the letter (A, B, C, D) without commas.</li>
+                            <li>For True/False, Option A must be TRUE, Option B must be FALSE.</li>
+                        </ul>
+                    </div>
+                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center bg-gray-50 cursor-pointer hover:bg-gray-100 transition">
+                        <svg class="w-10 h-10 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                        <p class="text-sm font-bold text-blue-900">Click to upload Excel sheet</p>
+                    </div>
+                    <button class="w-full bg-blue-900 text-white font-bold py-2 mt-4 rounded hover:bg-blue-800 transition">Run Validation Checker</button>
+                </div>
+                
+                <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 flex flex-col">
+                    <h3 class="font-bold text-gray-800 border-b pb-2 mb-4">CBT Interface Preview</h3>
+                    <div class="flex-grow bg-gray-100 rounded flex items-center justify-center p-6 border border-gray-300">
+                        <div class="w-full bg-white p-6 rounded-lg shadow-md border-t-4 border-yellow-500">
+                            <div class="flex justify-between text-[10px] font-bold text-gray-400 mb-4 uppercase"><span>Question 1</span><span>Preview</span></div>
+                            <p class="font-bold text-gray-800 text-sm mb-6">Preview of uploaded question text will appear here once validated...</p>
+                            <div class="space-y-2">
+                                <div class="p-2 border rounded text-xs text-gray-600 bg-gray-50">Option A</div>
+                                <div class="p-2 border rounded text-xs text-gray-600 bg-gray-50">Option B</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-controlroom" class="tab-content">
+            <div class="mb-6 border-b-2 border-red-600 pb-4">
+                <h2 class="text-2xl md:text-3xl font-bold text-red-600 flex items-center">
+                    <svg class="w-8 h-8 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    SYSTEM CONTROL ROOM
+                </h2>
+                <p class="text-gray-600 mt-2 text-sm">Critical system toggles. Changes here reflect immediately across all church portals.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                    <h3 class="font-bold text-gray-800 text-lg mb-4 border-b pb-2">Assessment & Exam Triggers</h3>
+                    
+                    <div class="flex justify-between items-center mb-4">
+                        <div>
+                            <p class="font-bold text-blue-900">Main CBT Examination</p>
+                            <p class="text-xs text-gray-500">Unlocks the live exam for all users.</p>
+                        </div>
+                        <button class="bg-gray-200 text-gray-600 font-bold px-4 py-2 rounded text-sm hover:bg-red-600 hover:text-white transition">GO LIVE</button>
+                    </div>
+                    
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="font-bold text-blue-900">Pre-Qualifier Assessment</p>
+                            <p class="text-xs text-gray-500">Toggle visibility of the monthly test.</p>
+                        </div>
+                        <button class="bg-green-600 text-white font-bold px-4 py-2 rounded text-sm">ACTIVE</button>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                    <h3 class="font-bold text-gray-800 text-lg mb-4 border-b pb-2">Portal Access Controls</h3>
+                    
+                    <div class="flex justify-between items-center mb-4">
+                        <div>
+                            <p class="font-bold text-blue-900">Participant Input Portal</p>
+                            <p class="text-xs text-gray-500">Allow churches to upload participant names.</p>
+                        </div>
+                        <button class="bg-gray-200 text-gray-600 font-bold px-4 py-2 rounded text-sm hover:bg-green-600 hover:text-white transition">UNLOCK</button>
+                    </div>
+                    
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="font-bold text-blue-900">General Registration Link</p>
+                            <p class="text-xs text-gray-500">Open or close Yetay 3.0 registrations.</p>
+                        </div>
+                        <button class="bg-green-600 text-white font-bold px-4 py-2 rounded text-sm">OPEN</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <div id="participantDetailModal" class="hidden fixed inset-0 z-[100] overflow-y-auto bg-gray-900 bg-opacity-60 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col transform transition-all">
+            <div class="bg-blue-900 p-5 text-white flex justify-between items-center shrink-0">
+                <div>
+                    <h3 class="text-lg font-bold font-heading" id="pdModalChurchName">Church Name</h3>
+                    <p class="text-xs text-blue-200 font-mono mt-0.5">Alias: <span id="pdModalAlias" class="font-bold text-white">...</span> &nbsp;|&nbsp; Submitted: <span id="pdModalTimestamp" class="font-bold text-white">...</span></p>
+                </div>
+                <button onclick="closeParticipantDetailModal()" class="text-white hover:text-yellow-400 transition"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+            </div>
+
+            <div id="pdModalLockBar" class="p-4 border-b bg-gray-50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 shrink-0">
+                <div>
+                    <p class="text-xs font-bold text-gray-500 uppercase">Editing Status: <span id="pdModalLockStatus" class="font-black">...</span></p>
+                    <p class="text-[11px] text-gray-400 mt-0.5">Control whether this church can edit their submitted participant details.</p>
+                </div>
+                <button id="pdModalLockBtn" onclick="toggleChurchEditLock()" class="font-bold px-4 py-2 rounded text-sm shadow shrink-0 transition">...</button>
+            </div>
+
+            <div class="p-6 overflow-y-auto custom-scrollbar" id="pdModalBody">
+                <!-- Filled dynamically -->
+            </div>
+            <div class="bg-gray-100 p-4 border-t flex justify-end shrink-0">
+                <button onclick="closeParticipantDetailModal()" class="bg-gray-600 text-white px-6 py-2 rounded font-bold hover:bg-gray-700 transition text-sm shadow">Close Window</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="churchModal" class="hidden fixed inset-0 z-[100] overflow-y-auto bg-gray-900 bg-opacity-60 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden transform transition-all">
+            <div class="bg-blue-900 p-5 text-white flex justify-between items-center">
+                <div>
+                    <h3 class="text-lg font-bold font-heading" id="modalChurchName">Church Profile</h3>
+                    <p class="text-xs text-blue-200 font-mono mt-0.5">Username: <span id="modalUsername" class="font-bold text-white">...</span></p>
+                </div>
+                <button onclick="closeModal()" class="text-white hover:text-yellow-400 transition"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+            </div>
+            
+            <div class="p-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6 border-b border-gray-100 pb-6">
+                    <div><p class="text-[10px] text-gray-400 font-bold uppercase mb-0.5">Registration Timestamp</p><p class="text-gray-800 text-sm font-semibold" id="modalRegDate">...</p></div>
+                    <div><p class="text-[10px] text-gray-400 font-bold uppercase mb-0.5">Local Government Area (LGA)</p><p class="text-gray-800 text-sm font-semibold" id="modalLGA">...</p></div>
+                    <div class="sm:col-span-2"><p class="text-[10px] text-gray-400 font-bold uppercase mb-0.5">Physical Address</p><p class="text-gray-800 text-sm" id="modalAddress">...</p></div>
+                </div>
+                
+                <h4 class="text-sm font-bold text-blue-900 uppercase tracking-wider mb-4 border-l-2 border-yellow-500 pl-2">Coordinator Details</h4>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                    <div><p class="text-[10px] text-gray-400 font-bold uppercase mb-0.5">Addressee Name</p><p class="text-gray-800 text-sm font-semibold" id="modalAddresseeName">...</p></div>
+                    <div><p class="text-[10px] text-gray-400 font-bold uppercase mb-0.5">Addressee Title</p><p class="text-gray-800 text-sm" id="modalAddresseeTitle">...</p></div>
+                    <div><p class="text-[10px] text-gray-400 font-bold uppercase mb-0.5">Contact Number</p><p class="text-gray-800 text-sm font-mono font-bold" id="modalContact">...</p></div>
+                </div>
+
+                <div class="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                    <p class="text-[10px] text-gray-400 font-bold uppercase mb-2">Participating Categories</p>
+                    <div class="flex flex-wrap gap-2" id="modalCats"></div>
+                </div>
+            </div>
+
+            <div class="bg-gray-100 p-4 border-t flex justify-end">
+                <button onclick="closeModal()" class="bg-gray-600 text-white px-6 py-2 rounded font-bold hover:bg-gray-700 transition text-sm">Close Window</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-gray-900 text-white py-12 mt-auto w-full border-t border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <img src="logo.png" alt="Logo" class="h-12 mx-auto mb-4" onerror="this.style.display='none'">
+            <h3 class="text-xl font-bold mb-1 font-heading">Yetay Memorial Project</h3>
+            <p class="text-gray-400 mb-6 text-sm">Banner Unto Nations Foundation</p>
+
+            <div class="flex justify-center items-center space-x-5 md:space-x-6 mb-8">
+                
+                <a href="https://web.facebook.com/profile.php?id=61560969430207" target="_blank" rel="noopener noreferrer" class="group">
+                    <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-white flex items-center justify-center text-[#1877F2] group-hover:bg-[#1877F2] group-hover:text-white transition-all duration-300 shadow-lg transform group-hover:-translate-y-1">
+                        <svg class="w-5 h-5 md:w-6 md:h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                </a>
+
+                <a href="https://www.instagram.com/yetaybiblequiz/" target="_blank" rel="noopener noreferrer" class="group">
+                    <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-white flex items-center justify-center text-[#E1306C] group-hover:bg-gradient-to-tr group-hover:from-[#F58529] group-hover:via-[#DD2A7B] group-hover:to-[#8134AF] group-hover:text-white transition-all duration-300 shadow-lg transform group-hover:-translate-y-1">
+                        <svg class="w-5 h-5 md:w-6 md:h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.45 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                </a>
+
+                <a href="https://www.youtube.com/@Yetay-quiz" target="_blank" rel="noopener noreferrer" class="group">
+                    <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-white flex items-center justify-center text-[#FF0000] group-hover:bg-[#FF0000] group-hover:text-white transition-all duration-300 shadow-lg transform group-hover:-translate-y-1">
+                        <svg class="w-5 h-5 md:w-6 md:h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M19.812 5.418c.861.23 1.538.907 1.768 1.768C21.998 8.746 22 12 22 12s0 3.255-.418 4.814a2.504 2.504 0 0 1-1.768 1.768c-1.56.419-7.814.419-7.814.419s-6.255 0-7.814-.419a2.505 2.505 0 0 1-1.768-1.768C2 15.255 2 12 2 12s0-3.255.417-4.814a2.507 2.507 0 0 1 1.768-1.768C5.744 5 11.998 5 11.998 5s6.255 0 7.814.418ZM15.194 12 10 15V9l5.194 3Z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                </a>
+
+                <a href="https://chat.whatsapp.com/D2seJ7Uaxr2Lizx5ZHaI3d" target="_blank" rel="noopener noreferrer" class="group">
+                    <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-white flex items-center justify-center text-[#25D366] group-hover:bg-[#25D366] group-hover:text-white transition-all duration-300 shadow-lg transform group-hover:-translate-y-1">
+                        <svg class="w-5 h-5 md:w-6 md:h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M12.031 2C6.495 2 2 6.495 2 12.031c0 1.77.464 3.5 1.348 5.01L2 22l5.093-1.336A9.98 9.98 0 0012.031 22c5.536 0 10.031-4.495 10.031-10.031S17.567 2 12.031 2zm5.556 14.48c-.244.686-1.42 1.31-1.968 1.393-.526.08-1.2.22-3.805-.85-3.328-1.36-5.46-4.78-5.624-5.006-.164-.226-1.346-1.79-1.346-3.418 0-1.628.847-2.43 1.15-2.733.303-.303.662-.379.882-.379.22 0 .44.004.64.013.208.01.488-.08.761.58.286.686.974 2.378 1.059 2.543.085.165.143.356.033.58-.11.224-.165.362-.33.551-.165.188-.344.408-.495.551-.165.165-.337.34-.148.665.19.324.846 1.398 1.821 2.268 1.258 1.121 2.302 1.466 2.632 1.631.33.165.523.148.718-.066.195-.214.846-.983 1.074-1.319.229-.336.458-.28.756-.169.298.11 1.884.891 2.207 1.056.323.165.539.248.618.384.079.136.079.79-.165 1.476z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                </a>
+            </div>
+            
+            <p class="text-gray-500 text-sm">&copy; 2026 Banner Unto Nations Foundation. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        const scriptURL = "https://script.google.com/macros/s/AKfycbzMnfYQ-gfbxlnUNnzmLuY3uaBjLfHldWkXFQK0jvN31hNrDNHTsuJOsAIAdwBzR9ar/exec";
+        let registryData = [];
+        let activeData = [];
+        let cpParticipantsData = [];
+        let cpActiveData = [];
+        let cpCurrentDetailIdx = null;
+
+        function openTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.portal-tab').forEach(el => {
+                if(el.id !== 'btn-tab-controlroom') {
+                    el.classList.remove('text-blue-900', 'border-b-2', 'border-yellow-500'); el.classList.add('text-gray-500');
+                } else { el.classList.remove('border-b-2', 'border-red-600'); }
+            });
+            document.getElementById(tabId).classList.add('active');
+            const activeBtn = document.getElementById('btn-' + tabId);
+            if(tabId === 'tab-controlroom') { activeBtn.classList.add('border-b-2', 'border-red-600'); }
+            else { activeBtn.classList.remove('text-gray-500'); activeBtn.classList.add('text-blue-900', 'border-b-2', 'border-yellow-500'); }
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const userId = localStorage.getItem("yetay_session_id");
+            
+            if (userId !== "SP-ADMIN") {
+                window.location.href = "login.html";
+                return;
+            }
+
+            fetchStats();
+            fetchRegistry();
+            fetchAdminList();
+            fetchAllParticipants();
+        });
+
+        async function fetchStats() {
+            try {
+                const p = new URLSearchParams(); p.append("action", "getStats");
+                const r = await fetch(scriptURL, {method:"POST", body:p});
+                const d = await r.json();
+                if(d.success) {
+                    document.getElementById('stat-churches-overview').innerText = d.total;
+                    document.getElementById('stat-total').innerText = d.total;
+                    document.getElementById('stat-junior').innerText = d.junior;
+                    document.getElementById('stat-inter').innerText = d.intermediate;
+                    document.getElementById('stat-senior').innerText = d.senior;
+                    document.querySelectorAll('.loading-pulse').forEach(el => el.classList.remove('loading-pulse'));
+                }
+            } catch(e) {}
+        }
+
+        async function fetchRegistry() {
+            try {
+                const p = new URLSearchParams(); p.append("action", "getFullRegistry");
+                const r = await fetch(scriptURL, {method:"POST", body:p});
+                const d = await r.json();
+                if(d.success) { registryData = d.data; renderTable(registryData); }
+            } catch(e) {}
+        }
+
+        function renderTable(data) {
+            activeData = data;
+            const tbody = document.getElementById('registry-body');
+            tbody.innerHTML = "";
+            if(data.length === 0) { tbody.innerHTML = `<tr><td colspan="4" class="p-8 text-center text-gray-400">No matches found.</td></tr>`; return; }
+            data.forEach((row, index) => {
+                const tr = document.createElement('tr');
+                tr.className = "border-t hover:bg-gray-50 transition";
+                tr.innerHTML = `
+                    <td class="p-4 font-bold text-blue-900 truncate max-w-[120px] sm:max-w-none">${row[1]}</td>
+                    <td class="p-4 text-xs font-mono font-semibold text-gray-600">${row[8] || 'N/A'}</td>
+                    <td class="p-4 text-xs">${row[3]}</td>
+                    <td class="p-4 text-right"><button onclick="showDetails(${index})" class="text-blue-600 font-bold hover:underline">Details</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Added functionality to filter the registry table by clicking the Metric Cards!
+        function filterRegistry(filter) {
+            if (filter === 'all') {
+                renderTable(registryData);
+                document.getElementById('crm-table-title').innerText = "Master Church Registry (All)";
+                return;
+            }
+            
+            const filtered = registryData.filter(row => row[4] && row[4].toLowerCase().includes(filter));
+            renderTable(filtered);
+            
+            const titles = { 'junior': 'Junior Participating Churches', 'intermediate': 'Intermediate Participating Churches', 'senior': 'Senior Participating Churches' };
+            document.getElementById('crm-table-title').innerText = titles[filter];
+        }
+
+        function filterRegistryBySearch() {
+            const query = document.getElementById('crmSearch').value.toLowerCase();
+            const filtered = registryData.filter(row => 
+                row[1].toLowerCase().includes(query) || 
+                (row[8] && row[8].toLowerCase().includes(query)) || 
+                row[3].includes(query)
+            );
+            renderTable(filtered);
+        }
+
+        function showDetails(idx) {
+            const church = activeData[idx];
+            document.getElementById('modalChurchName').innerText = church[1];
+            document.getElementById('modalUsername').innerText = church[8] || 'N/A';
+            document.getElementById('modalRegDate').innerText = new Date(church[0]).toLocaleString();
+            document.getElementById('modalLGA').innerText = church[5] || 'N/A';
+            document.getElementById('modalAddress').innerText = church[2];
+            document.getElementById('modalContact').innerText = church[3];
+            document.getElementById('modalAddresseeName').innerText = church[6] || 'N/A';
+            document.getElementById('modalAddresseeTitle').innerText = church[7] || 'N/A';
+            
+            const cats = document.getElementById('modalCats');
+            cats.innerHTML = "";
+            church[4].split(",").forEach(c => {
+                const span = document.createElement('span');
+                span.className = "bg-blue-100 text-blue-800 px-2 py-1 rounded text-[10px] font-bold uppercase border border-blue-200";
+                span.innerText = c.trim();
+                cats.appendChild(span);
+            });
+            document.getElementById('churchModal').classList.remove('hidden');
+        }
+
+        function closeModal() { document.getElementById('churchModal').classList.add('hidden'); }
+
+        // ================= CHURCH PARTICIPANTS CONTROL PANEL =================
+        async function fetchAllParticipants() {
+            const tbody = document.getElementById('cp-registry-body');
+            tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-gray-400">Fetching submissions...</td></tr>`;
+            try {
+                const p = new URLSearchParams();
+                p.append("action", "getAllParticipants");
+                const r = await fetch(scriptURL, { method: "POST", body: p });
+                const d = await r.json();
+                if (d.success) {
+                    cpParticipantsData = d.data;
+                    renderParticipantsTable(cpParticipantsData);
+                    renderParticipantsStats(cpParticipantsData);
+                }
+            } catch (e) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-red-400">Failed to load submissions.</td></tr>`;
+            }
+        }
+
+        function isLocked(row) {
+            return (row.adminLock || "OPEN").toString().trim().toUpperCase() === "LOCKED";
+        }
+
+        function renderParticipantsStats(data) {
+            document.getElementById('cp-stat-total').innerText = data.length;
+            const hasJunior = row => ['juniorPart1Name','juniorPart2Name','juniorTeacherName'].some(k => row[k] && row[k].toString().trim() !== "");
+            const hasInter = row => ['interPart1Name','interPart2Name','interTeacherName'].some(k => row[k] && row[k].toString().trim() !== "");
+            document.getElementById('cp-stat-junior').innerText = data.filter(hasJunior).length;
+            document.getElementById('cp-stat-inter').innerText = data.filter(hasInter).length;
+            document.getElementById('cp-stat-locked').innerText = data.filter(isLocked).length;
+        }
+
+        function renderParticipantsTable(data) {
+            cpActiveData = data;
+            const tbody = document.getElementById('cp-registry-body');
+            tbody.innerHTML = "";
+            if (data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-gray-400">No churches have submitted participant details yet.</td></tr>`;
+                return;
+            }
+
+            data.forEach((row, index) => {
+                const catBadges = (row.categories || "").split(",").map(c => c.trim()).filter(c => c)
+                    .map(c => `<span class="bg-gray-100 border text-gray-600 px-1.5 py-0.5 rounded text-[9px] font-bold uppercase mr-1">${c}</span>`).join('');
+
+                const locked = isLocked(row);
+                const statusBadge = locked
+                    ? `<span class="bg-red-100 text-red-700 border border-red-300 px-2 py-1 rounded text-[9px] font-bold uppercase">🔒 Locked</span>`
+                    : `<span class="bg-green-100 text-green-700 border border-green-300 px-2 py-1 rounded text-[9px] font-bold uppercase">Open</span>`;
+
+                const tr = document.createElement('tr');
+                tr.className = "border-t hover:bg-gray-50 transition";
+                tr.innerHTML = `
+                    <td class="p-3 font-bold text-blue-900 truncate max-w-[140px] sm:max-w-none">${row.churchName || 'N/A'}</td>
+                    <td class="p-3 text-[10px] font-mono font-semibold text-gray-600">${row.username || 'N/A'}</td>
+                    <td class="p-3">${catBadges || '<span class="text-gray-400 text-[10px]">None</span>'}</td>
+                    <td class="p-3 text-[10px] text-gray-500 font-mono">${row.timestamp || 'N/A'}</td>
+                    <td class="p-3">${statusBadge}</td>
+                    <td class="p-3 text-right"><button onclick="showParticipantDetail(${index})" class="text-blue-600 font-bold hover:underline">Manage</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function filterParticipantsBySearch() {
+            const query = document.getElementById('cpSearch').value.toLowerCase();
+            const filtered = cpParticipantsData.filter(row =>
+                (row.churchName && row.churchName.toLowerCase().includes(query)) ||
+                (row.username && row.username.toLowerCase().includes(query))
+            );
+            renderParticipantsTable(filtered);
+        }
+
+        function showParticipantDetail(idx) {
+            cpCurrentDetailIdx = idx;
+            const row = cpActiveData[idx];
+            document.getElementById('pdModalChurchName').innerText = row.churchName || 'N/A';
+            document.getElementById('pdModalAlias').innerText = row.username || 'N/A';
+            document.getElementById('pdModalTimestamp').innerText = row.timestamp || 'N/A';
+
+            updateLockBar(row);
+
+            const catGroups = {
+                Junior: { prefix: "junior", label: "Junior Category" },
+                Intermediate: { prefix: "inter", label: "Intermediate Category" },
+                Senior: { prefix: "senior", label: "Senior Category" }
+            };
+
+            let html = `
+                <div class="mb-6 pb-4 border-b border-gray-100">
+                    <p class="text-[10px] text-gray-400 font-bold uppercase mb-1">Church Address</p>
+                    <p class="text-gray-800 text-sm">${row.churchAddress || 'N/A'}</p>
+                </div>
+            `;
+
+            let anyCategoryShown = false;
+
+            Object.keys(catGroups).forEach(cat => {
+                const info = catGroups[cat];
+                const p = info.prefix;
+                const hasData = [`${p}Part1Name`, `${p}Part2Name`, `${p}TeacherName`].some(k => row[k] && row[k].toString().trim() !== "");
+                if (!hasData) return;
+
+                anyCategoryShown = true;
+                html += `
+                    <div class="mb-6">
+                        <h4 class="font-bold text-blue-900 text-sm mb-3 uppercase tracking-wide border-l-4 border-yellow-500 pl-2">${info.label}</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-3">
+                            <div class="bg-gray-50 p-3 rounded border border-gray-100">
+                                <p class="text-[10px] text-gray-400 font-bold uppercase mb-1">Participant 1</p>
+                                <p class="font-semibold text-gray-800 text-sm">${row[`${p}Part1Name`] || '—'}</p>
+                                <p class="text-xs text-gray-500 mt-1">${row[`${p}Part1Gender`] || '—'} • DOB: ${row[`${p}Part1DOB`] || '—'}</p>
+                                <p class="text-xs text-gray-500 mt-1">Parent: ${row[`${p}Part1ParentName`] || '—'} (${row[`${p}Part1ParentPhone`] || '—'})</p>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded border border-gray-100">
+                                <p class="text-[10px] text-gray-400 font-bold uppercase mb-1">Participant 2</p>
+                                <p class="font-semibold text-gray-800 text-sm">${row[`${p}Part2Name`] || '—'}</p>
+                                <p class="text-xs text-gray-500 mt-1">${row[`${p}Part2Gender`] || '—'} • DOB: ${row[`${p}Part2DOB`] || '—'}</p>
+                                <p class="text-xs text-gray-500 mt-1">Parent: ${row[`${p}Part2ParentName`] || '—'} (${row[`${p}Part2ParentPhone`] || '—'})</p>
+                            </div>
+                        </div>
+                        <div class="bg-blue-50 p-3 rounded border border-blue-100">
+                            <p class="text-[10px] text-blue-400 font-bold uppercase mb-1">Teacher / Coach</p>
+                            <p class="font-semibold text-blue-900 text-sm">${row[`${p}TeacherName`] || '—'} — ${row[`${p}TeacherPhone`] || '—'}</p>
+                        </div>
+                    </div>
+                `;
+            });
+
+            if (!anyCategoryShown) {
+                html += `<div class="text-center p-8 text-gray-400 font-bold italic">No category details were filled in by this church.</div>`;
+            }
+
+            document.getElementById('pdModalBody').innerHTML = html;
+            document.getElementById('participantDetailModal').classList.remove('hidden');
+        }
+
+        function updateLockBar(row) {
+            const locked = isLocked(row);
+            const statusEl = document.getElementById('pdModalLockStatus');
+            const btnEl = document.getElementById('pdModalLockBtn');
+
+            if (locked) {
+                statusEl.innerText = "🔒 LOCKED (Church cannot edit)";
+                statusEl.className = "font-black text-red-600";
+                btnEl.innerText = "Unlock Editing";
+                btnEl.className = "font-bold px-4 py-2 rounded text-sm shadow shrink-0 transition bg-green-600 text-white hover:bg-green-700";
+            } else {
+                statusEl.innerText = "OPEN (Church can edit)";
+                statusEl.className = "font-black text-green-600";
+                btnEl.innerText = "Lock Editing";
+                btnEl.className = "font-bold px-4 py-2 rounded text-sm shadow shrink-0 transition bg-red-600 text-white hover:bg-red-700";
+            }
+        }
+
+        async function toggleChurchEditLock() {
+            const row = cpActiveData[cpCurrentDetailIdx];
+            const currentlyLocked = isLocked(row);
+            const newLockValue = currentlyLocked ? "OPEN" : "LOCKED";
+
+            const confirmMsg = currentlyLocked
+                ? `Allow "${row.churchName}" to edit their participant details again?`
+                : `Prevent "${row.churchName}" from editing their submitted participant details?`;
+
+            const conf = await Swal.fire({
+                title: currentlyLocked ? 'Unlock Editing?' : 'Lock Editing?',
+                text: confirmMsg,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: currentlyLocked ? 'Yes, Unlock' : 'Yes, Lock'
+            });
+            if (!conf.isConfirmed) return;
+
+            try {
+                const p = new URLSearchParams();
+                p.append("action", "setChurchEditLock");
+                p.append("username", row.username);
+                p.append("lock", newLockValue);
+                const r = await fetch(scriptURL, { method: "POST", body: p });
+                const d = await r.json();
+
+                if (d.success) {
+                    row.adminLock = newLockValue;
+                    updateLockBar(row);
+                    renderParticipantsTable(cpActiveData);
+                    renderParticipantsStats(cpParticipantsData);
+                    Swal.fire('Done', d.message, 'success');
+                } else {
+                    Swal.fire('Error', d.message || 'Failed to update lock status.', 'error');
+                }
+            } catch (e) {
+                Swal.fire('Error', 'Network error. Please try again.', 'error');
+            }
+        }
+
+        function closeParticipantDetailModal() {
+            document.getElementById('participantDetailModal').classList.add('hidden');
+        }
+
+        async function bulkSetChurchEditLock(lockValue) {
+            const actionLabel = lockValue === "LOCKED" ? "lock" : "unlock";
+            const conf = await Swal.fire({
+                title: lockValue === "LOCKED" ? 'Lock ALL Churches?' : 'Unlock ALL Churches?',
+                text: `This will ${actionLabel} participant editing for every submitted church. Continue?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: `Yes, ${actionLabel} all`
+            });
+            if (!conf.isConfirmed) return;
+
+            Swal.fire({ title: 'Applying...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+            try {
+                const p = new URLSearchParams();
+                p.append("action", "setAllChurchEditLock");
+                p.append("lock", lockValue);
+                const r = await fetch(scriptURL, { method: "POST", body: p });
+                const d = await r.json();
+
+                if (d.success) {
+                    cpParticipantsData.forEach(row => row.adminLock = lockValue);
+                    renderParticipantsTable(cpParticipantsData);
+                    renderParticipantsStats(cpParticipantsData);
+                    Swal.fire('Done!', d.message, 'success');
+                } else {
+                    Swal.fire('Error', d.message || 'Failed to update lock status.', 'error');
+                }
+            } catch (e) {
+                Swal.fire('Error', 'Network error. Please try again.', 'error');
+            }
+        }
+
+        async function fetchAdminList() {
+            try {
+                const p = new URLSearchParams(); p.append("action", "getAdminList");
+                const r = await fetch(scriptURL, {method:"POST", body:p});
+                const d = await r.json();
+                
+                const selectDropdown = document.getElementById('taskAssigneeDropdown');
+                const tbody = document.getElementById('leaderboard-body');
+                
+                if(selectDropdown) selectDropdown.innerHTML = '<option value="">Select Assignee...</option>';
+                if(tbody) tbody.innerHTML = "";
+
+                if(d.success) {
+                    document.getElementById('stat-admins').innerText = d.data.length;
+                    
+                    d.data.forEach(adm => {
+                        if(selectDropdown) {
+                            const opt = document.createElement('option');
+                            opt.value = adm.name; opt.textContent = `${adm.name} (${adm.role})`;
+                            selectDropdown.appendChild(opt);
+                        }
+
+                        if(tbody) {
+                            const tr = document.createElement('tr');
+                            tr.className = "border-t hover:bg-gray-50 transition";
+                            tr.innerHTML = `<td class="p-4 font-bold">${adm.name}</td><td class="p-4 text-gray-500 text-xs">${adm.role}</td><td class="p-4 text-right font-bold text-blue-900">${adm.points}</td>`;
+                            tbody.appendChild(tr);
+                        }
+                    });
+                }
+            } catch(e) { console.error(e); }
+        }
+
+    // ================= CSV PARSER AND UPLOADER (ARCHIVES) =================
+        document.getElementById('pqUploadForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const file = document.getElementById('pqFile').files[0];
+            const category = document.getElementById('pqCategory').value;
+            const targetType = document.getElementById('pqType').value; // Get CBT or Quiz choice
+            const btn = document.getElementById('pqUploadBtn');
+
+            if(!file || !category || !targetType) return;
+            
+            btn.disabled = true; btn.textContent = "Parsing CSV...";
+
+            const reader = new FileReader();
+            reader.onload = async function(event) {
+                const text = event.target.result;
+                const rows = text.split('\n');
+                const headers = rows[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+                let dataArray = [];
+
+                for(let i=1; i<rows.length; i++) {
+                    if(!rows[i].trim()) continue;
+                    // Regex to handle commas inside quotes in CSV
+                    let cols = rows[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                    let obj = {};
+                    for(let j=0; j<headers.length; j++) {
+                        obj[headers[j]] = cols[j] ? cols[j].replace(/^"|"$/g, '').trim() : "";
+                    }
+                    dataArray.push(obj);
+                }
+
+                btn.textContent = `Uploading to ${category.toUpperCase()} ${targetType.toUpperCase()}...`;
+                
+                try {
+                    const params = new URLSearchParams();
+                    params.append("action", "uploadPastQuestions");
+                    params.append("payload", JSON.stringify({ category: category, type: targetType, data: dataArray }));
+                    
+                    const response = await fetch(scriptURL, { method: "POST", body: params });
+                    const resData = await response.json();
+                    
+                    if(resData.success) {
+                        Swal.fire('Success', resData.message, 'success');
+                        document.getElementById('pqUploadForm').reset();
+                    } else {
+                        Swal.fire('Error', resData.message, 'error');
+                    }
+                } catch (err) {
+                    Swal.fire('Error', 'Failed to connect to backend.', 'error');
+                }
+                btn.disabled = false; btn.textContent = "Parse & Upload to Selected Database";
+            };
+            reader.readAsText(file);
+        });
+    </script>
+</body>
+</html>

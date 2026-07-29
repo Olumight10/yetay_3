@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online | Yetay 3.0 Moderator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="shared.css">
+</head>
+<body class="h-screen w-screen flex flex-col overflow-hidden" data-page="online">
+
+    <div id="nav-placeholder"></div>
+
+    <main id="main-content" class="flex-grow w-full overflow-auto">
+        <div id="page-root" class="h-full flex flex-col overflow-hidden relative bg-gray-50">
+
+            <!-- Permanent tool icon - navigates between church/grid/scoreboard views -->
+            <div id="online-tool-bar" class="hidden shrink-0 w-full flex items-center justify-between px-4 py-2 border-b border-gray-200 bg-blue-900">
+                <div class="flex items-center gap-2">
+                    <button onclick="onlineGoTo('church')" class="text-white/80 hover:text-yellow-400 text-[10px] font-black uppercase tracking-widest px-2 py-1">🏛 Church</button>
+                    <button onclick="onlineGoTo('grid')" class="text-white/80 hover:text-yellow-400 text-[10px] font-black uppercase tracking-widest px-2 py-1">🔢 Grid</button>
+                    <button onclick="onlineGoTo('scoreboard')" class="text-white/80 hover:text-yellow-400 text-[10px] font-black uppercase tracking-widest px-2 py-1">🏆 Scoreboard</button>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="text-yellow-400 text-[9px] font-black uppercase tracking-widest" id="online-category-label"></span>
+                    <button onclick="switchOnlineCategory()" class="bg-yellow-500 hover:bg-yellow-400 text-blue-900 text-[9px] font-black uppercase px-2.5 py-1.5 rounded-lg transition border border-yellow-400 whitespace-nowrap">↺ Switch Category</button>
+                </div>
+            </div>
+
+            <!-- Views mount here -->
+            <div id="online-view-root" class="flex-grow overflow-hidden"></div>
+        </div>
+    </main>
+
+    <!-- Zoom Control Bar (separate from nav/menu) -->
+    <div id="zoom-bar" class="fixed bottom-4 right-4 z-[9999] flex items-center gap-1 bg-blue-900/95 backdrop-blur border border-blue-700 rounded-xl shadow-2xl px-2 py-1.5 select-none" style="touch-action:none;">
+        <span id="zoom-drag-handle" title="Drag to move" class="cursor-grab active:cursor-grabbing text-blue-300 hover:text-white px-1.5 text-xs font-black tracking-widest">⠿⠿</span>
+        <span class="text-blue-200 text-[8px] font-black uppercase tracking-widest px-1.5 hidden sm:block">Zoom</span>
+        <button onclick="zoomOut()" title="Zoom out" class="w-8 h-8 flex items-center justify-center bg-white/10 hover:bg-white/20 active:bg-white/30 text-white font-black text-base rounded-lg transition">−</button>
+        <span id="zoom-level" class="text-white text-[10px] font-black uppercase tracking-widest w-11 text-center tabular-nums">100%</span>
+        <button onclick="zoomIn()" title="Zoom in" class="w-8 h-8 flex items-center justify-center bg-white/10 hover:bg-white/20 active:bg-white/30 text-white font-black text-base rounded-lg transition">+</button>
+        <div class="w-px h-5 bg-white/20 mx-0.5"></div>
+        <button onclick="zoomReset()" title="Reset zoom" class="px-2.5 h-8 flex items-center justify-center bg-yellow-500 hover:bg-yellow-400 text-blue-900 text-[9px] font-black uppercase rounded-lg transition tracking-wide">Reset</button>
+    </div>
+
+    <script src="shared.js"></script>
+    <script>
+        loadSharedNav();
+
+        // ================= ONLINE TAB =================
+        let onlineCategory = null; // 'JNR' | 'INT' | 'SNR'
+        let onlineCache = { church: null, scoreboard: null, grid: null, roundQuestions: {} }; // SPA cache; roundQuestions keyed by round number
+        let currentOnlineView = null; // tracks which view is on-screen right now
+
+        function initOnlineTab() {
+            if (!onlineCategory) {
+                renderOnlineCategoryPicker();
+            }
+        }
+
+        function renderOnlineCategoryPicker() {
+            document.getElementById('online-tool-bar').classList.add('hidden');
+            document.getElementById('online-view-root').innerHTML = `
+                <div class="h-full w-full overflow-y-auto flex flex-col items-center justify-center py-6 px-4">
+                    <div class="text-center mb-6 md:mb-8 fade-up">
+                        <p class="text-yellow-600 text-[10px] md:text-xs uppercase font-bold tracking-widest mb-1.5">Online Session</p>
+                        <h1 class="text-xl md:text-3xl font-black text-blue-900 font-heading leading-tight">Which Category Are You Moderating?</h1>
+                        <p class="text-gray-500 text-[11px] md:text-sm mt-1.5 max-w-md mx-auto">Pick a category to launch the live online moderation view.</p>
+                        <div class="w-10 h-1 bg-yellow-500 mx-auto mt-3 rounded-full"></div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6 max-w-4xl w-full">
+
+                        <button onclick="setOnlineCategory('JNR')" class="group block bg-white rounded-2xl shadow-sm border border-gray-200 hover:border-yellow-400 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden text-center fade-up">
+                            <div class="bg-blue-900 p-5 md:p-6 relative overflow-hidden">
+                                <div class="absolute -right-6 -top-6 w-20 h-20 rounded-full bg-yellow-500/10"></div>
+                                <div class="absolute -left-8 bottom-0 w-16 h-16 rounded-full bg-white/5"></div>
+                                <div class="relative w-11 h-11 md:w-12 md:h-12 mx-auto rounded-2xl bg-yellow-500/15 border border-yellow-400/30 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+                                    <svg class="w-5 h-5 md:w-6 md:h-6 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422A12.083 12.083 0 0112 21.5a12.083 12.083 0 01-6.16-10.922L12 14z"/></svg>
+                                </div>
+                                <h3 class="relative text-base md:text-lg font-black text-white font-heading uppercase tracking-wide">Junior</h3>
+                            </div>
+                            <div class="p-3 md:p-4">
+                                <p class="text-gray-500 text-[11px] md:text-sm leading-snug">Open the live online session for Junior.</p>
+                                <p class="mt-2 text-blue-900 font-bold text-[10px] md:text-xs uppercase tracking-widest group-hover:text-yellow-600 transition-colors">Open &rarr;</p>
+                            </div>
+                        </button>
+
+                        <button onclick="setOnlineCategory('INT')" class="group block bg-white rounded-2xl shadow-sm border border-gray-200 hover:border-yellow-400 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden text-center fade-up" style="animation-delay: 0.06s">
+                            <div class="bg-blue-900 p-5 md:p-6 relative overflow-hidden">
+                                <div class="absolute -right-6 -top-6 w-20 h-20 rounded-full bg-yellow-500/10"></div>
+                                <div class="absolute -left-8 bottom-0 w-16 h-16 rounded-full bg-white/5"></div>
+                                <div class="relative w-11 h-11 md:w-12 md:h-12 mx-auto rounded-2xl bg-yellow-500/15 border border-yellow-400/30 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+                                    <svg class="w-5 h-5 md:w-6 md:h-6 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                </div>
+                                <h3 class="relative text-base md:text-lg font-black text-white font-heading uppercase tracking-wide">Intermediate</h3>
+                            </div>
+                            <div class="p-3 md:p-4">
+                                <p class="text-gray-500 text-[11px] md:text-sm leading-snug">Open the live online session for Intermediate.</p>
+                                <p class="mt-2 text-blue-900 font-bold text-[10px] md:text-xs uppercase tracking-widest group-hover:text-yellow-600 transition-colors">Open &rarr;</p>
+                            </div>
+                        </button>
+
+                        <button onclick="setOnlineCategory('SNR')" class="group block bg-white rounded-2xl shadow-sm border border-gray-200 hover:border-yellow-400 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden text-center fade-up" style="animation-delay: 0.12s">
+                            <div class="bg-blue-900 p-5 md:p-6 relative overflow-hidden">
+                                <div class="absolute -right-6 -top-6 w-20 h-20 rounded-full bg-yellow-500/10"></div>
+                                <div class="absolute -left-8 bottom-0 w-16 h-16 rounded-full bg-white/5"></div>
+                                <div class="relative w-11 h-11 md:w-12 md:h-12 mx-auto rounded-2xl bg-yellow-500/15 border border-yellow-400/30 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+                                    <svg class="w-5 h-5 md:w-6 md:h-6 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                                </div>
+                                <h3 class="relative text-base md:text-lg font-black text-white font-heading uppercase tracking-wide">Senior</h3>
+                            </div>
+                            <div class="p-3 md:p-4">
+                                <p class="text-gray-500 text-[11px] md:text-sm leading-snug">Open the live online session for Senior.</p>
+                                <p class="mt-2 text-blue-900 font-bold text-[10px] md:text-xs uppercase tracking-widest group-hover:text-yellow-600 transition-colors">Open &rarr;</p>
+                            </div>
+                        </button>
+
+                    </div>
+                </div>
+            `;
+        }
+
+        function setOnlineCategory(cat) {
+            onlineCategory = cat;
+            document.getElementById('online-category-label').textContent = cat;
+            document.getElementById('online-tool-bar').classList.remove('hidden');
+            preloadOnlineCategoryData();
+        }
+
+        // Pulls in EVERYTHING the category needs in one burst right after selection:
+        // church list, round list, every round's questions (+ bank), and the scoreboard.
+        // Once this finishes, every click (grid, round switch, scoreboard, church list)
+        // reads straight from onlineCache with zero network wait.
+        async function preloadOnlineCategoryData() {
+            const root = document.getElementById('online-view-root');
+            root.innerHTML = `
+                <div class="h-full flex flex-col items-center justify-center gap-3">
+                    <div class="w-10 h-10 border-4 border-blue-200 border-t-blue-900 rounded-full animate-spin"></div>
+                    <p class="text-blue-900 font-black text-xs uppercase tracking-widest">Preparing ${onlineCategory} session...</p>
+                    <p class="text-gray-400 text-[10px] uppercase tracking-widest">Loading churches, rounds & scoreboard</p>
+                </div>
+            `;
+
+            try {
+                // 1. Church list + present/last church state
+                const churchParams = new URLSearchParams();
+                churchParams.append('action', 'getOnlineChurchList');
+                churchParams.append('category', onlineCategory);
+                const churchPromise = fetch(scriptURL, { method: 'POST', body: churchParams }).then(r => r.json());
+
+                // 2. Scoreboard
+                const sbParams = new URLSearchParams();
+                sbParams.append('action', 'getScoreboardData');
+                sbParams.append('category', onlineCategory);
+                const sbPromise = fetch(scriptURL, { method: 'POST', body: sbParams }).then(r => r.json());
+
+                // 3. Rounds list (needed before we know which round questions to fetch)
+                const roundsParams = new URLSearchParams();
+                roundsParams.append('action', 'getOnlineRounds');
+                roundsParams.append('category', onlineCategory);
+                const roundsResp = await fetch(scriptURL, { method: 'POST', body: roundsParams });
+                const roundsData = await roundsResp.json();
+
+                if (roundsData.success) {
+                    onlineRoundsList = roundsData.rounds;
+                    onlineHasBank = roundsData.hasBank;
+                    onlineCache.grid = { rounds: roundsData.rounds, hasBank: roundsData.hasBank };
+                    if (onlineSelectedRound === null) {
+                        onlineSelectedRound = onlineRoundsList.includes(1) ? 1 : (onlineRoundsList[0] || null);
+                    }
+
+                    // 4. Fetch every round's questions (+ bank) IN PARALLEL — not one at a time
+                    const roundsToFetch = [...onlineRoundsList];
+                    if (onlineHasBank) roundsToFetch.push(0);
+
+                    await Promise.all(roundsToFetch.map(async (r) => {
+                        try {
+                            const p = new URLSearchParams();
+                            p.append('action', 'getOnlineRoundQuestions');
+                            p.append('category', onlineCategory);
+                            p.append('round', r);
+                            const resp = await fetch(scriptURL, { method: 'POST', body: p });
+                            const data = await resp.json();
+                            if (data.success) onlineCache.roundQuestions[r] = data.questions;
+                        } catch (e) { /* individual round failure shouldn't block the rest */ }
+                    }));
+                }
+
+                // Wait for church + scoreboard (already running in parallel above)
+                const [churchData, sbData] = await Promise.all([churchPromise, sbPromise]);
+
+                if (churchData.success) {
+                    onlineChurchData = churchData;
+                    onlineCache.church = churchData;
+                }
+                if (sbData.success) {
+                    sbColumns = sbData.columns;
+                    sbRows = sbData.rows;
+                    onlineCache.scoreboard = { columns: sbColumns, rows: sbRows };
+                }
+
+            } catch (err) {
+                console.error('Preload error', err);
+            }
+
+            // Everything is cached now — this paints instantly from memory
+            onlineGoTo('church');
+        }
+
+        function switchOnlineCategory() {
+            clearInterval(gridTimerInterval);
+            gridTimerRunning = false;
+            if (typeof stopContinuousConfetti === 'function') stopContinuousConfetti();
+
+            onlineCategory = null;
+            onlineCache = { church: null, scoreboard: null, grid: null, roundQuestions: {} };
+            onlineChurchData = { churches: [], lastChurch: '', presentChurch: '' };
+            onlineRoundsList = [];
+            onlineSelectedRound = null;
+            onlineHasBank = false;
+            onlineQuestions = [];
+            onlineActiveIndex = null;
+            currentOnlineView = null;
+
+            renderOnlineCategoryPicker();
+        }
+
+        let onlineChurchData = { churches: [], lastChurch: '', presentChurch: '' };
+
+        function onlineGoTo(view) {
+            currentOnlineView = view;
+            if (view === 'church') return renderChurchDisplayView(false);
+            if (view === 'grid') return renderGridView(false);
+            if (view === 'seequestion') return renderSeeQuestionView();
+            if (view === 'timeup') return renderTimeUpView();
+            if (view === 'seeanswer') return renderSeeAnswerView();
+            if (view === 'scoreboard') return renderScoreboardView(false);
+            document.getElementById('online-view-root').innerHTML = `<div class="p-6 text-gray-400 font-bold uppercase text-xs">${view} view — coming in a later bit</div>`;
+        }
+
+        function renderTimeUpView() {
+            const root = document.getElementById('online-view-root');
+            const presentChurch = onlineChurchData.presentChurch || '—';
+            root.innerHTML = `
+                <div class="h-full flex flex-col items-center justify-center gap-6">
+                    <div class="text-center">
+                        <p class="text-[9px] text-gray-400 font-bold uppercase tracking-widest">Present Church</p>
+                        <p class="text-blue-900 font-black text-sm mb-6">${presentChurch}</p>
+                        <p class="text-red-600 font-black text-2xl md:text-3xl uppercase tracking-widest animate-pulse">⏱ Time's Up!</p>
+                    </div>
+                    <button onclick="onlineGoTo('seeanswer')" class="bg-yellow-500 text-blue-900 font-black uppercase px-6 py-3 rounded-xl text-sm">See Answer ▶</button>
+                </div>
+            `;
+        }
+
+        // ---- Grid view state ----
+        let onlineRoundsList = [];
+        let onlineSelectedRound = null;
+        let onlineHasBank = false;
+        let onlineQuestions = [];
+        let onlineActiveIndex = null; // index of currently-picked (highlighted) circle
+        let gridTimerSeconds = 60;
+        let gridTimerRemaining = 60;
+        let gridTimerInterval = null;
+        let gridTimerRunning = false;
+
+        async function renderGridView(silent) {
+            const root = document.getElementById('online-view-root');
+
+            if (!silent) {
+                if (onlineCache.grid) {
+                    onlineRoundsList = onlineCache.grid.rounds;
+                    onlineHasBank = onlineCache.grid.hasBank;
+                    if (onlineSelectedRound === null) {
+                        onlineSelectedRound = onlineRoundsList.includes(1) ? 1 : (onlineRoundsList[0] || null);
+                    }
+                    paintGridShell();
+                    if (onlineSelectedRound !== null) loadSelectedRound(onlineSelectedRound, false);
+                } else {
+                    root.innerHTML = `<div class="flex items-center justify-center h-full text-gray-300 text-xs font-bold uppercase tracking-widest">Loading rounds...</div>`;
+                }
+            }
+
+            try {
+                const params = new URLSearchParams();
+                params.append('action', 'getOnlineRounds');
+                params.append('category', onlineCategory);
+                const resp = await fetch(scriptURL, { method: 'POST', body: params });
+                const data = await resp.json();
+                if (!data.success) {
+                    if (!onlineCache.grid && !silent) root.innerHTML = `<div class="p-6 text-red-400 font-bold text-xs">Could not load rounds.</div>`;
+                    return;
+                }
+                onlineRoundsList = data.rounds;
+                onlineHasBank = data.hasBank;
+                onlineCache.grid = { rounds: data.rounds, hasBank: data.hasBank };
+
+                if (onlineSelectedRound === null) {
+                    onlineSelectedRound = onlineRoundsList.includes(1) ? 1 : (onlineRoundsList[0] || null);
+                }
+
+                if (currentOnlineView === 'grid') {
+                    paintGridShell();
+                    if (onlineSelectedRound !== null) loadSelectedRound(onlineSelectedRound, silent);
+                }
+            } catch (err) {
+                if (!onlineCache.grid && !silent) root.innerHTML = `<div class="p-6 text-red-400 font-bold text-xs">Network error loading rounds.</div>`;
+            }
+        }
+
+        function paintGridShell() {
+            const root = document.getElementById('online-view-root');
+            const presentChurch = onlineChurchData.presentChurch || '—';
+            const roundOptions = onlineRoundsList.map(r => `<option value="${r}" ${r === onlineSelectedRound ? 'selected' : ''}>Round ${r}</option>`).join('');
+            const isBankActive = onlineSelectedRound === 0;
+
+            root.innerHTML = `
+                <div class="h-full flex flex-col">
+                    <div class="shrink-0 flex items-center justify-between px-4 py-2.5 border-b border-gray-200 bg-white flex-wrap gap-2">
+                        <div class="flex items-center gap-3 flex-wrap">
+                            <select id="online-round-select" onchange="loadSelectedRound(Number(this.value), false)" class="border border-gray-300 rounded-lg px-2 py-1.5 text-xs font-bold">
+                                ${roundOptions || '<option value="">No rounds found</option>'}
+                            </select>
+                            ${onlineHasBank ? `
+                                <button onclick="loadSelectedRound(0, false)" class="text-[10px] font-black uppercase px-2.5 py-1.5 rounded-lg border ${isBankActive ? 'bg-blue-900 text-white border-blue-800' : 'bg-gray-100 text-gray-700 border-gray-300'}">
+                                    🏦 Question Bank
+                                </button>
+                            ` : ''}
+                            <div class="flex items-center gap-1.5">
+                                <input type="number" id="online-timer-input" value="${gridTimerSeconds}" min="1" class="w-16 border border-gray-300 rounded-lg px-2 py-1.5 text-xs font-bold">
+                                <span class="text-[9px] text-gray-400 font-bold uppercase">sec</span>
+                                <button onclick="applyTimerSeconds()" class="bg-gray-100 text-gray-700 text-[9px] font-black uppercase px-2 py-1.5 rounded-lg">Set</button>
+                                <button onclick="startGridTimer()" class="bg-green-600 text-white text-[9px] font-black uppercase px-2 py-1.5 rounded-lg">▶</button>
+                                <button onclick="pauseGridTimer()" class="bg-yellow-500 text-blue-900 text-[9px] font-black uppercase px-2 py-1.5 rounded-lg">❚❚</button>
+                                <span id="online-timer-display" class="font-mono font-black text-blue-900 text-sm ml-1">${formatTimer(gridTimerRemaining)}</span>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-[9px] text-gray-400 font-bold uppercase tracking-widest">Present Church</p>
+                            <p class="text-blue-900 font-black text-sm">${presentChurch}</p>
+                        </div>
+                    </div>
+
+
+                    <div id="online-grid-container" class="flex-grow overflow-y-auto p-4 flex items-center justify-center">
+                        <p class="text-gray-300 text-xs font-bold uppercase">Loading questions...</p>
+                    </div>
+
+                    <div class="shrink-0 border-t border-gray-200 bg-white p-3 flex items-center justify-between">
+                        <button onclick="onlineGoTo('church')" class="bg-gray-100 text-gray-700 text-[10px] font-black uppercase px-3 py-1.5 rounded-lg">◀ Back</button>
+                        <button onclick="proceedToSeeQuestion()" class="bg-yellow-500 text-blue-900 text-[10px] font-black uppercase px-3 py-1.5 rounded-lg">Next ▶</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function formatTimer(sec) {
+            const m = Math.floor(sec / 60), s = sec % 60;
+            return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+        }
+
+        function applyTimerSeconds() {
+            const val = Number(document.getElementById('online-timer-input').value) || 60;
+            gridTimerSeconds = val;
+            gridTimerRemaining = val;
+            clearInterval(gridTimerInterval);
+            gridTimerRunning = false;
+            document.getElementById('online-timer-display').textContent = formatTimer(gridTimerRemaining);
+        }
+
+        function startGridTimer() {
+            if (gridTimerRunning) return;
+            gridTimerRunning = true;
+            gridTimerInterval = setInterval(() => {
+                gridTimerRemaining = Math.max(0, gridTimerRemaining - 1);
+                const el = document.getElementById('online-timer-display');
+                if (el) el.textContent = formatTimer(gridTimerRemaining);
+                if (gridTimerRemaining <= 0) { clearInterval(gridTimerInterval); gridTimerRunning = false; }
+            }, 1000);
+        }
+
+        function pauseGridTimer() {
+            clearInterval(gridTimerInterval);
+            gridTimerRunning = false;
+        }
+
+        async function loadSelectedRound(round, silent) {
+            if (round === undefined || round === null || round === '') return;
+            round = Number(round);
+
+            const roundChanged = onlineSelectedRound !== round;
+            onlineSelectedRound = round;
+            if (roundChanged) {
+                onlineActiveIndex = null;
+                if (currentOnlineView === 'grid') paintGridShell();
+            }
+
+            const container = document.getElementById('online-grid-container');
+            const cached = onlineCache.roundQuestions[round];
+
+            if (!silent) {
+                if (cached) {
+                    onlineQuestions = cached;
+                    paintGridCircles();
+                } else if (container) {
+                    container.innerHTML = `<p class="text-gray-300 text-xs font-bold uppercase">Loading questions...</p>`;
+                }
+            }
+
+            try {
+                const params = new URLSearchParams();
+                params.append('action', 'getOnlineRoundQuestions');
+                params.append('category', onlineCategory);
+                params.append('round', round);
+                const resp = await fetch(scriptURL, { method: 'POST', body: params });
+                const data = await resp.json();
+                if (!data.success) {
+                    if (!cached && !silent && container) container.innerHTML = `<p class="text-red-400 text-xs font-bold">Could not load questions.</p>`;
+                    return;
+                }
+                onlineCache.roundQuestions[round] = data.questions;
+
+                if (currentOnlineView === 'grid' && onlineSelectedRound === round) {
+                    onlineQuestions = data.questions;
+                    paintGridCircles();
+                }
+            } catch (err) {
+                if (!cached && !silent && container) container.innerHTML = `<p class="text-red-400 text-xs font-bold">Network error.</p>`;
+            }
+        }
+
+        function paintGridCircles() {
+            const container = document.getElementById('online-grid-container');
+            if (!onlineQuestions.length) {
+                container.innerHTML = `<p class="text-gray-300 text-xs font-bold uppercase">No questions in this round</p>`;
+                return;
+            }
+
+            const circles = onlineQuestions.map((q, i) => {
+                let cls = 'bg-gray-100 text-gray-500 border-gray-300';
+                if (i === onlineActiveIndex) {
+                    cls = 'bg-yellow-500 text-blue-900 border-yellow-600 ring-2 ring-yellow-300';
+                } else if (q.selected) {
+                    cls = 'bg-blue-900 text-white border-blue-800';
+                }
+                return `<button onclick="pickGridCircle(${i})" class="w-10 h-10 md:w-12 md:h-12 rounded-full border-2 font-black text-xs md:text-sm transition ${cls}">${i + 1}</button>`;
+            }).join('');
+
+            container.innerHTML = `<div class="flex flex-wrap gap-2.5 justify-center max-w-2xl">${circles}</div>`;
+        }
+
+        function pickGridCircle(index) {
+            onlineActiveIndex = index;
+            paintGridCircles();
+        }
+
+        function proceedToSeeQuestion() {
+            if (onlineActiveIndex === null || !onlineQuestions[onlineActiveIndex]) {
+                Swal.fire('No Question Picked', 'Please click a question circle first.', 'warning');
+                return;
+            }
+
+            const q = onlineQuestions[onlineActiveIndex];
+
+            if (!q.selected) {
+                q.selected = true;
+                if (onlineCache.roundQuestions[onlineSelectedRound]) {
+                    onlineCache.roundQuestions[onlineSelectedRound] = onlineQuestions;
+                }
+                // Tell the backend in the background — don't make the moderator wait for this
+                const params = new URLSearchParams();
+                params.append('action', 'markQuestionSelected');
+                params.append('category', onlineCategory);
+                params.append('questionId', q.id);
+                fetch(scriptURL, { method: 'POST', body: params }).catch(() => {});
+            }
+
+            gridTimerRemaining = gridTimerSeconds;
+            gridTimerRunning = false;
+            timeUpAutoAdvanced = false;
+            clearInterval(gridTimerInterval);
+
+            onlineGoTo('seequestion');
+        }
+
+        function renderSeeQuestionView() {
+            const root = document.getElementById('online-view-root');
+            const q = onlineQuestions[onlineActiveIndex];
+            const presentChurch = onlineChurchData.presentChurch || '—';
+
+            if (!q) {
+                root.innerHTML = `<div class="p-6 text-red-400 font-bold text-xs">No question loaded.</div>`;
+                return;
+            }
+
+            const qType = (q.type || 'MCQ').toString().trim().toUpperCase();
+            const roundLabel = onlineSelectedRound === 0 ? 'Bank' : `Round ${onlineSelectedRound}`;
+            const questionLabel = `Question ${onlineActiveIndex + 1}`;
+
+            root.innerHTML = `
+                <div class="h-full flex flex-col overflow-hidden">
+                    <div class="shrink-0 flex items-center justify-between px-4 py-2 border-b border-gray-200 bg-white">
+                        <div>
+                            <p class="text-[9px] text-gray-400 font-bold uppercase tracking-widest">Present Church</p>
+                            <p class="text-blue-900 font-black text-sm">${presentChurch}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-[9px] text-gray-400 font-bold uppercase tracking-widest">Time</p>
+                            <span id="online-timer-display-sq" class="font-mono font-black text-blue-900 text-base">${formatTimer(gridTimerRemaining)}</span>
+                            <div class="flex gap-1 mt-0.5 justify-end">
+                                <button onclick="startGridTimerSQ()" class="bg-green-600 text-white text-[9px] font-black uppercase px-2 py-0.5 rounded-lg">▶</button>
+                                <button onclick="pauseGridTimer()" class="bg-yellow-500 text-blue-900 text-[9px] font-black uppercase px-2 py-0.5 rounded-lg">❚❚</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex-grow overflow-hidden p-3 md:p-5 flex items-center justify-center">
+                        <div class="max-w-2xl w-full">
+                            <div class="flex items-center justify-center gap-2 mb-3">
+                                <span class="bg-blue-900 text-white text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg">${roundLabel} &middot; ${questionLabel}</span>
+                                <span class="bg-white text-blue-900 border border-yellow-500 text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg">${qTypeLabel(qType)}</span>
+                            </div>
+                            ${buildQuestionBody(q, qType)}
+                        </div>
+                    </div>
+
+                    <div class="shrink-0 border-t border-gray-200 bg-white p-2.5 flex items-center justify-between">
+                        <button onclick="onlineGoTo('grid')" class="bg-gray-100 text-gray-700 text-[10px] font-black uppercase px-3 py-1.5 rounded-lg">◀ Back to Grid</button>
+                        <button onclick="manualGoToAnswer()" class="bg-yellow-500 text-blue-900 text-[10px] font-black uppercase px-3 py-1.5 rounded-lg">See Answer ▶</button>
+                    </div>
+                </div>
+            `;
+
+            startGridTimerSQ();
+        }
+
+        // ---- Question-type helpers (MCQ / TRUE_FALSE / FGAP / QUOTE) ----
+        function qTypeLabel(qType) {
+            const map = {
+                MCQ: 'Multiple Choice',
+                TRUE_FALSE: 'True or False',
+                FGAP: 'Fill In The Gap',
+                QUOTE: 'Complete The Quote'
+            };
+            return map[qType] || qType;
+        }
+
+        function svgCheckIcon(cls) {
+            return `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>`;
+        }
+
+        function blankifyText(text) {
+            const str = (text || '').toString();
+            const blankSpan = `<span class="inline-block align-middle border-b-2 border-blue-900 mx-1.5" style="min-width:140px; height:1.2em;">&nbsp;</span>`;
+            if (/_{3,}/.test(str)) return str.replace(/_{3,}/g, blankSpan);
+            return `${str} ${blankSpan}`;
+        }
+
+        function explanationBlock(q) {
+            if (!q.explanation) return '';
+            return `
+                <div class="mt-3 bg-yellow-50 border-l-2 border-yellow-500 rounded-lg px-3 py-2 text-left">
+                    <p class="text-blue-900 font-black text-[9px] uppercase tracking-widest mb-0.5">Explanation</p>
+                    <p class="text-gray-700 text-xs leading-snug">${q.explanation}</p>
+                </div>
+            `;
+        }
+
+        function buildQuestionBody(q, qType) {
+            if (qType === 'TRUE_FALSE') {
+                return `
+                    <p class="text-blue-900 font-black text-base md:text-xl leading-snug mb-4 text-center">${q.text}</p>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="flex items-center justify-center gap-2 bg-white border-2 border-gray-200 rounded-xl py-3.5">
+                            <span class="w-7 h-7 rounded-lg bg-yellow-500 text-blue-900 font-black text-xs flex items-center justify-center">T</span>
+                            <span class="font-black text-gray-700 text-sm uppercase tracking-widest">True</span>
+                        </div>
+                        <div class="flex items-center justify-center gap-2 bg-white border-2 border-gray-200 rounded-xl py-3.5">
+                            <span class="w-7 h-7 rounded-lg bg-yellow-500 text-blue-900 font-black text-xs flex items-center justify-center">F</span>
+                            <span class="font-black text-gray-700 text-sm uppercase tracking-widest">False</span>
+                        </div>
+                    </div>
+                `;
+            }
+
+            if (qType === 'FGAP' || qType === 'QUOTE') {
+                return `<p class="text-blue-900 font-black text-base md:text-xl leading-relaxed text-center">${blankifyText(q.text)}</p>`;
+            }
+
+            const optionsHtml = ['A', 'B', 'C', 'D'].map(letter => `
+                <div class="flex items-center gap-2.5 bg-white border-2 border-gray-200 rounded-xl px-3 py-2.5">
+                    <span class="shrink-0 w-7 h-7 rounded-lg bg-yellow-500 text-blue-900 font-black text-xs flex items-center justify-center">${letter}</span>
+                    <span class="text-gray-700 font-bold text-xs md:text-sm leading-snug">${q[letter.toLowerCase()]}</span>
+                </div>
+            `).join('');
+
+            return `
+                <p class="text-blue-900 font-black text-base md:text-xl leading-snug mb-4 text-center">${q.text}</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">${optionsHtml}</div>
+            `;
+        }
+
+        function buildAnswerBody(q, qType) {
+            const correctLetter = (q.correct || '').toString().trim().toUpperCase();
+
+            if (qType === 'TRUE_FALSE') {
+                const isTrue = correctLetter === 'TRUE' || correctLetter === 'T' || correctLetter === 'A';
+                return `
+                    <p class="text-blue-900 font-black text-base md:text-xl leading-snug mb-4 text-center">${q.text}</p>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="relative flex items-center justify-center gap-2 rounded-xl py-3.5 border-2 ${isTrue ? 'bg-green-50 border-green-500' : 'bg-white border-gray-200'}">
+                            <span class="w-7 h-7 rounded-lg font-black text-xs flex items-center justify-center ${isTrue ? 'bg-green-600 text-white' : 'bg-yellow-500 text-blue-900'}">T</span>
+                            <span class="font-black text-sm uppercase tracking-widest ${isTrue ? 'text-green-700' : 'text-gray-700'}">True</span>
+                            ${isTrue ? `<span class="absolute -top-1.5 -right-1.5 w-4.5 h-4.5 rounded-full bg-green-600 flex items-center justify-center">${svgCheckIcon('w-2.5 h-2.5 text-white')}</span>` : ''}
+                        </div>
+                        <div class="relative flex items-center justify-center gap-2 rounded-xl py-3.5 border-2 ${!isTrue ? 'bg-green-50 border-green-500' : 'bg-white border-gray-200'}">
+                            <span class="w-7 h-7 rounded-lg font-black text-xs flex items-center justify-center ${!isTrue ? 'bg-green-600 text-white' : 'bg-yellow-500 text-blue-900'}">F</span>
+                            <span class="font-black text-sm uppercase tracking-widest ${!isTrue ? 'text-green-700' : 'text-gray-700'}">False</span>
+                            ${!isTrue ? `<span class="absolute -top-1.5 -right-1.5 w-4.5 h-4.5 rounded-full bg-green-600 flex items-center justify-center">${svgCheckIcon('w-2.5 h-2.5 text-white')}</span>` : ''}
+                        </div>
+                    </div>
+                    ${explanationBlock(q)}
+                `;
+            }
+
+            if (qType === 'FGAP' || qType === 'QUOTE') {
+                const filledSpan = `<span class="inline-block align-middle bg-green-50 border-b-2 border-green-600 text-green-700 font-black px-2 mx-1 rounded">${q.correct}</span>`;
+                const filledText = /_{3,}/.test(q.text || '') ? q.text.replace(/_{3,}/g, filledSpan) : `${q.text} ${filledSpan}`;
+                return `
+                    <p class="text-blue-900 font-black text-base md:text-xl leading-relaxed text-center">${filledText}</p>
+                    ${explanationBlock(q)}
+                `;
+            }
+
+            const answerTextMap = { A: q.a, B: q.b, C: q.c, D: q.d };
+            const optionsHtml = ['A', 'B', 'C', 'D'].map(letter => {
+                const isCorrect = letter === correctLetter;
+                return `
+                    <div class="relative flex items-center gap-2.5 rounded-xl px-3 py-2.5 border-2 ${isCorrect ? 'bg-green-50 border-green-500' : 'bg-white border-gray-200'}">
+                        <span class="shrink-0 w-7 h-7 rounded-lg font-black text-xs flex items-center justify-center ${isCorrect ? 'bg-green-600 text-white' : 'bg-yellow-500 text-blue-900'}">${letter}</span>
+                        <span class="text-xs md:text-sm font-bold leading-snug ${isCorrect ? 'text-green-800' : 'text-gray-700'}">${answerTextMap[letter]}</span>
+                        ${isCorrect ? `<span class="absolute -top-1.5 -right-1.5 w-4.5 h-4.5 rounded-full bg-green-600 flex items-center justify-center">${svgCheckIcon('w-2.5 h-2.5 text-white')}</span>` : ''}
+                    </div>
+                `;
+            }).join('');
+
+            return `
+                <p class="text-blue-900 font-black text-base md:text-xl leading-snug mb-4 text-center">${q.text}</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">${optionsHtml}</div>
+                ${explanationBlock(q)}
+            `;
+        }
+
+        function manualGoToAnswer() {
+            timeUpAutoAdvanced = true;
+            clearInterval(gridTimerInterval);
+            gridTimerRunning = false;
+            onlineGoTo('seeanswer');
+        }
+
+        let timeUpAutoAdvanced = false;
+
+        function startGridTimerSQ() {
+            if (gridTimerRunning) return;
+            gridTimerRunning = true;
+            gridTimerInterval = setInterval(() => {
+                gridTimerRemaining = Math.max(0, gridTimerRemaining - 1);
+                const el = document.getElementById('online-timer-display-sq');
+                if (el) el.textContent = formatTimer(gridTimerRemaining);
+
+                if (gridTimerRemaining <= 0) {
+                    clearInterval(gridTimerInterval);
+                    gridTimerRunning = false;
+                    if (currentOnlineView === 'seequestion' && !timeUpAutoAdvanced) {
+                        timeUpAutoAdvanced = true;
+                        onlineGoTo('timeup');
+                    }
+                }
+            }, 1000);
+        }
+
+        function renderSeeAnswerView() {
+            const root = document.getElementById('online-view-root');
+            const q = onlineQuestions[onlineActiveIndex];
+            const presentChurch = onlineChurchData.presentChurch || '—';
+
+            if (!q) {
+                root.innerHTML = `<div class="p-6 text-red-400 font-bold text-xs">No question loaded.</div>`;
+                return;
+            }
+
+            const qType = (q.type || 'MCQ').toString().trim().toUpperCase();
+            const wasTimeUp = gridTimerRemaining <= 0;
+            const roundLabel = onlineSelectedRound === 0 ? 'Bank' : `Round ${onlineSelectedRound}`;
+            const questionLabel = `Question ${onlineActiveIndex + 1}`;
+
+            root.innerHTML = `
+                <div class="h-full flex flex-col overflow-hidden">
+                    <div class="shrink-0 px-4 py-2 border-b border-gray-200 bg-white flex items-center justify-between">
+                        <div>
+                            <p class="text-[9px] text-gray-400 font-bold uppercase tracking-widest">Present Church</p>
+                            <p class="text-blue-900 font-black text-sm">${presentChurch}</p>
+                        </div>
+                        ${wasTimeUp ? '<span class="bg-red-100 text-red-600 border border-red-300 text-[9px] font-black uppercase px-2.5 py-1 rounded-lg animate-pulse">⏱ Time\'s Up</span>' : ''}
+                    </div>
+
+                    <div class="flex-grow overflow-hidden p-3 md:p-5 flex items-center justify-center">
+                        <div class="max-w-2xl w-full">
+                            <div class="flex items-center justify-center gap-2 mb-3">
+                                <span class="bg-blue-900 text-white text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg">${roundLabel} &middot; ${questionLabel}</span>
+                                <span class="inline-flex items-center gap-1 bg-green-600 text-white text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg">${svgCheckIcon('w-2.5 h-2.5 text-white')}${qTypeLabel(qType)}</span>
+                            </div>
+                            ${buildAnswerBody(q, qType)}
+                        </div>
+                    </div>
+
+                    <div class="shrink-0 border-t border-gray-200 bg-white p-2.5 flex items-center justify-between">
+                        <button onclick="onlineGoTo('seequestion')" class="bg-gray-100 text-gray-700 text-[10px] font-black uppercase px-3 py-1.5 rounded-lg">◀ Back to Question</button>
+                        <button onclick="onlineGoTo('scoreboard')" class="bg-yellow-500 text-blue-900 text-[10px] font-black uppercase px-3 py-1.5 rounded-lg">Next ▶ Scoreboard</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ---- Scoreboard state ----
+        let sbColumns = [];
+        let sbRows = [];
+        let sbHiddenCols = {};
+
+        async function renderScoreboardView(silent) {
+            const root = document.getElementById('online-view-root');
+
+            if (!silent) {
+                if (onlineCache.scoreboard) {
+                    sbColumns = onlineCache.scoreboard.columns;
+                    sbRows = onlineCache.scoreboard.rows;
+                    paintScoreboard();
+                } else {
+                    root.innerHTML = `<div class="flex items-center justify-center h-full text-gray-300 text-xs font-bold uppercase tracking-widest">Loading scoreboard...</div>`;
+                }
+            }
+
+            try {
+                const params = new URLSearchParams();
+                params.append('action', 'getScoreboardData');
+                params.append('category', onlineCategory);
+                const resp = await fetch(scriptURL, { method: 'POST', body: params });
+                const data = await resp.json();
+                if (!data.success) {
+                    if (!onlineCache.scoreboard && !silent) root.innerHTML = `<div class="p-6 text-red-400 font-bold text-xs">Could not load scoreboard.</div>`;
+                    return;
+                }
+                sbColumns = data.columns;
+                sbRows = data.rows;
+                sbPushVisibleTotals();
+
+                try {
+                    const cParams = new URLSearchParams();
+                    cParams.append('action', 'getOnlineChurchList');
+                    cParams.append('category', onlineCategory);
+                    const cResp = await fetch(scriptURL, { method: 'POST', body: cParams });
+                    const cData = await cResp.json();
+                    if (cData.success) {
+                        onlineChurchData.lastChurch = cData.lastChurch;
+                        onlineChurchData.presentChurch = cData.presentChurch;
+                        onlineCache.church = onlineChurchData;
+                    }
+                } catch (e2) {}
+
+                onlineCache.scoreboard = { columns: sbColumns, rows: sbRows };
+                if (currentOnlineView === 'scoreboard') {
+                    paintScoreboard();
+                }
+            } catch (err) {
+                if (!onlineCache.scoreboard && !silent) root.innerHTML = `<div class="p-6 text-red-400 font-bold text-xs">Network error loading scoreboard.</div>`;
+            }
+        }
+
+        function finishCycleAndReturnToChurch() {
+            // We already know the outcome: lastChurch becomes whoever is currently present
+            onlineChurchData.lastChurch = onlineChurchData.presentChurch;
+            onlineCache.church = onlineChurchData;
+
+            onlineGoTo('church'); // jump back instantly
+
+            // Tell the backend quietly in the background
+            const params = new URLSearchParams();
+            params.append('action', 'commitLastChurch');
+            params.append('category', onlineCategory);
+            fetch(scriptURL, { method: 'POST', body: params }).catch(() => {});
+        }
+
+        function sbColLabel(colIndex) {
+            return sbColumns[colIndex];
+        }
+
+        function sbToggleColumn(colIndex) {
+            sbHiddenCols[colIndex] = !sbHiddenCols[colIndex];
+            syncNotShowColumn(sbColumns[colIndex], sbHiddenCols[colIndex]);
+            sbPushVisibleTotals();
+            paintScoreboard();
+        }
+
+        function syncNotShowColumn(colName, hidden) {
+            const params = new URLSearchParams();
+            params.append('action', 'syncNotShowColumn');
+            params.append('category', onlineCategory);
+            params.append('colName', colName);
+            params.append('hidden', hidden ? 'true' : 'false');
+            fetch(scriptURL, { method: 'POST', body: params }).catch(() => {});
+        }
+
+        function sbPushVisibleTotals() {
+            const totals = sbRows.map(r => ({ rowIndex: r.rowIndex, total: sbComputeRowTotal(r.cells) }));
+
+            let totalColIndex = sbColumns.indexOf('Total');
+            if (totalColIndex === -1) {
+                totalColIndex = sbColumns.length;
+                sbColumns.push('Total');
+            }
+            sbRows.forEach((r, i) => { r.cells[totalColIndex] = totals[i].total; });
+
+            const params = new URLSearchParams();
+            params.append('action', 'updateVisibleTotals');
+            params.append('category', onlineCategory);
+            params.append('totals', JSON.stringify(totals));
+            fetch(scriptURL, { method: 'POST', body: params }).catch(() => {});
+
+            onlineCache.scoreboard = { columns: sbColumns, rows: sbRows };
+        }
+
+        function sbComputeRowTotal(cells) {
+            let total = 0;
+            for (let c = 1; c < sbColumns.length; c++) {
+                if (sbHiddenCols[c]) continue;
+                if (sbColumns[c] === 'Total' || sbColumns[c] === 'Visible Total') continue;
+                const v = Number(cells[c]);
+                if (!isNaN(v)) total += v;
+            }
+            return total;
+        }
+
+        function paintScoreboard() {
+            const root = document.getElementById('online-view-root');
+            const totalColIndex = sbColumns.indexOf('Total');
+            const legacyVisibleTotalIndex = sbColumns.indexOf('Visible Total');
+
+            const toggleChips = sbColumns.map((col, i) => {
+                if (i === 0 || i === totalColIndex || i === legacyVisibleTotalIndex) return '';
+                const isHidden = !!sbHiddenCols[i];
+                return `<button onclick="sbToggleColumn(${i})" class="text-[9px] font-black uppercase px-2 py-1 rounded-lg border ${isHidden ? 'bg-gray-100 text-gray-400 border-gray-200' : 'bg-blue-900 text-white border-blue-800'}">${isHidden ? '🚫' : '👁'} ${col}</button>`;
+            }).join('');
+
+            const visibleDataCols = [];
+            for (let c = 1; c < sbColumns.length; c++) {
+                if (c === totalColIndex || c === legacyVisibleTotalIndex) continue;
+                if (!sbHiddenCols[c]) visibleDataCols.push(c);
+            }
+
+            const headerHtml = `
+                <th class="px-3 py-2 text-left font-black text-blue-900">S/N</th>
+                ${!sbHiddenCols[0] ? '<th class="px-3 py-2 text-left font-black text-blue-900">Church</th>' : ''}
+                <th class="px-3 py-2 text-left font-black text-blue-900">Alias</th>
+                ${visibleDataCols.map(c => `<th class="px-3 py-2 text-left font-black text-blue-900">${sbColumns[c]}</th>`).join('')}
+                <th class="px-3 py-2 text-right font-black text-blue-900">Total</th>
+            `;
+
+            const { lastChurch: sbLastChurch, presentChurch: sbPresentChurch } = onlineChurchData;
+
+            const bodyHtml = sbRows.map((r, i) => {
+                const total = sbComputeRowTotal(r.cells);
+                const churchName = (r.cells[0] || '').toString().trim();
+
+                let rowStyle = '';
+                if (sbLastChurch && sbPresentChurch && sbLastChurch === sbPresentChurch && churchName === sbPresentChurch) {
+                    rowStyle = 'background:#fef9c3;';
+                } else if (churchName === sbPresentChurch) {
+                    rowStyle = 'background:#dcfce7;';
+                } else if (churchName === sbLastChurch) {
+                    rowStyle = 'background:#fef9c3;';
+                } else {
+                    rowStyle = i % 2 === 0 ? 'background:#ffffff;' : 'background:#f9fafb;';
+                }
+
+                const cellsHtml = visibleDataCols.map(c => `
+                    <td class="px-3 py-1">
+                        <input type="text" value="${r.cells[c] !== undefined ? r.cells[c] : ''}"
+                            onblur="sbSaveCell(${r.rowIndex}, ${c}, this.value, ${i})"
+                            class="w-20 border border-gray-200 rounded-lg px-2 py-1 text-xs font-bold focus:outline-none focus:border-blue-900">
+                    </td>
+                `).join('');
+
+                return `
+                    <tr class="border-b border-gray-100" style="${rowStyle}">
+                        <td class="px-3 py-2 text-xs font-bold text-gray-400">${i + 1}</td>
+                        ${!sbHiddenCols[0] ? `<td class="px-3 py-2 text-sm font-bold text-blue-900">${r.cells[0]}</td>` : ''}
+                        <td class="px-3 py-2 text-sm text-gray-600">${r.alias}</td>
+                        ${cellsHtml}
+                        <td id="sb-total-${i}" class="px-3 py-2 text-sm font-black text-blue-900 text-right">${total}</td>
+                    </tr>
+                `;
+            }).join('');
+
+            root.innerHTML = `
+                <div class="h-full flex flex-col">
+                    <div class="shrink-0 px-4 py-2.5 border-b border-gray-200 bg-white flex flex-wrap gap-1.5 items-center">
+                        <span class="text-[9px] text-gray-400 font-black uppercase tracking-widest mr-1">Columns:</span>
+                        ${toggleChips}
+                    </div>
+
+                    <div class="flex-grow overflow-auto">
+                        <table class="w-full">
+                            <thead class="sticky top-0 bg-gray-100 text-[9px] font-black uppercase tracking-widest text-gray-500">
+                                <tr>${headerHtml}</tr>
+                            </thead>
+                            <tbody>${bodyHtml || '<tr><td class="p-4 text-center text-gray-300 text-xs font-bold uppercase">No scores yet</td></tr>'}</tbody>
+                        </table>
+                    </div>
+
+                    <div class="shrink-0 border-t border-gray-200 bg-white p-3 flex items-center justify-between">
+                        <button onclick="onlineGoTo('seeanswer')" class="bg-gray-100 text-gray-700 text-[10px] font-black uppercase px-3 py-1.5 rounded-lg">◀ Back</button>
+                        <button onclick="finishCycleAndReturnToChurch()" class="bg-yellow-500 text-blue-900 text-[10px] font-black uppercase px-3 py-1.5 rounded-lg">Next ▶ Church Display</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function sbSaveCell(rowIndex, colIndex, value, displayRowNum) {
+            const row = sbRows.find(r => r.rowIndex === rowIndex);
+            if (row) row.cells[colIndex] = value;
+
+            // Show the new total INSTANTLY — it's just simple addition, no need to ask the server
+            const totalEl = document.getElementById(`sb-total-${displayRowNum}`);
+            if (totalEl && row) totalEl.textContent = sbComputeRowTotal(row.cells);
+
+            // Save the raw cell value to the backend in the background
+            const params = new URLSearchParams();
+            params.append('action', 'updateScoreboardCell');
+            params.append('category', onlineCategory);
+            params.append('rowIndex', rowIndex);
+            params.append('colIndex', colIndex);
+            params.append('value', value);
+            fetch(scriptURL, { method: 'POST', body: params }).catch(() => {});
+
+            // Sync the recalculated totals in the background too
+            sbPushVisibleTotals();
+        }
+
+        async function renderChurchDisplayView(silent) {
+            const root = document.getElementById('online-view-root');
+
+            if (!silent) {
+                if (onlineCache.church) {
+                    onlineChurchData = onlineCache.church;
+                    paintChurchDisplayView();
+                } else {
+                    root.innerHTML = `<div class="flex items-center justify-center h-full text-gray-300 text-xs font-bold uppercase tracking-widest">Loading churches...</div>`;
+                }
+            }
+
+            try {
+                const params = new URLSearchParams();
+                params.append('action', 'getOnlineChurchList');
+                params.append('category', onlineCategory);
+                const resp = await fetch(scriptURL, { method: 'POST', body: params });
+                const data = await resp.json();
+
+                if (!data.success) {
+                    if (!onlineCache.church && !silent) root.innerHTML = `<div class="p-6 text-red-400 font-bold text-xs">Could not load church list.</div>`;
+                    return;
+                }
+                onlineChurchData = data;
+                onlineCache.church = data;
+                if (currentOnlineView === 'church') paintChurchDisplayView();
+            } catch (err) {
+                if (!onlineCache.church && !silent) root.innerHTML = `<div class="p-6 text-red-400 font-bold text-xs">Network error loading churches.</div>`;
+            }
+        }
+
+        function paintChurchDisplayView() {
+            const root = document.getElementById('online-view-root');
+            const { churches, lastChurch, presentChurch } = onlineChurchData;
+
+            const existingScrollEl = document.getElementById('church-scroll-container');
+            const preservedScrollTop = existingScrollEl ? existingScrollEl.scrollTop : null;
+
+            const rowsHtml = churches.map((c, i) => {
+                let rowStyle = '';
+                if (lastChurch && presentChurch && lastChurch === presentChurch && c.name === presentChurch) {
+                    rowStyle = 'background:#fef9c3;';
+                } else if (c.name === presentChurch) {
+                    rowStyle = 'background:#dcfce7;';
+                } else if (c.name === lastChurch) {
+                    rowStyle = 'background:#fef9c3;';
+                }
+                const safeName = c.name.replace(/'/g, "\\'");
+                return `
+                    <tr id="church-row-${i}" style="${rowStyle}" class="border-b border-gray-100 cursor-pointer hover:bg-blue-50 transition" onclick="manualSetPresentChurch('${safeName}')" title="Click to set as present church">
+                        <td class="px-3 py-2 text-xs font-bold text-gray-400">${i + 1}</td>
+                        <td class="px-3 py-2 text-sm font-bold text-blue-900">${c.name}</td>
+                        <td class="px-3 py-2 text-sm text-gray-600">${c.alias}</td>
+                        <td class="px-3 py-2 text-sm font-black text-blue-900 text-right">${c.total}</td>
+                    </tr>
+                `;
+            }).join('');
+
+            root.innerHTML = `
+                <div class="h-full flex flex-col">
+                    <div id="church-scroll-container" class="flex-grow overflow-y-auto">
+                        <table class="w-full">
+                            <thead class="sticky top-0 bg-gray-100">
+                                <tr class="text-[9px] font-black uppercase tracking-widest text-gray-500">
+                                    <th class="px-3 py-2 text-left">S/N</th>
+                                    <th class="px-3 py-2 text-left">Church Name</th>
+                                    <th class="px-3 py-2 text-left">Alias</th>
+                                    <th class="px-3 py-2 text-right">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>${rowsHtml || '<tr><td colspan="4" class="p-4 text-center text-gray-300 text-xs font-bold uppercase">No churches found</td></tr>'}</tbody>
+                        </table>
+                    </div>
+
+                    <div class="shrink-0 border-t border-gray-200 bg-white p-3 flex items-center justify-between gap-3">
+                        <span class="text-[9px] text-gray-400 font-bold uppercase tracking-widest">Click a row, or use ↑ / ↓ keys</span>
+                        <button onclick="goToGridFromChurch()" class="bg-yellow-500 text-blue-900 text-[10px] font-black uppercase px-3 py-1.5 rounded-lg">Next ▶</button>
+                    </div>
+                </div>
+            `;
+
+            if (preservedScrollTop !== null) {
+                const newScrollEl = document.getElementById('church-scroll-container');
+                if (newScrollEl) newScrollEl.scrollTop = preservedScrollTop;
+            }
+        }
+
+        function goToGridFromChurch() {
+            onlineActiveIndex = null;
+            onlineGoTo('grid');
+        }
+
+        function stepPresentChurchByKey(direction) {
+            if (currentOnlineView !== 'church') return;
+            const { churches, presentChurch } = onlineChurchData;
+            if (!churches || churches.length === 0) return;
+
+            let currentIndex = churches.findIndex(c => c.name === presentChurch);
+            let nextIndex;
+            if (currentIndex === -1) {
+                nextIndex = direction === 'down' ? 0 : churches.length - 1;
+            } else {
+                nextIndex = direction === 'down' ? currentIndex + 1 : currentIndex - 1;
+            }
+            if (nextIndex < 0) nextIndex = 0;
+            if (nextIndex >= churches.length) nextIndex = churches.length - 1;
+
+            manualSetPresentChurch(churches[nextIndex].name).then(() => {
+                const row = document.getElementById(`church-row-${nextIndex}`);
+                if (row) row.scrollIntoView({ block: 'nearest' });
+            });
+        }
+
+        document.addEventListener('keydown', (evt) => {
+            if (currentOnlineView !== 'church') return;
+            if (evt.key === 'ArrowDown') { evt.preventDefault(); stepPresentChurchByKey('down'); }
+            if (evt.key === 'ArrowUp') { evt.preventDefault(); stepPresentChurchByKey('up'); }
+        });
+
+        async function manualSetPresentChurch(churchName) {
+            if (!churchName) return;
+
+            // Paint the highlight INSTANTLY — we already know what it should look like,
+            // no need to wait for the server to confirm.
+            onlineChurchData.presentChurch = churchName;
+            onlineCache.church = onlineChurchData;
+            paintChurchDisplayView();
+
+            // Save to the backend quietly, in the background
+            try {
+                const params = new URLSearchParams();
+                params.append('action', 'setPresentChurch');
+                params.append('category', onlineCategory);
+                params.append('churchName', churchName);
+                const resp = await fetch(scriptURL, { method: 'POST', body: params });
+                const data = await resp.json();
+                if (data.success) {
+                    onlineChurchData.lastChurch = data.lastChurch;
+                    onlineCache.church = onlineChurchData;
+                }
+            } catch (err) {}
+        }
+
+        // ===== Zoom control (page content, independent of nav/menu) =====
+        const ZOOM_MIN = 50;
+        const ZOOM_MAX = 200;
+        const ZOOM_STEP = 10;
+        const ZOOM_STORAGE_KEY = 'yetay_zoom_level';
+
+        let zoomLevel = parseInt(localStorage.getItem(ZOOM_STORAGE_KEY), 10);
+        if (isNaN(zoomLevel) || zoomLevel < ZOOM_MIN || zoomLevel > ZOOM_MAX) {
+            zoomLevel = 100;
+        }
+
+        function applyZoom() {
+            const target = document.getElementById('page-root');
+            if (target) {
+                if (CSS.supports('zoom', '1')) {
+                    target.style.zoom = zoomLevel / 100;
+                } else {
+                    target.style.transformOrigin = 'top left';
+                    target.style.transform = `scale(${zoomLevel / 100})`;
+                    target.style.width = `${10000 / zoomLevel}%`;
+                }
+            }
+            const label = document.getElementById('zoom-level');
+            if (label) label.textContent = zoomLevel + '%';
+            localStorage.setItem(ZOOM_STORAGE_KEY, zoomLevel);
+        }
+
+        function zoomIn() {
+            if (zoomLevel < ZOOM_MAX) { zoomLevel += ZOOM_STEP; applyZoom(); }
+        }
+
+        function zoomOut() {
+            if (zoomLevel > ZOOM_MIN) { zoomLevel -= ZOOM_STEP; applyZoom(); }
+        }
+
+        function zoomReset() {
+            zoomLevel = 100;
+            applyZoom();
+        }
+
+        applyZoom();
+
+        // ===== Drag to reposition the zoom bar =====
+        function makeZoomBarDraggable() {
+            const bar = document.getElementById('zoom-bar');
+            const handle = document.getElementById('zoom-drag-handle');
+            if (!bar || !handle) return;
+
+            const POS_KEY = 'yetay_zoom_bar_pos';
+            let dragging = false, offsetX = 0, offsetY = 0;
+
+            function setPosition(x, y) {
+                const maxX = window.innerWidth - bar.offsetWidth;
+                const maxY = window.innerHeight - bar.offsetHeight;
+                x = Math.min(Math.max(x, 0), Math.max(maxX, 0));
+                y = Math.min(Math.max(y, 0), Math.max(maxY, 0));
+                bar.style.left = x + 'px';
+                bar.style.top = y + 'px';
+                bar.style.right = 'auto';
+                bar.style.bottom = 'auto';
+            }
+
+            const savedPos = JSON.parse(localStorage.getItem(POS_KEY) || 'null');
+            if (savedPos) setPosition(savedPos.x, savedPos.y);
+
+            handle.addEventListener('pointerdown', (e) => {
+                dragging = true;
+                const rect = bar.getBoundingClientRect();
+                offsetX = e.clientX - rect.left;
+                offsetY = e.clientY - rect.top;
+                handle.setPointerCapture(e.pointerId);
+            });
+
+            handle.addEventListener('pointermove', (e) => {
+                if (!dragging) return;
+                setPosition(e.clientX - offsetX, e.clientY - offsetY);
+            });
+
+            ['pointerup', 'pointercancel'].forEach(evt => {
+                handle.addEventListener(evt, () => {
+                    if (!dragging) return;
+                    dragging = false;
+                    const rect = bar.getBoundingClientRect();
+                    localStorage.setItem(POS_KEY, JSON.stringify({ x: rect.left, y: rect.top }));
+                });
+            });
+        }
+
+        makeZoomBarDraggable();
+
+        // This page IS the Online tab — kick things off immediately
+        // (this used to run only when openTab('tab-online') fired).
+        initOnlineTab();
+    </script>
+</body>
+</html>

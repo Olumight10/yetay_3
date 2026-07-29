@@ -1,0 +1,1349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Church Portal | Yetay 3.0</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body { font-family: 'Open Sans', sans-serif; background-color: #f3f4f6; }
+        h1, h2, h3, .font-heading { font-family: 'Montserrat', sans-serif; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Premium Custom Scrollbars for inner content */
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="pt-16 md:pt-20 flex flex-col min-h-screen">
+
+    <nav class="bg-blue-900 shadow-md fixed w-full z-50 top-0 h-16 md:h-20 text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
+            <div class="flex justify-between items-center h-full w-full">
+                <div class="flex items-center flex-shrink-0">
+                    <img src="logo.png" alt="Yetay Logo" class="h-8 md:h-10 w-auto bg-white rounded p-1 mr-2 md:mr-3" onerror="this.style.display='none'">
+                    <span class="font-heading font-bold text-sm md:text-xl text-yellow-400">CHURCH <span class="hidden sm:inline">PORTAL</span></span>
+                </div>
+                <div class="flex items-center space-x-3 md:space-x-4">
+                    <a href="index.html" class="text-xs md:text-sm font-semibold text-blue-200 hover:text-white whitespace-nowrap">&larr; <span class="md:hidden">Website</span><span class="hidden md:inline">Back to Main Website</span></a>
+                    <a href="login.html" onclick="localStorage.clear()" class="bg-red-600 text-white px-3 py-1.5 md:px-4 md:py-2 rounded shadow hover:bg-red-700 transition font-bold text-xs md:text-sm">Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 overflow-x-auto whitespace-nowrap hide-scrollbar">
+            <div class="flex space-x-4 md:space-x-6 py-3">
+                <button onclick="openTab('tab-dashboard')" id="btn-tab-dashboard" class="portal-tab text-sm md:text-base text-blue-900 font-bold border-b-2 border-yellow-500 px-2 pb-1">Dashboard</button>
+                <button onclick="openTab('tab-participants')" id="btn-tab-participants" class="portal-tab text-sm md:text-base text-gray-500 hover:text-blue-900 font-semibold px-2 pb-1">Participants</button>
+                <button onclick="openTab('tab-assessments')" id="btn-tab-assessments" class="portal-tab text-sm md:text-base text-gray-500 hover:text-blue-900 font-semibold px-2 pb-1">Assessments</button>
+                <button onclick="openTab('tab-maincbt')" id="btn-tab-maincbt" class="portal-tab text-sm md:text-base text-gray-500 hover:text-blue-900 font-semibold px-2 pb-1">Main CBT</button>
+                <button onclick="openTab('tab-pastquestions')" id="btn-tab-pastquestions" class="portal-tab text-sm md:text-base text-gray-500 hover:text-blue-900 font-semibold px-2 pb-1">Past Questions</button>
+                <button onclick="openTab('tab-resources')" id="btn-tab-resources" class="portal-tab text-sm md:text-base text-gray-500 hover:text-blue-900 font-semibold px-2 pb-1">Resources</button>
+                <button onclick="openTab('tab-profile')" id="btn-tab-profile" class="portal-tab text-sm md:text-base text-gray-500 hover:text-blue-900 font-semibold px-2 pb-1">Profile</button>
+            </div>
+        </div>
+    </div>
+
+    <main class="flex-grow max-w-7xl mx-auto w-full px-4 py-6 md:py-8">
+        
+        <div class="bg-white rounded-lg shadow-sm border-l-4 border-green-500 p-4 md:p-6 mb-6 md:mb-8 flex flex-col md:flex-row justify-between md:items-center gap-4">
+            <div>
+                <h1 class="text-lg md:text-2xl font-bold text-blue-900" id="churchDisplayName">Welcome...</h1>
+                <div class="flex flex-wrap gap-2 mt-2">
+                    <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-[10px] md:text-xs font-bold uppercase tracking-tight">Status: Registered</span>
+                    <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-[10px] md:text-xs font-bold uppercase tracking-tight">Access: Active</span>
+                </div>
+            </div>
+            <div class="text-left md:text-right border-t md:border-t-0 pt-3 md:pt-0 border-gray-100">
+                <p class="text-[10px] md:text-xs text-gray-500 uppercase font-bold">Portal Access</p>
+                <p class="text-sm md:text-base font-semibold text-blue-900">Yetay 3.0 Competitor</p>
+            </div>
+        </div>
+
+        <div id="tab-dashboard" class="tab-content active">
+            <h2 class="text-base md:text-lg font-bold text-gray-800 mb-3 md:mb-4">Your Performance Metrics</h2>
+            <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-4 gap-3 md:gap-4">
+                <div class="bg-white p-3 md:p-4 rounded-lg shadow-sm border border-gray-100 text-center border-b-4 border-blue-900">
+                    <p class="text-[10px] md:text-xs text-gray-500 font-bold uppercase mb-1">Total Points</p>
+                    <p class="text-xl md:text-2xl font-bold text-blue-900" id="stat-total-points">0</p>
+                </div>
+                <div class="bg-white p-3 md:p-4 rounded-lg shadow-sm border border-gray-100 text-center">
+                    <p class="text-[10px] md:text-xs text-gray-500 font-bold uppercase mb-1">Assessments</p>
+                    <p class="text-xl md:text-2xl font-bold text-gray-800" id="stat-assessments">0</p>
+                </div>
+                <div class="bg-white p-3 md:p-4 rounded-lg shadow-sm border border-gray-100 text-center border-b-4 border-green-500">
+                    <p class="text-[10px] md:text-xs text-gray-500 font-bold uppercase mb-1">Attempted</p>
+                    <p class="text-xl md:text-2xl font-bold text-green-600" id="stat-attempted">0</p>
+                </div>
+                <div class="bg-white p-3 md:p-4 rounded-lg shadow-sm border border-gray-100 text-center border-b-4 border-purple-500">
+                    <p class="text-[10px] md:text-xs text-gray-500 font-bold uppercase mb-1">Percentage</p>
+                    <p class="text-xl md:text-2xl font-bold text-purple-600"><span id="stat-percentage">0</span>%</p>
+                </div>
+            </div>
+
+            <div class="bg-white border-l-4 border-blue-500 rounded-lg p-5 md:p-6 mt-6 md:mt-8 shadow-sm">
+                <h3 class="font-bold text-blue-900 mb-2">Current Active Assessment</h3>
+                <div class="bg-gray-50 p-4 rounded border border-gray-200 text-center">
+                    <p class="text-sm text-gray-500 italic">There are no active assessments at this time. You will be notified when a new test is deployed.</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-participants" class="tab-content">
+            <div id="pf-status-banner" class="bg-blue-50 border-l-4 border-blue-900 p-4 mb-6 rounded">
+                <p class="text-blue-900 font-bold text-sm md:text-base mb-1 uppercase tracking-wider">Participant Registration</p>
+                <p class="text-xs md:text-sm text-blue-800">Confirm your church details below, then fill in participant information for each category you registered for.</p>
+            </div>
+
+            <form id="participantsForm" class="space-y-8">
+
+                <div class="bg-white p-5 rounded-lg shadow-sm border border-gray-200">
+                    <h3 class="font-bold text-blue-900 mb-4 border-b pb-2 uppercase tracking-wide text-sm">Church Information <span class="text-xs font-normal text-gray-400 normal-case">(please confirm or correct)</span></h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 mb-1 uppercase">Church Name <span class="text-red-600">*</span></label>
+                            <input type="text" id="pf-churchName" required class="w-full px-3 py-2 border border-gray-300 rounded focus:border-blue-900 focus:outline-none focus:ring-1 focus:ring-blue-900 text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 mb-1 uppercase">Church Address <span class="text-red-600">*</span></label>
+                            <input type="text" id="pf-churchAddress" required class="w-full px-3 py-2 border border-gray-300 rounded focus:border-blue-900 focus:outline-none focus:ring-1 focus:ring-blue-900 text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 mb-1 uppercase">Username / Alias <span class="text-red-600">*</span></label>
+                            <input type="text" id="pf-alias" required class="w-full px-3 py-2 border border-gray-300 rounded focus:border-blue-900 focus:outline-none focus:ring-1 focus:ring-blue-900 text-sm">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-lg shadow-sm border border-gray-200">
+                    <h3 class="font-bold text-blue-900 mb-2 border-b pb-2 uppercase tracking-wide text-sm">Select Competing Categories</h3>
+                    <p class="text-xs text-gray-500 mb-3">Tick a category to reveal its participant detail form below.</p>
+                    <div class="flex flex-wrap gap-6" id="pf-category-checkboxes">
+                        <label class="flex items-center space-x-2 text-sm font-semibold text-gray-700 cursor-pointer">
+                            <input type="checkbox" id="pf-cat-Junior" value="Junior" class="pf-cat-checkbox w-4 h-4">
+                            <span>Junior</span>
+                        </label>
+                        <label class="flex items-center space-x-2 text-sm font-semibold text-gray-700 cursor-pointer">
+                            <input type="checkbox" id="pf-cat-Intermediate" value="Intermediate" class="pf-cat-checkbox w-4 h-4">
+                            <span>Intermediate</span>
+                        </label>
+                        <label class="flex items-center space-x-2 text-sm font-semibold text-gray-700 cursor-pointer">
+                            <input type="checkbox" id="pf-cat-Senior" value="Senior" class="pf-cat-checkbox w-4 h-4">
+                            <span>Senior</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div id="participants-grid" class="space-y-8"></div>
+
+                <div class="flex justify-end">
+                    <button type="submit" id="participantsSubmitBtn" class="bg-blue-900 text-white font-bold px-6 py-2.5 rounded shadow hover:bg-blue-800 transition text-sm">Save Participant Details</button>
+                </div>
+            </form>
+        </div>
+
+        <div id="tab-assessments" class="tab-content">
+            <h2 class="text-lg md:text-xl font-bold text-blue-900 mb-4 border-b pb-2">Active Assessment</h2>
+            <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 text-center mb-8">
+                 <p class="text-gray-500 text-sm italic">No active assessments available right now. Please check back later.</p>
+            </div>
+
+            <h2 class="text-lg md:text-xl font-bold text-blue-900 mb-4 border-b pb-2">Assessment History</h2>
+            <div class="bg-white rounded-lg shadow-sm border overflow-x-auto">
+                <table class="w-full text-left text-xs md:text-sm whitespace-nowrap">
+                    <thead class="bg-gray-50 text-gray-600">
+                        <tr>
+                            <th class="p-3 md:p-4 font-semibold">Assessment Title</th>
+                            <th class="p-3 md:p-4 font-semibold">Date Logged</th>
+                            <th class="p-3 md:p-4 font-semibold">Score</th>
+                        </tr>
+                    </thead>
+                    <tbody id="assessment-history-body">
+                        <tr class="border-t">
+                            <td colspan="3" class="p-6 text-center text-gray-400 font-bold">Loading Assessments...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="tab-maincbt" class="tab-content text-center py-12">
+            <div class="max-w-xl mx-auto bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden text-center">
+                <div class="bg-blue-900 p-8 text-white">
+                    <svg class="w-16 h-16 mx-auto text-yellow-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                    <h3 class="text-2xl font-bold font-heading">EXAM LOCKED</h3>
+                </div>
+                <div class="p-8">
+                    <p class="text-gray-600 mb-4">The official contest is scheduled for August 29th, 2026.</p>
+                    <span class="bg-gray-100 border border-gray-300 rounded px-4 py-2 text-xs font-bold text-red-600 uppercase">Waiting for Admin</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-pastquestions" class="tab-content relative">
+            
+            <div id="pq-hub-menu">
+                <div class="mb-8 text-center">
+                    <h2 class="text-2xl font-bold text-blue-900 font-heading uppercase tracking-wide">The Study Vault</h2>
+                    <p class="text-gray-500 text-sm mt-1">Select a mode to begin your preparation. First-time visits award 10 Church Ranking points!</p>
+                </div>
+
+                <h3 class="font-bold text-gray-800 border-b pb-2 mb-4 flex items-center"><svg class="w-5 h-5 mr-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> Timed CBT Practice (MCQ / True & False)</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
+                    <div onclick="startSession('junior', 'cbt')" class="bg-white p-5 rounded-lg shadow-sm border border-gray-200 text-center cursor-pointer hover:border-yellow-500 hover:shadow-md transition group">
+                        <div class="w-12 h-12 bg-yellow-100 text-yellow-600 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition"><svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/></svg></div>
+                        <h4 class="font-bold text-blue-900">Junior CBT</h4>
+                    </div>
+                    <div onclick="startSession('intermediate', 'cbt')" class="bg-white p-5 rounded-lg shadow-sm border border-gray-200 text-center cursor-pointer hover:border-green-500 hover:shadow-md transition group">
+                        <div class="w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition"><svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/></svg></div>
+                        <h4 class="font-bold text-blue-900">Intermediate CBT</h4>
+                    </div>
+                    <div onclick="startSession('senior', 'cbt')" class="bg-white p-5 rounded-lg shadow-sm border border-gray-200 text-center cursor-pointer hover:border-red-500 hover:shadow-md transition group">
+                        <div class="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition"><svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/></svg></div>
+                        <h4 class="font-bold text-blue-900">Senior CBT</h4>
+                    </div>
+                </div>
+
+                <h3 class="font-bold text-gray-800 border-b pb-2 mb-4 flex items-center"><svg class="w-5 h-5 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg> Interactive Quiz Mode (All Question Types)</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div onclick="startSession('junior', 'quiz')" class="bg-blue-50 p-5 rounded-lg shadow-sm border border-blue-200 text-center cursor-pointer hover:bg-blue-100 transition group">
+                        <h4 class="font-bold text-blue-900">Junior Quiz</h4><p class="text-xs text-blue-700 mt-1">Study Mode</p>
+                    </div>
+                    <div onclick="startSession('intermediate', 'quiz')" class="bg-blue-50 p-5 rounded-lg shadow-sm border border-blue-200 text-center cursor-pointer hover:bg-blue-100 transition group">
+                        <h4 class="font-bold text-blue-900">Intermediate Quiz</h4><p class="text-xs text-blue-700 mt-1">Study Mode</p>
+                    </div>
+                    <div onclick="startSession('senior', 'quiz')" class="bg-blue-50 p-5 rounded-lg shadow-sm border border-blue-200 text-center cursor-pointer hover:bg-blue-100 transition group">
+                        <h4 class="font-bold text-blue-900">Senior Quiz</h4><p class="text-xs text-blue-700 mt-1">Study Mode</p>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+
+        <div id="tab-resources" class="tab-content">
+            <h2 class="text-lg md:text-xl font-bold text-blue-900 mb-6 border-b pb-2 uppercase tracking-wide">Portal Resources</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white p-5 rounded-lg shadow-sm border border-green-200 flex flex-col justify-between">
+                    <div>
+                        <h3 class="font-bold text-gray-800 text-lg mb-1 flex items-center">
+                            <svg class="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                            Invitation Letter
+                        </h3>
+                        <p class="text-xs text-gray-600 mb-4">Download your official proof of registration.</p>
+                    </div>
+                    <a href="#" id="res-letter-link" class="block w-full text-center bg-green-600 text-white font-bold py-2.5 rounded hover:bg-green-700 transition">Download PDF</a>
+                </div>
+                
+                <div class="bg-white p-5 rounded-lg shadow-sm border border-yellow-200 flex flex-col justify-between">
+                    <div>
+                        <h3 class="font-bold text-gray-800 text-lg mb-1 flex items-center">
+                            <svg class="w-5 h-5 mr-2 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            Guidelines
+                        </h3>
+                        <p class="text-xs text-gray-600 mb-4">Review the official rules, eligibility, and scoring.</p>
+                    </div>
+                    <a href="Guidelines%20for%20Participation.pdf" target="_blank" class="block w-full text-center bg-yellow-500 text-blue-900 font-bold py-2.5 rounded hover:bg-yellow-400 transition">View Guidelines</a>
+                </div>
+
+                <div class="bg-blue-900 p-5 rounded-lg shadow-lg text-white flex flex-col justify-between">
+                    <div>
+                        <h3 class="font-bold text-yellow-400 text-lg mb-2">Official Community</h3>
+                        <p class="text-sm text-blue-100 mb-4">Join the Yetay 3.0 community group on WhatsApp.</p>
+                    </div>
+                    <a href="https://chat.whatsapp.com/D2seJ7Uaxr2Lizx5ZHaI3d" target="_blank" class="block w-full text-center bg-[#25D366] text-white font-bold py-2.5 rounded hover:bg-[#20bd5a] transition">Join WhatsApp Group</a>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-profile" class="tab-content">
+            <div class="bg-white p-6 md:p-8 rounded-lg shadow-sm border max-w-2xl mx-auto md:mx-0">
+                <h2 class="text-lg md:text-xl font-bold text-blue-900 mb-6 border-b pb-2 uppercase tracking-wide">Church Profile</h2>
+                <div id="profile-container" class="hidden space-y-4">
+                    <div><p class="text-[10px] text-gray-500 font-bold uppercase mb-0.5">Church Name</p><p class="font-semibold text-gray-800 text-lg" id="prof-name">...</p></div>
+                    <div><p class="text-[10px] text-gray-500 font-bold uppercase mb-0.5">Registration Alias</p><p class="font-mono text-blue-900 font-bold" id="prof-id">...</p></div>
+                    <div><p class="text-[10px] text-gray-500 font-bold uppercase mb-0.5">Physical Address</p><p class="text-gray-700" id="prof-address">...</p></div>
+                    <div><p class="text-[10px] text-gray-500 font-bold uppercase mb-0.5">Coordinator Contact</p><p class="text-gray-700" id="prof-contact">...</p></div>
+                    <div><p class="text-[10px] text-gray-500 font-bold uppercase mb-0.5">Registered Categories</p><div class="flex flex-wrap gap-2 mt-1" id="prof-cats"></div></div>
+                </div>
+
+                <div class="mt-8 border-t border-gray-200 pt-6">
+                    <h3 class="text-md md:text-lg font-bold text-red-600 mb-4 uppercase tracking-wide flex items-center">Account Security</h3>
+                    <form id="internalChangePwdForm" class="space-y-4 max-w-sm">
+                        <div>
+                            <input type="password" id="newPwd" required placeholder="Enter new password" class="w-full px-3 py-2 border border-gray-300 rounded focus:border-blue-900 focus:outline-none focus:ring-1 focus:ring-blue-900 text-sm transition">
+                        </div>
+                        <div>
+                            <input type="password" id="confirmPwd" required placeholder="Re-enter new password" class="w-full px-3 py-2 border border-gray-300 rounded focus:border-blue-900 focus:outline-none focus:ring-1 focus:ring-blue-900 text-sm transition">
+                        </div>
+                        <button type="submit" id="internalChangePwdBtn" class="bg-red-600 text-white font-bold py-2.5 px-4 rounded shadow hover:bg-red-700 transition text-sm w-full">Update Password</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+
+    <div id="cbt-interface" class="hidden fixed inset-0 z-[100] h-[100dvh] w-screen bg-slate-50 flex flex-col font-sans overflow-hidden">
+        <div class="bg-gradient-to-r from-slate-900 to-blue-900 text-white p-2 md:p-3 flex justify-between items-center shrink-0 shadow z-30">
+            <div class="flex items-center space-x-3">
+                <h3 class="font-black uppercase tracking-widest text-[11px] md:text-sm text-yellow-400" id="cbt-header-title">CBT Practice</h3>
+                <button onclick="toggleCbtGrid()" class="bg-white/10 hover:bg-white/20 border border-white/20 px-2.5 py-1.5 rounded-lg text-[10px] md:text-xs font-bold transition flex items-center">
+                    <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg> Map
+                </button>
+            </div>
+            <div class="flex items-center space-x-3">
+                <div class="bg-red-500/20 border border-red-500/50 text-red-100 px-3 py-1 rounded-full text-xs md:text-sm font-mono font-bold tracking-widest" id="cbt-timer">30:00</div>
+                <button onclick="exitSession()" class="text-slate-300 hover:text-white px-2 py-1 rounded text-[10px] md:text-xs font-bold transition">X EXIT</button>
+            </div>
+        </div>
+        
+        <div class="flex-grow flex overflow-hidden relative w-full">
+            <div class="flex-grow flex flex-col justify-center items-center p-2 md:p-4 overflow-hidden w-full h-full" id="cbt-main-area">
+                <div id="cbt-questions-container" class="w-full max-w-3xl flex flex-col justify-center overflow-hidden transition-all duration-300"></div>
+            </div>
+
+            <div id="cbt-grid-sidebar" class="hidden absolute md:static right-0 top-0 bottom-0 z-40 w-64 bg-white border-l border-slate-200 shadow-2xl shrink-0 flex-col h-full transition-all">
+                <div class="p-3 border-b border-slate-100 bg-slate-50 flex justify-between items-center shrink-0">
+                    <h4 class="font-bold text-slate-700 text-xs uppercase tracking-wider">Question Map</h4>
+                    <button onclick="toggleCbtGrid()" class="md:hidden bg-slate-200 hover:bg-slate-300 text-slate-600 rounded-full w-6 h-6 flex items-center justify-center font-bold text-xs">X</button>
+                </div>
+                <div class="px-3 py-2 border-b border-slate-100 bg-white shrink-0 flex justify-between text-[9px] font-bold text-slate-500 uppercase">
+                    <div class="flex items-center"><span class="w-2.5 h-2.5 rounded-full bg-slate-100 border border-slate-300 mr-1 shadow-inner"></span> Unseen</div>
+                    <div class="flex items-center"><span class="w-2.5 h-2.5 rounded-full bg-blue-50 border-2 border-blue-400 mr-1 shadow-sm"></span> Seen</div>
+                    <div class="flex items-center"><span class="w-2.5 h-2.5 rounded-full bg-green-500 shadow-md shadow-green-200 mr-1"></span> Ans</div>
+                </div>
+                <div class="flex-grow flex flex-col items-center p-3 overflow-hidden bg-slate-50/50">
+                    <div id="cbt-grid-container" class="grid grid-cols-5 gap-2 w-full justify-items-center"></div>
+                </div>
+                <div id="cbt-grid-pagination" class="p-3 border-t border-slate-100 bg-white shrink-0 flex justify-between items-center"></div>
+            </div>
+        </div>
+        
+        <div class="bg-white border-t border-slate-200 p-2 md:p-4 flex justify-between items-center shrink-0 z-30">
+            <button onclick="navCbt(-1)" id="cbt-prev-btn" class="bg-slate-100 text-slate-600 border border-slate-300 font-bold px-4 md:px-6 py-1.5 md:py-2 rounded-lg hover:bg-slate-200 transition disabled:opacity-40 text-[11px] md:text-sm">&larr; Prev</button>
+            <span id="cbt-progress" class="font-bold text-slate-400 text-xs md:text-sm text-center hidden sm:block tracking-widest font-mono">1 / 50</span>
+            <div class="flex items-center space-x-2 md:space-x-3">
+                <button onclick="navCbt(1)" id="cbt-next-btn" class="bg-blue-600 text-white font-bold px-4 md:px-6 py-1.5 md:py-2 rounded-lg hover:bg-blue-700 transition disabled:opacity-40 text-[11px] md:text-sm shadow">Next &rarr;</button>
+                <button onclick="submitCBT()" id="cbt-submit-btn" class="bg-green-600 text-white font-bold px-4 md:px-6 py-1.5 md:py-2 rounded-lg hover:bg-green-700 transition-all text-[11px] md:text-sm shadow">Submit</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="quiz-interface" class="hidden fixed inset-0 z-[100] h-[100dvh] w-screen bg-slate-900 flex flex-col font-sans overflow-hidden">
+        <div class="p-2 md:p-3 flex justify-between items-center border-b border-white/10 shrink-0 bg-slate-900/50 backdrop-blur-md z-30">
+            <div class="flex items-center space-x-3">
+                <h3 class="font-black text-yellow-400 uppercase tracking-widest text-[11px] md:text-sm drop-shadow-lg" id="quiz-header-title">Study Mode</h3>
+                <button onclick="toggleQuizGrid()" class="bg-white/10 hover:bg-white/20 border border-white/10 px-2.5 py-1.5 rounded-lg text-[10px] md:text-xs font-bold text-white transition flex items-center">
+                    <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6z"></path></svg> Map
+                </button>
+            </div>
+            <button onclick="exitSession()" class="text-slate-400 hover:text-red-400 px-2 py-1 rounded text-[10px] md:text-xs font-bold transition">X CLOSE</button>
+        </div>
+        
+        <div class="flex-grow flex overflow-hidden relative w-full">
+            <div class="flex-grow flex flex-col justify-center items-center p-2 md:p-4 overflow-hidden w-full h-full">
+                <div class="bg-white w-full max-w-3xl flex flex-col rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] p-4 md:p-6 relative max-h-full overflow-hidden transition-all duration-300" id="quiz-card">
+                    <div class="shrink-0 mb-2 md:mb-3">
+                        <div class="absolute top-3 left-3 bg-slate-100 text-slate-500 text-[9px] font-bold px-2 py-1 rounded font-mono" id="quiz-counter">1 / 10</div>
+                        <div class="absolute top-3 right-3 bg-blue-50 border border-blue-100 text-blue-800 text-[9px] font-bold px-2 py-1 rounded uppercase tracking-wide" id="quiz-type-badge">MCQ</div>
+                        <h2 class="text-sm md:text-base font-black text-slate-800 mt-6 md:mt-8 text-center leading-tight font-heading break-words" id="quiz-question-text">Loading question...</h2>
+                    </div>
+                    
+                    <div class="flex-grow flex flex-col justify-center overflow-hidden">
+                        <div id="quiz-options" class="flex flex-col gap-1.5 w-full max-w-2xl mx-auto mt-2 mb-2"></div>
+                        
+                        <div class="mt-2 text-center border-t border-slate-100 pt-3">
+                            <button onclick="toggleAnswer()" class="text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-200 font-bold text-xs px-5 py-2 rounded-lg transition-colors" id="quiz-reveal-btn">Reveal Correct Answer</button>
+                            <div id="quiz-answer-box" class="hidden bg-emerald-50 border border-emerald-200 rounded-xl p-2 md:p-3 text-left shadow-inner transform transition-all">
+                                <p class="text-[9px] text-emerald-600 font-bold uppercase tracking-wider mb-0.5">Correct Answer:</p>
+                                <p class="font-black text-emerald-800 text-xs md:text-sm mb-1.5" id="quiz-correct-answer"></p>
+                                <p class="text-[9px] text-slate-500 font-bold uppercase tracking-wider mb-0.5">Explanation:</p>
+                                <p class="text-[10px] md:text-xs text-slate-700 font-medium leading-tight" id="quiz-explanation"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="quiz-grid-sidebar" class="hidden absolute md:static right-0 top-0 bottom-0 z-40 w-64 bg-slate-800 border-l border-slate-700 shadow-2xl shrink-0 flex-col h-full transition-all">
+                <div class="p-3 border-b border-slate-700 flex justify-between items-center shrink-0">
+                    <h4 class="font-bold text-slate-300 text-xs uppercase tracking-wider">Study Map</h4>
+                    <button onclick="toggleQuizGrid()" class="md:hidden bg-slate-700 text-white rounded-full w-6 h-6 text-xs font-bold">X</button>
+                </div>
+                <div class="px-3 py-2 border-b border-slate-700 shrink-0 flex justify-around text-[9px] font-bold text-slate-400 uppercase">
+                    <div class="flex items-center"><span class="w-2.5 h-2.5 rounded-full bg-slate-700 border border-slate-600 mr-1"></span> Unseen</div>
+                    <div class="flex items-center"><span class="w-2.5 h-2.5 rounded-full bg-yellow-500 shadow-[0_0_10px_rgba(234,179,8,0.5)] mr-1"></span> Touched</div>
+                </div>
+                <div class="flex-grow flex flex-col items-center p-3 overflow-hidden bg-slate-800/50">
+                    <div id="quiz-grid-container" class="grid grid-cols-5 gap-2 w-full justify-items-center"></div>
+                </div>
+                <div id="quiz-grid-pagination" class="p-3 border-t border-slate-700 bg-slate-800 shrink-0 flex justify-between items-center"></div>
+            </div>
+        </div>
+        
+        <div class="p-2 md:p-4 flex justify-between items-center bg-slate-950 shrink-0 border-t border-white/10 z-30">
+            <button onclick="navQuiz(-1)" id="quiz-prev-btn" class="bg-slate-800 border border-slate-700 text-slate-300 font-bold px-4 md:px-6 py-1.5 md:py-2 rounded-lg hover:bg-slate-700 transition disabled:opacity-30 text-[11px] md:text-sm">&larr; Prev</button>
+            <button onclick="navQuiz(1)" id="quiz-next-btn" class="bg-blue-600 text-white font-bold px-4 md:px-6 py-1.5 md:py-2 rounded-lg hover:bg-blue-500 transition shadow-[0_0_15px_rgba(37,99,235,0.4)] disabled:opacity-30 text-[11px] md:text-sm">Next &rarr;</button>
+        </div>
+    </div>
+
+
+    <footer class="bg-blue-900 text-white py-12 mt-auto w-full border-t border-blue-800">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <img src="logo.png" alt="Logo" class="h-12 mx-auto mb-4" onerror="this.style.display='none'">
+            <h3 class="text-xl font-bold mb-1 font-heading">Yetay Memorial Project</h3>
+            <p class="text-blue-200 mb-6 text-sm">Banner Unto Nations Foundation</p>
+
+            <div class="flex justify-center items-center space-x-5 md:space-x-6 mb-8">
+                
+                <a href="https://web.facebook.com/profile.php?id=61560969430207" target="_blank" rel="noopener noreferrer" class="group">
+                    <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-white flex items-center justify-center text-[#1877F2] group-hover:bg-[#1877F2] group-hover:text-white transition-all duration-300 shadow-lg transform group-hover:-translate-y-1">
+                        <svg class="w-5 h-5 md:w-6 md:h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                </a>
+
+                <a href="https://www.instagram.com/yetaybiblequiz/" target="_blank" rel="noopener noreferrer" class="group">
+                    <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-white flex items-center justify-center text-[#E1306C] group-hover:bg-gradient-to-tr group-hover:from-[#F58529] group-hover:via-[#DD2A7B] group-hover:to-[#8134AF] group-hover:text-white transition-all duration-300 shadow-lg transform group-hover:-translate-y-1">
+                        <svg class="w-5 h-5 md:w-6 md:h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.45 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                </a>
+
+                <a href="https://www.youtube.com/@Yetay-quiz" target="_blank" rel="noopener noreferrer" class="group">
+                    <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-white flex items-center justify-center text-[#FF0000] group-hover:bg-[#FF0000] group-hover:text-white transition-all duration-300 shadow-lg transform group-hover:-translate-y-1">
+                        <svg class="w-5 h-5 md:w-6 md:h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M19.812 5.418c.861.23 1.538.907 1.768 1.768C21.998 8.746 22 12 22 12s0 3.255-.418 4.814a2.504 2.504 0 0 1-1.768 1.768c-1.56.419-7.814.419-7.814.419s-6.255 0-7.814-.419a2.505 2.505 0 0 1-1.768-1.768C2 15.255 2 12 2 12s0-3.255.417-4.814a2.507 2.507 0 0 1 1.768-1.768C5.744 5 11.998 5 11.998 5s6.255 0 7.814.418ZM15.194 12 10 15V9l5.194 3Z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                </a>
+
+                <a href="https://chat.whatsapp.com/D2seJ7Uaxr2Lizx5ZHaI3d" target="_blank" rel="noopener noreferrer" class="group">
+                    <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-white flex items-center justify-center text-[#25D366] group-hover:bg-[#25D366] group-hover:text-white transition-all duration-300 shadow-lg transform group-hover:-translate-y-1">
+                        <svg class="w-5 h-5 md:w-6 md:h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M12.031 2C6.495 2 2 6.495 2 12.031c0 1.77.464 3.5 1.348 5.01L2 22l5.093-1.336A9.98 9.98 0 0012.031 22c5.536 0 10.031-4.495 10.031-10.031S17.567 2 12.031 2zm5.556 14.48c-.244.686-1.42 1.31-1.968 1.393-.526.08-1.2.22-3.805-.85-3.328-1.36-5.46-4.78-5.624-5.006-.164-.226-1.346-1.79-1.346-3.418 0-1.628.847-2.43 1.15-2.733.303-.303.662-.379.882-.379.22 0 .44.004.64.013.208.01.488-.08.761.58.286.686.974 2.378 1.059 2.543.085.165.143.356.033.58-.11.224-.165.362-.33.551-.165.188-.344.408-.495.551-.165.165-.337.34-.148.665.19.324.846 1.398 1.821 2.268 1.258 1.121 2.302 1.466 2.632 1.631.33.165.523.148.718-.066.195-.214.846-.983 1.074-1.319.229-.336.458-.28.756-.169.298.11 1.884.891 2.207 1.056.323.165.539.248.618.384.079.136.079.79-.165 1.476z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                </a>
+            </div>
+            
+            <p class="text-blue-300 text-sm">&copy; 2026 Banner Unto Nations Foundation. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        const scriptURL = "https://script.google.com/macros/s/AKfycbzMnfYQ-gfbxlnUNnzmLuY3uaBjLfHldWkXFQK0jvN31hNrDNHTsuJOsAIAdwBzR9ar/exec";
+        let currentChurchContact = "";
+        let currentCategories = [];
+
+        function openTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.portal-tab').forEach(el => {
+                el.classList.remove('text-blue-900', 'border-b-2', 'border-yellow-500');
+                el.classList.add('text-gray-500');
+            });
+            document.getElementById(tabId).classList.add('active');
+            const activeBtn = document.getElementById('btn-' + tabId);
+            activeBtn.classList.remove('text-gray-500'); activeBtn.classList.add('text-blue-900', 'border-b-2', 'border-yellow-500');
+        }
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            const role = localStorage.getItem("yetay_session_role");
+            const churchName = localStorage.getItem("yetay_church_name");
+            const userId = localStorage.getItem("yetay_session_id");
+            
+            if (role !== "church" || !churchName) { window.location.href = "login.html"; return; }
+
+            document.getElementById('churchDisplayName').innerText = `Welcome, ${churchName} (${userId})`;
+            
+            fetchChurchData(churchName);
+            fetchChurchAssessments(churchName);
+        });
+
+        async function fetchChurchAssessments(name) {
+            try {
+                const params = new URLSearchParams();
+                params.append("action", "getChurchAssessments");
+                params.append("churchName", name);
+                const resp = await fetch(scriptURL, { method: "POST", body: params });
+                const d = await resp.json();
+                
+                if(d.success) {
+                    document.getElementById('stat-total-points').innerText = d.totalPoints;
+                    document.getElementById('stat-assessments').innerText = d.totalAssessments;
+                    document.getElementById('stat-attempted').innerText = d.attempted;
+                    document.getElementById('stat-percentage').innerText = d.percentage;
+
+                    const tbody = document.getElementById('assessment-history-body');
+                    tbody.innerHTML = "";
+                    if(d.assessments.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="3" class="p-6 text-center text-gray-500">No assessments logged yet.</td></tr>`;
+                    } else {
+                        d.assessments.forEach(item => {
+                            let scoreClass = item.score > 0 ? "text-green-600 font-bold" : "text-gray-400 font-semibold";
+                            let scoreText = item.score > 0 ? `+${item.score} Pts` : "0 Pts";
+                            
+                            tbody.innerHTML += `
+                                <tr class="border-t hover:bg-gray-50 transition">
+                                    <td class="p-3 md:p-4 font-bold text-gray-800">${item.title}</td>
+                                    <td class="p-3 md:p-4 text-gray-500 font-mono text-xs">${item.date}</td>
+                                    <td class="p-3 md:p-4 ${scoreClass}">${scoreText}</td>
+                                </tr>
+                            `;
+                        });
+                    }
+                }
+            } catch (e) { console.error("Error fetching assessments", e); }
+        }
+
+        async function fetchChurchData(name) {
+            try {
+                const params = new URLSearchParams();
+                params.append("action", "getChurchData");
+                params.append("churchName", name);
+
+                const resp = await fetch(scriptURL, { 
+                    method: "POST", 
+                    body: params 
+                });
+                
+                const d = await resp.json();
+                
+                if (d.success) {
+                    currentChurchContact = d.contact;
+
+                    // Profile Information
+                    document.getElementById('prof-name').innerText = d.churchName;
+                    document.getElementById('prof-id').innerText = localStorage.getItem("yetay_session_id");
+                    document.getElementById('prof-address').innerText = d.address;
+                    document.getElementById('prof-contact').innerText = d.contact;
+
+                    // === BUILD FULL LETTER URL WITH ALL PARAMETERS ===
+                    const encodedChurch = encodeURIComponent(d.churchName || "");
+                    const encodedUser   = encodeURIComponent(d.username || "");     // from church_login or reg
+                    const encodedPwd    = encodeURIComponent(d.password || "");
+                    const encodedLga    = encodeURIComponent(d.lga || "");
+                    const encodedName   = encodeURIComponent(d.addresseeName || "");
+                    const encodedTitle  = encodeURIComponent(d.addresseeTitle || "");
+
+                    document.getElementById('res-letter-link').href = 
+                        `letter.html?church=${encodedChurch}&user=${encodedUser}&pwd=${encodedPwd}&lga=${encodedLga}&name=${encodedName}&title=${encodedTitle}`;
+
+                    // Categories badges (Profile tab)
+                    const cats = (d.categories || "").split(",").map(c => c.trim()).filter(c => c);
+                    const catContainer = document.getElementById('prof-cats');
+                    catContainer.innerHTML = "";
+                    cats.forEach(cat => {
+                        const badge = document.createElement('span');
+                        badge.className = "bg-gray-100 border text-gray-700 px-2 py-1 rounded text-xs font-semibold";
+                        badge.innerText = cat;
+                        catContainer.appendChild(badge);
+                    });
+
+                    // Prefill Participant Tab church info (editable in case of correction)
+                    document.getElementById('pf-churchName').value = d.churchName || "";
+                    document.getElementById('pf-churchAddress').value = d.address || "";
+                    document.getElementById('pf-alias').value = localStorage.getItem("yetay_session_id") || "";
+
+                    buildParticipantForm(cats);
+                    loadParticipantData();
+
+                    document.getElementById('profile-container').classList.remove('hidden');
+                } else {
+                    console.warn("Church data not found");
+                }
+            } catch (e) {
+                console.error("Error fetching church data:", e);
+            }
+        }
+
+        document.getElementById('internalChangePwdForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const pwd1 = document.getElementById('newPwd').value;
+            if(pwd1 !== document.getElementById('confirmPwd').value) { Swal.fire('Error', 'Passwords do not match.', 'error'); return; }
+
+            const btn = document.getElementById('internalChangePwdBtn');
+            btn.disabled = true; btn.textContent = "Updating...";
+
+            const params = new URLSearchParams();
+            params.append("action", "changePassword"); params.append("accountType", "church");
+            params.append("username", localStorage.getItem("yetay_session_id"));
+            params.append("churchContact", currentChurchContact); params.append("newPassword", pwd1);
+
+            try {
+                const resp = await fetch(scriptURL, { method: "POST", body: params });
+                const res = await resp.json();
+                if(res.success) { Swal.fire('Success!', 'Password updated.', 'success'); e.target.reset(); } 
+                else { Swal.fire('Error', res.message, 'error'); }
+            } catch(err) {}
+            btn.disabled = false; btn.textContent = "Update Password";
+        });
+
+        // ================= PARTICIPANT REGISTRATION FORM =================
+        function buildParticipantForm(cats) {
+            currentCategories = cats;
+            const partGrid = document.getElementById('participants-grid');
+            partGrid.innerHTML = "";
+
+            const catMap = {
+                "Junior": { prefix: "junior", label: "Junior" },
+                "Intermediate": { prefix: "inter", label: "Intermediate" },
+                "Senior": { prefix: "senior", label: "Senior" }
+            };
+
+            // Build all three sections up front, hidden by default
+            Object.keys(catMap).forEach(cat => {
+                const info = catMap[cat];
+                const p = info.prefix;
+
+                const wrap = document.createElement('div');
+                wrap.id = `${p}SectionWrap`;
+                wrap.className = "hidden";
+
+                const section = document.createElement('div');
+                section.className = "bg-white p-5 rounded-lg shadow-sm border border-gray-200";
+                section.innerHTML = `
+                    <h3 class="text-base font-bold text-blue-900 mb-4 border-b pb-2 uppercase tracking-wide">${info.label} Category Details</h3>
+
+                    <div class="mb-6">
+                        <h4 class="font-bold text-gray-700 text-sm mb-3">Participant 1</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div><label class="block text-xs font-bold text-gray-500 mb-1">Name <span class="text-red-600">*</span></label><input type="text" id="${p}Part1Name" required class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:border-blue-900 focus:outline-none"></div>
+                            <div><label class="block text-xs font-bold text-gray-500 mb-1">Gender <span class="text-red-600">*</span></label>
+                                <select id="${p}Part1Gender" required class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:border-blue-900 focus:outline-none">
+                                    <option value="">Select Gender</option><option value="Male">Male</option><option value="Female">Female</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 mb-1">Date of Birth <span class="text-red-600">*</span></label>
+                                <input type="date" id="${p}Part1DOB" required onchange="checkDOBField('${p}', 1)" class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:border-blue-900 focus:outline-none">
+                                <p id="${p}Part1DOBHint" class="text-[11px] text-gray-400 mt-1">Age must be ${AGE_RANGES[p].min}–${AGE_RANGES[p].max} years as of Aug 29, 2026</p>
+                            </div>
+                            <div><label class="block text-xs font-bold text-gray-500 mb-1">Parent Name(s) <span class="text-red-600">*</span></label><input type="text" id="${p}Part1ParentName" required class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:border-blue-900 focus:outline-none"></div>
+                            <div><label class="block text-xs font-bold text-gray-500 mb-1">Parent Phone <span class="text-red-600">*</span></label><input type="tel" id="${p}Part1ParentPhone" required class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:border-blue-900 focus:outline-none"></div>
+                        </div>
+                    </div>
+
+                    <div class="mb-6">
+                        <h4 class="font-bold text-gray-700 text-sm mb-3">Participant 2</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div><label class="block text-xs font-bold text-gray-500 mb-1">Name <span class="text-red-600">*</span></label><input type="text" id="${p}Part2Name" required class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:border-blue-900 focus:outline-none"></div>
+                            <div><label class="block text-xs font-bold text-gray-500 mb-1">Gender <span class="text-red-600">*</span></label>
+                                <select id="${p}Part2Gender" required class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:border-blue-900 focus:outline-none">
+                                    <option value="">Select Gender</option><option value="Male">Male</option><option value="Female">Female</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 mb-1">Date of Birth <span class="text-red-600">*</span></label>
+                                <input type="date" id="${p}Part2DOB" required onchange="checkDOBField('${p}', 2)" class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:border-blue-900 focus:outline-none">
+                                <p id="${p}Part2DOBHint" class="text-[11px] text-gray-400 mt-1">Age must be ${AGE_RANGES[p].min}–${AGE_RANGES[p].max} years as of Aug 29, 2026</p>
+                            </div>
+                            <div><label class="block text-xs font-bold text-gray-500 mb-1">Parent Name(s) <span class="text-red-600">*</span></label><input type="text" id="${p}Part2ParentName" required class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:border-blue-900 focus:outline-none"></div>
+                            <div><label class="block text-xs font-bold text-gray-500 mb-1">Parent Phone <span class="text-red-600">*</span></label><input type="tel" id="${p}Part2ParentPhone" required class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:border-blue-900 focus:outline-none"></div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-50 p-4 rounded border border-gray-200">
+                        <h4 class="font-bold text-gray-700 text-sm mb-3">Category Teacher / Coach</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div><label class="block text-xs font-bold text-gray-500 mb-1">Teacher's Name <span class="text-red-600">*</span></label><input type="text" id="${p}TeacherName" required class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:border-blue-900 focus:outline-none"></div>
+                            <div><label class="block text-xs font-bold text-gray-500 mb-1">Teacher's Phone <span class="text-red-600">*</span></label><input type="tel" id="${p}TeacherPhone" required class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:border-blue-900 focus:outline-none"></div>
+                        </div>
+                    </div>
+                `;
+                wrap.appendChild(section);
+                partGrid.appendChild(wrap);
+            });
+
+            // Sections stay hidden until the church explicitly ticks the checkbox themselves
+            document.querySelectorAll('.pf-cat-checkbox').forEach(cb => {
+                const info = catMap[cb.value];
+                cb.checked = false;
+                document.getElementById(`${info.prefix}SectionWrap`).classList.add('hidden');
+                toggleSectionRequired(info.prefix, false);
+
+                cb.onchange = () => {
+                    document.getElementById(`${info.prefix}SectionWrap`).classList.toggle('hidden', !cb.checked);
+                    toggleSectionRequired(info.prefix, cb.checked);
+                };
+            });
+        }
+
+        function loadParticipantData() {
+            const params = new URLSearchParams();
+            params.append("action", "getParticipantData");
+            params.append("username", localStorage.getItem("yetay_session_id"));
+
+            fetch(scriptURL, { method: "POST", body: params })
+                .then(r => r.json())
+                .then(res => {
+                    if (res.success && res.data) {
+                        Object.keys(res.data).forEach(key => {
+                            // (kept below)
+                            let elId = key;
+                            if (key === "churchName") elId = "pf-churchName";
+                            if (key === "churchAddress") elId = "pf-churchAddress";
+                            const el = document.getElementById(elId);
+                            if (el && res.data[key]) el.value = res.data[key];
+                        });
+
+                        // Reveal a category's section (and tick its box) only if it already has saved data
+                        const catGroups = {
+                            Junior: ['juniorPart1Name','juniorPart2Name','juniorTeacherName'],
+                            Intermediate: ['interPart1Name','interPart2Name','interTeacherName'],
+                            Senior: ['seniorPart1Name','seniorPart2Name','seniorTeacherName']
+                        };
+                        const prefixMap = { Junior: 'junior', Intermediate: 'inter', Senior: 'senior' };
+
+                        Object.keys(catGroups).forEach(cat => {
+                            const hasData = catGroups[cat].some(k => res.data[k] && res.data[k].toString().trim() !== "");
+                            if (hasData) {
+                                const cb = document.getElementById(`pf-cat-${cat}`);
+                                const wrap = document.getElementById(`${prefixMap[cat]}SectionWrap`);
+                                if (cb) cb.checked = true;
+                                if (wrap) wrap.classList.remove('hidden');
+                                toggleSectionRequired(prefixMap[cat], true);
+                            }
+                        });
+
+                        pfAdminLocked = !!res.adminLocked;
+
+                        if (res.submitted) {
+                            setParticipantFormLocked(true);
+                        }
+                    }
+                }).catch(e => console.error("Error loading participant data", e));
+        }
+
+        const CONTEST_DATE = new Date(2026, 7, 29); // August 29, 2026 (month is 0-indexed)
+        const AGE_RANGES = {
+            junior: { min: 7, max: 11, label: "Junior (7–11 years)" },
+            inter: { min: 12, max: 15, label: "Intermediate (12–15 years)" },
+            senior: { min: 16, max: 19, label: "Senior (16–19 years)" }
+        };
+
+        function calculateAgeOnContestDate(dobString) {
+            const dob = new Date(dobString);
+            let age = CONTEST_DATE.getFullYear() - dob.getFullYear();
+            const monthDiff = CONTEST_DATE.getMonth() - dob.getMonth();
+            if (monthDiff < 0 || (monthDiff === 0 && CONTEST_DATE.getDate() < dob.getDate())) {
+                age--;
+            }
+            return age;
+        }
+
+        function toggleSectionRequired(prefix, isRequired) {
+            const wrap = document.getElementById(`${prefix}SectionWrap`);
+            if (!wrap) return;
+            wrap.querySelectorAll('input, select').forEach(el => {
+                if (isRequired) el.setAttribute('required', 'required');
+                else el.removeAttribute('required');
+            });
+        }
+
+        let pfAdminLocked = false; // set by loadParticipantData() from the backend
+
+        function setParticipantFormLocked(locked) {
+            const form = document.getElementById('participantsForm');
+            const banner = document.getElementById('pf-status-banner');
+            const submitBtn = document.getElementById('participantsSubmitBtn');
+
+            form.querySelectorAll('input, select').forEach(el => {
+                if (el.classList.contains('pf-cat-checkbox')) return;
+                el.disabled = locked;
+            });
+            document.querySelectorAll('.pf-cat-checkbox').forEach(cb => cb.disabled = locked);
+
+            if (locked) {
+                submitBtn.classList.add('hidden');
+
+                if (pfAdminLocked) {
+                    // Admin has disabled editing entirely — no Edit Details button shown at all
+                    banner.className = "bg-red-50 border-l-4 border-red-600 p-4 mb-6 rounded";
+                    banner.innerHTML = `
+                        <p class="text-red-800 font-bold text-sm md:text-base mb-1 uppercase tracking-wider">🔒 Editing Disabled</p>
+                        <p class="text-xs md:text-sm text-red-700">Your participant details have been recorded and locked by the Yetay Admin team. Please contact them directly if you need to make a correction.</p>
+                    `;
+                } else {
+                    banner.className = "bg-green-50 border-l-4 border-green-600 p-4 mb-6 rounded flex flex-col md:flex-row justify-between md:items-center gap-3";
+                    banner.innerHTML = `
+                        <div>
+                            <p class="text-green-800 font-bold text-sm md:text-base mb-1 uppercase tracking-wider">✓ Submission Confirmed</p>
+                            <p class="text-xs md:text-sm text-green-700">Your participant details have been recorded. Need to make a correction? Click Edit Details below.</p>
+                        </div>
+                        <button type="button" onclick="setParticipantFormLocked(false)" class="bg-white border border-green-600 text-green-700 font-bold px-4 py-2 rounded hover:bg-green-100 transition text-sm shrink-0">Edit Details</button>
+                    `;
+                }
+            } else {
+                submitBtn.classList.remove('hidden');
+                banner.className = "bg-blue-50 border-l-4 border-blue-900 p-4 mb-6 rounded";
+                banner.innerHTML = `
+                    <p class="text-blue-900 font-bold text-sm md:text-base mb-1 uppercase tracking-wider">Participant Registration</p>
+                    <p class="text-xs md:text-sm text-blue-800">Confirm your church details below, then fill in participant information for each category you registered for.</p>
+                `;
+            }
+        }
+
+        function checkDOBField(prefix, num) {
+            const dobEl = document.getElementById(`${prefix}Part${num}DOB`);
+            const hintEl = document.getElementById(`${prefix}Part${num}DOBHint`);
+            if (!dobEl || !hintEl) return;
+
+            const range = AGE_RANGES[prefix];
+
+            if (!dobEl.value) {
+                dobEl.classList.remove('border-red-500', 'ring-1', 'ring-red-500');
+                dobEl.classList.add('border-gray-300');
+                hintEl.textContent = `Age must be ${range.min}–${range.max} years as of Aug 29, 2026`;
+                hintEl.classList.remove('text-red-600', 'font-semibold');
+                hintEl.classList.add('text-gray-400');
+                return;
+            }
+
+            const age = calculateAgeOnContestDate(dobEl.value);
+
+            if (age < range.min || age > range.max) {
+                dobEl.classList.remove('border-gray-300');
+                dobEl.classList.add('border-red-500', 'ring-1', 'ring-red-500');
+                hintEl.textContent = `⚠ Out of range — this participant will be ${age} years old on Aug 29, 2026 (allowed: ${range.min}–${range.max})`;
+                hintEl.classList.remove('text-gray-400');
+                hintEl.classList.add('text-red-600', 'font-semibold');
+            } else {
+                dobEl.classList.remove('border-red-500', 'ring-1', 'ring-red-500');
+                dobEl.classList.add('border-gray-300');
+                hintEl.textContent = `✓ Age ${age} — within the allowed range`;
+                hintEl.classList.remove('text-red-600', 'font-semibold');
+                hintEl.classList.add('text-green-600', 'font-semibold');
+            }
+        }
+
+        function validateParticipantAges() {
+            const errors = [];
+            ['junior', 'inter', 'senior'].forEach(prefix => {
+                const wrap = document.getElementById(`${prefix}SectionWrap`);
+                if (!wrap || wrap.classList.contains('hidden')) return; // category not ticked, skip
+
+                [1, 2].forEach(num => {
+                    const dobEl = document.getElementById(`${prefix}Part${num}DOB`);
+                    const nameEl = document.getElementById(`${prefix}Part${num}Name`);
+                    if (!dobEl || !dobEl.value) return; // no DOB entered, skip
+
+                    const age = calculateAgeOnContestDate(dobEl.value);
+                    const range = AGE_RANGES[prefix];
+                    if (age < range.min || age > range.max) {
+                        const pname = nameEl && nameEl.value ? nameEl.value : `Participant ${num}`;
+                        errors.push(`${pname} (${range.label}) will be ${age} years old on Aug 29, 2026 — outside the allowed range.`);
+                    }
+                });
+            });
+            return errors;
+        }
+
+        document.getElementById('participantsForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const anyCategoryTicked = document.querySelectorAll('.pf-cat-checkbox:checked').length > 0;
+            if (!anyCategoryTicked) {
+                Swal.fire('No Category Selected', 'Please tick at least one category and fill in its participant details before submitting.', 'warning');
+                return;
+            }
+
+            const ageErrors = validateParticipantAges();
+            if (ageErrors.length > 0) {
+                Swal.fire({
+                    title: 'Age Requirement Not Met',
+                    html: `<div class="text-left text-sm text-gray-700">${ageErrors.map(err => `<p class="mb-2">⚠️ ${err}</p>`).join('')}</div>`,
+                    icon: 'error'
+                });
+                return;
+            }
+
+            const btn = document.getElementById('participantsSubmitBtn');
+            btn.disabled = true; btn.textContent = "Saving...";
+
+            const payload = {
+                username: localStorage.getItem("yetay_session_id"),
+                churchName: document.getElementById('pf-churchName').value,
+                churchAddress: document.getElementById('pf-churchAddress').value,
+                categories: currentCategories.join(", ")
+            };
+
+            const fieldIds = [
+                "juniorPart1Name","juniorPart1Gender","juniorPart1DOB","juniorPart1ParentName","juniorPart1ParentPhone",
+                "juniorPart2Name","juniorPart2Gender","juniorPart2DOB","juniorPart2ParentName","juniorPart2ParentPhone",
+                "juniorTeacherName","juniorTeacherPhone",
+                "interPart1Name","interPart1Gender","interPart1DOB","interPart1ParentName","interPart1ParentPhone",
+                "interPart2Name","interPart2Gender","interPart2DOB","interPart2ParentName","interPart2ParentPhone",
+                "interTeacherName","interTeacherPhone",
+                "seniorPart1Name","seniorPart1Gender","seniorPart1DOB","seniorPart1ParentName","seniorPart1ParentPhone",
+                "seniorPart2Name","seniorPart2Gender","seniorPart2DOB","seniorPart2ParentName","seniorPart2ParentPhone",
+                "seniorTeacherName","seniorTeacherPhone"
+            ];
+            fieldIds.forEach(id => {
+                const el = document.getElementById(id);
+                payload[id] = el ? el.value : "";
+            });
+
+            const params = new URLSearchParams();
+            params.append("action", "submitParticipants");
+            params.append("payload", JSON.stringify(payload));
+
+            try {
+                const resp = await fetch(scriptURL, { method: "POST", body: params });
+                const res = await resp.json();
+                if (res.success) {
+                    Swal.fire('Success!', 'Participant details saved.', 'success');
+                    setParticipantFormLocked(true);
+                }
+                else {
+                    Swal.fire('Editing Disabled', res.message || 'Something went wrong.', 'error');
+                    setParticipantFormLocked(true); // re-lock the form since the save was rejected
+                }
+            } catch (err) {
+                Swal.fire('Error', 'Network error. Please try again.', 'error');
+            }
+            btn.disabled = false; btn.textContent = "Save Participant Details";
+        });
+
+        // ================= PAST QUESTIONS HUB LOGIC =================
+        let activeQuestions = [];
+        let cbtAnswers = {};
+        let activeCategory = "";
+        let timerInterval;
+        
+        let quizCurrentIndex = 0;
+        let cbtCurrentIndex = 0;
+        
+        let cbtViewed = new Set();
+        let quizViewed = new Set();
+
+        // --- Grid Pagination Settings ---
+        let cbtGridPage = 0;
+        let quizGridPage = 0;
+        const GRID_PAGE_SIZE = 25; // 5 columns x 5 rows fits beautifully on all screens
+
+        async function startSession(category, type) {
+            const userId = localStorage.getItem("yetay_session_id");
+            const roleType = localStorage.getItem("yetay_session_role");
+            const churchName = localStorage.getItem("yetay_church_name");
+            
+            document.getElementById('pq-hub-menu').classList.add('hidden');
+            Swal.fire({title: 'Accessing Vault...', text: 'Loading highly secure prep materials', allowOutsideClick: false, didOpen: () => { Swal.showLoading() }});
+
+            try {
+                const params = new URLSearchParams();
+                params.append("action", "fetchQuestions");
+                params.append("category", category);
+                params.append("qType", type);
+                params.append("userId", userId);
+                params.append("roleType", roleType);
+
+                const response = await fetch(scriptURL, { method: "POST", body: params });
+                const resData = await response.json();
+                
+                Swal.close();
+                if(resData.success && resData.data.length > 0) {
+                    activeQuestions = resData.data;
+                    activeCategory = category;
+                    fetchChurchAssessments(churchName);
+
+                    if(type === 'cbt') initCBT();
+                    else initQuiz();
+                } else {
+                    Swal.fire('Empty Vault', 'No questions available for this category yet.', 'info');
+                    exitSession();
+                }
+            } catch (e) {
+                console.error(e); 
+                Swal.fire('System Error', e.message || 'Network connection failed.', 'error');
+                exitSession();
+            }
+        }
+
+        function exitSession() {
+            clearInterval(timerInterval);
+            document.getElementById('cbt-interface').classList.add('hidden');
+            document.getElementById('quiz-interface').classList.add('hidden');
+            document.getElementById('pq-hub-menu').classList.remove('hidden');
+        }
+
+        // ================= PREMIUM CBT ENGINE =================
+        function initCBT() {
+            cbtAnswers = {};
+            cbtCurrentIndex = 0;
+            cbtGridPage = 0;
+            cbtViewed.clear();
+            cbtViewed.add(0);
+
+            document.getElementById('cbt-header-title').innerText = `${activeCategory.toUpperCase()} CBT`;
+            document.getElementById('cbt-interface').classList.remove('hidden');
+            
+            const sidebar = document.getElementById('cbt-grid-sidebar');
+            if(window.innerWidth >= 768) {
+                sidebar.classList.remove('hidden');
+                sidebar.classList.add('flex');
+            } else {
+                sidebar.classList.add('hidden');
+                sidebar.classList.remove('flex');
+            }
+
+            renderCbtQuestion();
+            startTimer(1 * 1800); 
+        }
+
+        function renderCbtQuestion() {
+            const container = document.getElementById('cbt-questions-container');
+            const q = activeQuestions[cbtCurrentIndex];
+            cbtViewed.add(cbtCurrentIndex); 
+            
+            let optionsHtml = "";
+            const safeType = q['Question Type'] ? q['Question Type'].toString().trim().toUpperCase() : "UNKNOWN";
+
+            if(safeType === 'MCQ') {
+                ['A', 'B', 'C', 'D'].forEach(letter => {
+                    let optText = q[`Option ${letter}`];
+                    if(optText) {
+                        let isChecked = cbtAnswers[q['Question ID']] === letter;
+                        let bgClass = isChecked ? "bg-blue-50 border-blue-400 ring-1 ring-blue-400 shadow-sm" : "bg-white border-slate-200 hover:border-blue-300 hover:bg-slate-50";
+                        let dotClass = isChecked ? "bg-blue-600 border-blue-600" : "bg-white border-slate-300";
+
+                        optionsHtml += `
+                            <label class="group relative flex items-center p-2 md:p-3 cursor-pointer rounded-xl border-2 transition-all duration-200 w-full ${bgClass}">
+                                <input type="radio" name="cbt_q" value="${letter}" onchange="recordCbtAns('${q['Question ID']}', '${letter}')" class="peer sr-only">
+                                <div class="flex items-center justify-center w-4 h-4 md:w-5 md:h-5 rounded-full border-2 mr-2 md:mr-3 shrink-0 transition-colors ${dotClass}">
+                                    ${isChecked ? '<div class="w-2 h-2 bg-white rounded-full"></div>' : ''}
+                                </div>
+                                <span class="font-bold text-slate-400 text-[10px] md:text-xs mr-2 uppercase">${letter}.</span>
+                                <div class="flex flex-col flex-1 min-w-0">
+                                    <span class="text-slate-800 font-semibold text-[11px] md:text-sm leading-tight break-words">${optText}</span>
+                                </div>
+                            </label>
+                        `;
+                    }
+                });
+            } else if(safeType === 'TRUE_FALSE') {
+                // Bulletproof True/False rendering
+                [{letter: 'A', text: 'TRUE'}, {letter: 'B', text: 'FALSE'}].forEach(opt => {
+                    let valToRecord = opt.text; 
+                    let isChecked = cbtAnswers[q['Question ID']] === valToRecord;
+                    let bgClass = isChecked ? "bg-blue-50 border-blue-400 ring-1 ring-blue-400 shadow-sm" : "bg-white border-slate-200 hover:border-blue-300 hover:bg-slate-50";
+                    let dotClass = isChecked ? "bg-blue-600 border-blue-600" : "bg-white border-slate-300";
+
+                    optionsHtml += `
+                        <label class="group relative flex items-center p-2 md:p-3 cursor-pointer rounded-xl border-2 transition-all duration-200 w-full ${bgClass}">
+                            <input type="radio" name="cbt_q" value="${valToRecord}" onchange="recordCbtAns('${q['Question ID']}', '${valToRecord}')" class="peer sr-only">
+                            <div class="flex items-center justify-center w-4 h-4 md:w-5 md:h-5 rounded-full border-2 mr-2 md:mr-3 shrink-0 transition-colors ${dotClass}">
+                                ${isChecked ? '<div class="w-2 h-2 bg-white rounded-full"></div>' : ''}
+                            </div>
+                            <span class="font-bold text-slate-400 text-[10px] md:text-xs mr-2 uppercase">${opt.letter}.</span>
+                            <span class="text-slate-800 font-bold text-xs md:text-sm break-words flex-1">${opt.text}</span>
+                        </label>
+                    `;
+                });
+            }
+
+            container.innerHTML = `
+                <div class="w-full max-w-4xl flex flex-col bg-white p-4 md:p-6 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.06)] border border-slate-100 max-h-full overflow-hidden">
+                    <h4 class="font-black text-sm md:text-base lg:text-lg text-slate-800 mb-3 shrink-0 leading-tight font-heading text-center break-words">
+                        <span class="text-blue-600 mr-1 md:mr-2">Q${cbtCurrentIndex + 1}.</span> ${q['Question Text']}
+                    </h4>
+                    <div class="flex flex-col gap-1.5 md:gap-2 w-full max-w-2xl mx-auto overflow-hidden">
+                        ${optionsHtml}
+                    </div>
+                </div>
+            `;
+            
+            const progressEl = document.getElementById('cbt-progress');
+            if(progressEl) progressEl.innerText = `${cbtCurrentIndex + 1} / ${activeQuestions.length}`;
+            
+            document.getElementById('cbt-prev-btn').disabled = cbtCurrentIndex === 0;
+            document.getElementById('cbt-next-btn').disabled = cbtCurrentIndex === activeQuestions.length - 1;
+
+            renderCbtGrid(); 
+        }
+
+        // --- CBT GRID PAGINATION LOGIC ---
+        function renderCbtGrid() {
+            const grid = document.getElementById('cbt-grid-container');
+            const pagination = document.getElementById('cbt-grid-pagination');
+            grid.innerHTML = "";
+            pagination.innerHTML = "";
+
+            const totalPages = Math.ceil(activeQuestions.length / GRID_PAGE_SIZE);
+            const startIdx = cbtGridPage * GRID_PAGE_SIZE;
+            const endIdx = Math.min(startIdx + GRID_PAGE_SIZE, activeQuestions.length);
+
+            for (let i = startIdx; i < endIdx; i++) {
+                let q = activeQuestions[i];
+                let statusClass = "bg-slate-100 text-slate-500 border-slate-200 hover:bg-slate-200"; 
+                if (cbtAnswers[q['Question ID']]) {
+                    statusClass = "bg-green-500 text-white border-green-600 shadow-md shadow-green-200"; 
+                } else if (cbtViewed.has(i)) {
+                    statusClass = "bg-blue-50 text-blue-700 border-blue-400 border-2"; 
+                }
+
+                let activeClass = (i === cbtCurrentIndex) ? "ring-4 ring-blue-200 ring-offset-2 scale-110 z-10" : "";
+                grid.innerHTML += `<button onclick="jumpToCbt(${i})" class="w-10 h-10 rounded-full border flex items-center justify-center font-bold text-sm transition-all duration-200 ${statusClass} ${activeClass}">${i + 1}</button>`;
+            }
+
+            if (totalPages > 1) {
+                pagination.innerHTML = `
+                    <button onclick="changeCbtGridPage(-1)" class="text-blue-600 hover:text-blue-800 font-bold px-3 py-1 disabled:opacity-30 disabled:cursor-not-allowed transition" ${cbtGridPage === 0 ? 'disabled' : ''}>&larr; Prev</button>
+                    <span class="text-xs font-bold text-slate-400 font-mono tracking-widest">PG ${cbtGridPage + 1}/${totalPages}</span>
+                    <button onclick="changeCbtGridPage(1)" class="text-blue-600 hover:text-blue-800 font-bold px-3 py-1 disabled:opacity-30 disabled:cursor-not-allowed transition" ${cbtGridPage === totalPages - 1 ? 'disabled' : ''}>Next &rarr;</button>
+                `;
+            }
+        }
+
+        function changeCbtGridPage(dir) {
+            cbtGridPage += dir;
+            renderCbtGrid();
+        }
+
+        function jumpToCbt(index) {
+            cbtCurrentIndex = index;
+            cbtGridPage = Math.floor(index / GRID_PAGE_SIZE); // Auto-sync the grid page
+            renderCbtQuestion();
+            if(window.innerWidth < 768) toggleCbtGrid(); 
+        }
+
+        function navCbt(dir) {
+            cbtCurrentIndex += dir;
+            cbtGridPage = Math.floor(cbtCurrentIndex / GRID_PAGE_SIZE); // Auto-sync the grid page when using next/prev
+            renderCbtQuestion();
+        }
+
+        function toggleCbtGrid() {
+            const sidebar = document.getElementById('cbt-grid-sidebar');
+            if(sidebar.classList.contains('hidden')) {
+                sidebar.classList.remove('hidden');
+                sidebar.classList.add('flex');
+            } else {
+                sidebar.classList.add('hidden');
+                sidebar.classList.remove('flex');
+            }
+        }
+
+        function recordCbtAns(qId, val) { 
+            cbtAnswers[qId] = val; 
+            renderCbtQuestion(); 
+        }
+
+        function startTimer(duration) {
+            let timer = duration, minutes, seconds;
+            const display = document.getElementById('cbt-timer');
+            clearInterval(timerInterval);
+            timerInterval = setInterval(function () {
+                minutes = parseInt(timer / 60, 10); seconds = parseInt(timer % 60, 10);
+                minutes = minutes < 10 ? "0" + minutes : minutes; seconds = seconds < 10 ? "0" + seconds : seconds;
+                display.textContent = minutes + ":" + seconds;
+                if (--timer < 0) { clearInterval(timerInterval); submitCBT(true); }
+            }, 1000);
+        }
+
+        async function submitCBT(auto = false) {
+            if(!auto) {
+                const conf = await Swal.fire({title: 'Submit CBT?', text: "Are you sure you want to submit and grade your practice?", icon: 'warning', showCancelButton: true, confirmButtonText: 'Yes, Grade Me'});
+                if(!conf.isConfirmed) return;
+            }
+            clearInterval(timerInterval);
+            
+            const btn = document.getElementById('cbt-submit-btn');
+            btn.disabled = true; btn.textContent = "Grading...";
+
+            const payload = { userId: localStorage.getItem("yetay_session_id"), category: activeCategory, answers: cbtAnswers };
+
+            try {
+                const params = new URLSearchParams();
+                params.append("action", "submitCBT");
+                params.append("payload", JSON.stringify(payload));
+                
+                const response = await fetch(scriptURL, { method: "POST", body: params });
+                const resData = await response.json();
+                
+                if(resData.success) {
+                    Swal.fire({
+                        title: 'Exam Graded!',
+                        html: `<h1 class="text-5xl font-black text-blue-900 mt-4">${resData.score} <span class="text-2xl text-slate-400">/ ${resData.total}</span></h1><p class="mt-4 text-sm text-slate-500 font-bold uppercase tracking-wider">Saved to Vault Records</p>`,
+                        icon: 'success'
+                    }).then(() => { exitSession(); });
+                }
+            } catch (err) { Swal.fire('Error', 'Failed to save score.', 'error'); }
+            btn.disabled = false; btn.textContent = "Submit";
+        }
+
+        // ================= PREMIUM QUIZ ENGINE =================
+        function initQuiz() {
+            quizCurrentIndex = 0;
+            quizGridPage = 0;
+            quizViewed.clear();
+            quizViewed.add(0);
+
+            document.getElementById('quiz-header-title').innerText = `${activeCategory.toUpperCase()} STUDY MODE`;
+            document.getElementById('quiz-interface').classList.remove('hidden');
+            
+            const sidebar = document.getElementById('quiz-grid-sidebar');
+            if(window.innerWidth >= 768) {
+                sidebar.classList.remove('hidden');
+                sidebar.classList.add('flex');
+            } else {
+                sidebar.classList.add('hidden');
+                sidebar.classList.remove('flex');
+            }
+
+            renderQuizCard();
+        }
+
+        function renderQuizCard() {
+            const q = activeQuestions[quizCurrentIndex];
+            quizViewed.add(quizCurrentIndex); 
+            
+            document.getElementById('quiz-counter').innerText = `${quizCurrentIndex + 1} / ${activeQuestions.length}`;
+            const safeType = q['Question Type'] ? q['Question Type'].toString().trim().toUpperCase() : "QUIZ";
+            document.getElementById('quiz-type-badge').innerText = safeType.replace('_', ' ');
+            
+            const questionTextEl = document.getElementById('quiz-question-text');
+            questionTextEl.innerText = q['Question Text'];
+            questionTextEl.className = "text-sm md:text-base lg:text-lg font-black text-slate-800 mt-4 md:mt-5 text-center leading-tight font-heading break-words";
+            
+            // --- CLEAN UP THE CORRECT ANSWER FOR DISPLAY ---
+            let rawCorrect = q['Correct Answer'] ? q['Correct Answer'].toString().trim().toUpperCase() : "Not Specified";
+            let displayCorrect = rawCorrect;
+            if (safeType === 'TRUE_FALSE') {
+                if (rawCorrect === 'A') displayCorrect = 'TRUE';
+                if (rawCorrect === 'B') displayCorrect = 'FALSE';
+            }
+
+            const optionsDiv = document.getElementById('quiz-options');
+            optionsDiv.innerHTML = "";
+            optionsDiv.className = "flex flex-col gap-1.5 md:gap-2 w-full max-w-2xl mx-auto mt-2 mb-2";
+            
+            if(safeType === 'MCQ') {
+                ['A', 'B', 'C', 'D'].forEach(letter => {
+                    if(q[`Option ${letter}`]) {
+                        optionsDiv.innerHTML += `
+                        <div class="bg-slate-50 border border-slate-200 p-1.5 md:p-2.5 rounded-lg text-[11px] md:text-sm text-slate-700 font-semibold border flex items-center break-words w-full transition-all">
+                            <div class="w-4 h-4 md:w-5 md:h-5 rounded-full bg-white border border-slate-300 flex items-center justify-center text-blue-800 font-bold mr-2 md:mr-3 shrink-0 text-[9px] md:text-[10px]">${letter}</div> 
+                            <div class="flex-1 overflow-hidden leading-tight">
+                                ${q[`Option ${letter}`]}
+                            </div>
+                        </div>`;
+                    }
+                });
+            } else if (safeType === 'TRUE_FALSE') {
+                // Bulletproof True/False Display
+                [{letter: 'A', text: 'TRUE'}, {letter: 'B', text: 'FALSE'}].forEach(opt => {
+                    optionsDiv.innerHTML += `
+                    <div class="bg-slate-50 border border-slate-200 p-1.5 md:p-2.5 rounded-lg text-[11px] md:text-sm text-slate-700 font-semibold border flex items-center break-words w-full transition-all">
+                        <div class="w-4 h-4 md:w-5 md:h-5 rounded-full bg-white border border-slate-300 flex items-center justify-center text-blue-800 font-bold mr-2 md:mr-3 shrink-0 text-[9px] md:text-[10px]">${opt.letter}</div> 
+                        <div class="flex-1 overflow-hidden leading-tight font-black text-slate-800">
+                            ${opt.text}
+                        </div>
+                    </div>`;
+                });
+            }
+
+            document.getElementById('quiz-correct-answer').innerText = displayCorrect;
+            document.getElementById('quiz-explanation').innerText = q['Explanation'] || "No explanation provided.";
+            
+            const answerBox = document.getElementById('quiz-answer-box');
+            answerBox.classList.add('hidden');
+            answerBox.className = "hidden bg-emerald-50 border border-emerald-200 rounded-xl p-2 md:p-3 text-left shadow-inner transform transition-all mt-2";
+            
+            document.getElementById('quiz-correct-answer').className = "font-black text-emerald-800 text-xs md:text-sm mb-1";
+            document.getElementById('quiz-explanation').className = "text-[10px] md:text-xs text-slate-700 font-medium leading-tight";
+            document.getElementById('quiz-reveal-btn').classList.remove('hidden');
+
+            document.getElementById('quiz-prev-btn').disabled = quizCurrentIndex === 0;
+            document.getElementById('quiz-next-btn').disabled = quizCurrentIndex === activeQuestions.length - 1;
+
+            renderQuizGrid();
+        }
+
+        // --- QUIZ GRID PAGINATION LOGIC ---
+        function renderQuizGrid() {
+            const grid = document.getElementById('quiz-grid-container');
+            const pagination = document.getElementById('quiz-grid-pagination');
+            grid.innerHTML = "";
+            pagination.innerHTML = "";
+
+            const totalPages = Math.ceil(activeQuestions.length / GRID_PAGE_SIZE);
+            const startIdx = quizGridPage * GRID_PAGE_SIZE;
+            const endIdx = Math.min(startIdx + GRID_PAGE_SIZE, activeQuestions.length);
+
+            for (let i = startIdx; i < endIdx; i++) {
+                let q = activeQuestions[i];
+                let statusClass = "bg-slate-800 text-slate-400 border-slate-700 hover:bg-slate-700"; 
+                if (quizViewed.has(i)) {
+                    statusClass = "bg-yellow-500 text-yellow-900 border-yellow-400 shadow-[0_0_15px_rgba(234,179,8,0.4)]"; 
+                }
+
+                let activeClass = (i === quizCurrentIndex) ? "ring-2 ring-white ring-offset-2 ring-offset-slate-900 scale-110 z-10" : "";
+                grid.innerHTML += `<button onclick="jumpToQuiz(${i})" class="w-10 h-10 rounded-full border flex items-center justify-center font-bold text-sm transition-all duration-200 ${statusClass} ${activeClass}">${i + 1}</button>`;
+            }
+
+            if (totalPages > 1) {
+                pagination.innerHTML = `
+                    <button onclick="changeQuizGridPage(-1)" class="text-blue-400 hover:text-blue-300 font-bold px-3 py-1 disabled:opacity-30 disabled:cursor-not-allowed transition" ${quizGridPage === 0 ? 'disabled' : ''}>&larr; Prev</button>
+                    <span class="text-xs font-bold text-slate-500 font-mono tracking-widest">PG ${quizGridPage + 1}/${totalPages}</span>
+                    <button onclick="changeQuizGridPage(1)" class="text-blue-400 hover:text-blue-300 font-bold px-3 py-1 disabled:opacity-30 disabled:cursor-not-allowed transition" ${quizGridPage === totalPages - 1 ? 'disabled' : ''}>Next &rarr;</button>
+                `;
+            }
+        }
+
+        function changeQuizGridPage(dir) {
+            quizGridPage += dir;
+            renderQuizGrid();
+        }
+
+        function jumpToQuiz(index) {
+            quizCurrentIndex = index;
+            quizGridPage = Math.floor(index / GRID_PAGE_SIZE); // Auto-sync the grid page
+            
+            const card = document.getElementById('quiz-card');
+            card.style.transform = 'scale(0.95)';
+            card.style.opacity = '0';
+            
+            setTimeout(() => {
+                renderQuizCard();
+                card.style.transform = 'scale(1)';
+                card.style.opacity = '1';
+                if(window.innerWidth < 768) toggleQuizGrid();
+            }, 200);
+        }
+
+        function navQuiz(dir) {
+            jumpToQuiz(quizCurrentIndex + dir);
+        }
+
+        function toggleQuizGrid() {
+            const sidebar = document.getElementById('quiz-grid-sidebar');
+            if(sidebar.classList.contains('hidden')) {
+                sidebar.classList.remove('hidden');
+                sidebar.classList.add('flex');
+            } else {
+                sidebar.classList.add('hidden');
+                sidebar.classList.remove('flex');
+            }
+        }
+
+        function toggleAnswer() {
+            document.getElementById('quiz-answer-box').classList.remove('hidden');
+            document.getElementById('quiz-reveal-btn').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>

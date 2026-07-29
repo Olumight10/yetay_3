@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live | Yetay 3.0 Moderator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="shared.css">
+</head>
+<body class="h-screen w-screen flex flex-col overflow-hidden" data-page="live">
+
+    <div id="nav-placeholder"></div>
+
+    <main id="main-content" class="flex-grow w-full overflow-auto">
+        <div id="page-root" class="h-full flex flex-col overflow-hidden relative bg-gray-50">
+
+            <!-- Row 1: Timer bar -->
+            <div id="live-timer-bar" class="shrink-0 w-full flex items-center justify-between px-4 py-2.5 border-b border-gray-200 bg-blue-900 gap-3">
+
+                <div class="flex items-center gap-2 shrink-0">
+                    <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
+                    <span class="text-green-300 text-[9px] font-black uppercase tracking-widest">Live</span>
+                    <span class="text-white/30 text-[9px]">·</span>
+                    <span class="text-blue-200 text-[9px] font-bold uppercase tracking-widest" id="live-last-updated">—</span>
+                </div>
+
+                <div class="flex flex-col items-center leading-tight shrink-0">
+                    <p class="text-[9px] text-blue-200 font-bold uppercase tracking-widest" id="live-cbt-label">CBT Session</p>
+                    <p class="font-black font-mono tracking-widest text-base md:text-xl text-white" id="live-cbt-timer">—</p>
+                </div>
+
+                <div class="relative flex-1 max-w-[180px] md:max-w-[220px]">
+                    <svg class="w-3 h-3 absolute left-2.5 top-1/2 -translate-y-1/2 text-blue-300 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/></svg>
+                    <input type="text" id="live-search" oninput="filterLive(this.value)" placeholder="Search church..." class="w-full bg-white/10 border border-white/20 text-white placeholder-blue-300 rounded-lg pl-7 pr-2.5 py-1.5 text-[10px] font-bold focus:outline-none focus:bg-white/20 focus:border-white/40 transition">
+                </div>
+
+                <button onclick="FullscreenManager.toggle('page-root','btn-fullscreen')" id="btn-fullscreen" class="bg-yellow-500 hover:bg-yellow-400 text-blue-900 text-[9px] font-black uppercase px-3 py-1.5 rounded-lg transition border border-yellow-400 whitespace-nowrap tracking-wide shadow shrink-0">
+                    ⛶ Fullscreen
+                </button>
+            </div>
+
+            <!-- Row 2: Category tools bar -->
+            <div id="live-toolbar" class="shrink-0 w-full border-b border-gray-200 bg-white flex items-stretch shadow-sm" style="min-height: 44px;">
+
+                <div class="flex items-center gap-1.5 px-3 py-2 border-r border-gray-200 flex-1">
+                    <span class="text-blue-900 text-[9px] font-black uppercase tracking-widest mr-1 hidden sm:block">JNR</span>
+                    <button onclick="toggleColumn('JNR')" id="toggle-JNR" class="bg-blue-900 hover:bg-blue-800 text-white text-[9px] font-black uppercase px-2 py-1.5 rounded-lg transition tracking-wide border border-blue-800 whitespace-nowrap">👁 Hide</button>
+                    <button onclick="cycleScrollSpeed('JNR')" id="speed-JNR" class="bg-yellow-50 hover:bg-yellow-100 text-yellow-700 text-[9px] font-bold uppercase px-2 py-1.5 rounded-lg transition border border-yellow-300 whitespace-nowrap">⚡ Normal</button>
+                    <button onclick="startScroll('JNR','down')" class="bg-gray-100 hover:bg-gray-200 text-gray-700 text-[9px] font-bold uppercase px-2 py-1.5 rounded-lg transition border border-gray-300 whitespace-nowrap">▼ Scroll</button>
+                    <button onclick="startScroll('JNR','up')" class="bg-gray-100 hover:bg-gray-200 text-gray-700 text-[9px] font-bold uppercase px-2 py-1.5 rounded-lg transition border border-gray-300 whitespace-nowrap">▲ Scroll</button>
+                    <button onclick="stopScroll('JNR')" class="bg-red-50 hover:bg-red-100 text-red-600 text-[9px] font-bold uppercase px-2 py-1.5 rounded-lg transition border border-red-200 whitespace-nowrap">■ Stop</button>
+                </div>
+
+                <div class="flex items-center gap-1.5 px-3 py-2 border-r border-gray-200 flex-1 justify-center">
+                    <span class="text-blue-900 text-[9px] font-black uppercase tracking-widest mr-1 hidden sm:block">INT</span>
+                    <button onclick="toggleColumn('INT')" id="toggle-INT" class="bg-blue-900 hover:bg-blue-800 text-white text-[9px] font-black uppercase px-2 py-1.5 rounded-lg transition tracking-wide border border-blue-800 whitespace-nowrap">👁 Hide</button>
+                    <button onclick="cycleScrollSpeed('INT')" id="speed-INT" class="bg-yellow-50 hover:bg-yellow-100 text-yellow-700 text-[9px] font-bold uppercase px-2 py-1.5 rounded-lg transition border border-yellow-300 whitespace-nowrap">⚡ Normal</button>
+                    <button onclick="startScroll('INT','down')" class="bg-gray-100 hover:bg-gray-200 text-gray-700 text-[9px] font-bold uppercase px-2 py-1.5 rounded-lg transition border border-gray-300 whitespace-nowrap">▼ Scroll</button>
+                    <button onclick="startScroll('INT','up')" class="bg-gray-100 hover:bg-gray-200 text-gray-700 text-[9px] font-bold uppercase px-2 py-1.5 rounded-lg transition border border-gray-300 whitespace-nowrap">▲ Scroll</button>
+                    <button onclick="stopScroll('INT')" class="bg-red-50 hover:bg-red-100 text-red-600 text-[9px] font-bold uppercase px-2 py-1.5 rounded-lg transition border border-red-200 whitespace-nowrap">■ Stop</button>
+                </div>
+
+                <div class="flex items-center gap-1.5 px-3 py-2 flex-1 justify-end">
+                    <span class="text-blue-900 text-[9px] font-black uppercase tracking-widest mr-1 hidden sm:block">SNR</span>
+                    <button onclick="toggleColumn('SNR')" id="toggle-SNR" class="bg-blue-900 hover:bg-blue-800 text-white text-[9px] font-black uppercase px-2 py-1.5 rounded-lg transition tracking-wide border border-blue-800 whitespace-nowrap">👁 Hide</button>
+                    <button onclick="cycleScrollSpeed('SNR')" id="speed-SNR" class="bg-yellow-50 hover:bg-yellow-100 text-yellow-700 text-[9px] font-bold uppercase px-2 py-1.5 rounded-lg transition border border-yellow-300 whitespace-nowrap">⚡ Normal</button>
+                    <button onclick="startScroll('SNR','down')" class="bg-gray-100 hover:bg-gray-200 text-gray-700 text-[9px] font-bold uppercase px-2 py-1.5 rounded-lg transition border border-gray-300 whitespace-nowrap">▼ Scroll</button>
+                    <button onclick="startScroll('SNR','up')" class="bg-gray-100 hover:bg-gray-200 text-gray-700 text-[9px] font-bold uppercase px-2 py-1.5 rounded-lg transition border border-gray-300 whitespace-nowrap">▲ Scroll</button>
+                    <button onclick="stopScroll('SNR')" class="bg-red-50 hover:bg-red-100 text-red-600 text-[9px] font-bold uppercase px-2 py-1.5 rounded-lg transition border border-red-200 whitespace-nowrap">■ Stop</button>
+                </div>
+            </div>
+
+            <!-- Three column live board -->
+            <div id="live-board" class="flex flex-1 w-full gap-0 min-h-0">
+
+                <div id="col-JNR" class="flex-1 flex flex-col min-w-0 border-r border-white/10">
+                    <div class="shrink-0 px-4 py-3 border-b border-gray-200 bg-blue-900 flex items-center justify-between">
+                        <div>
+                            <p class="text-[9px] text-blue-200 font-bold uppercase tracking-widest">Category</p>
+                            <h3 class="text-white font-black text-sm md:text-base font-heading uppercase tracking-wide">Junior</h3>
+                        </div>
+                        <span class="bg-yellow-500 text-blue-900 text-[9px] font-black px-2 py-0.5 rounded uppercase tracking-widest" id="count-JNR">0</span>
+                    </div>
+                    <div class="shrink-0 grid px-4 py-1.5 border-b border-gray-200 bg-gray-100 text-[8px] md:text-[9px] font-black uppercase tracking-widest text-gray-500" style="grid-template-columns: 2rem 1fr auto;">
+                        <span>S/N</span><span>Church</span><span class="text-right">Attempts</span>
+                    </div>
+                    <div id="list-JNR" class="flex-grow overflow-hidden">
+                        <div class="flex items-center justify-center h-full text-gray-300 text-xs font-bold uppercase tracking-widest">Loading...</div>
+                    </div>
+                </div>
+
+                <div id="col-INT" class="flex-1 flex flex-col min-w-0 border-r border-white/10">
+                    <div class="shrink-0 px-4 py-3 border-b border-gray-200 bg-blue-900 flex items-center justify-between">
+                        <div>
+                            <p class="text-[9px] text-blue-200 font-bold uppercase tracking-widest">Category</p>
+                            <h3 class="text-white font-black text-sm md:text-base font-heading uppercase tracking-wide">Intermediate</h3>
+                        </div>
+                        <span class="bg-yellow-500 text-blue-900 text-[9px] font-black px-2 py-0.5 rounded uppercase tracking-widest" id="count-INT">0</span>
+                    </div>
+                    <div class="shrink-0 grid px-4 py-1.5 border-b border-gray-200 bg-gray-100 text-[8px] md:text-[9px] font-black uppercase tracking-widest text-gray-500" style="grid-template-columns: 2rem 1fr auto;">
+                        <span>S/N</span><span>Church</span><span class="text-right">Attempts</span>
+                    </div>
+                    <div id="list-INT" class="flex-grow overflow-hidden">
+                        <div class="flex items-center justify-center h-full text-gray-300 text-xs font-bold uppercase tracking-widest">Loading...</div>
+                    </div>
+                </div>
+
+                <div id="col-SNR" class="flex-1 flex flex-col min-w-0">
+                    <div class="shrink-0 px-4 py-3 border-b border-gray-200 bg-blue-900 flex items-center justify-between">
+                        <div>
+                            <p class="text-[9px] text-blue-200 font-bold uppercase tracking-widest">Category</p>
+                            <h3 class="text-white font-black text-sm md:text-base font-heading uppercase tracking-wide">Senior</h3>
+                        </div>
+                        <span class="bg-yellow-500 text-blue-900 text-[9px] font-black px-2 py-0.5 rounded uppercase tracking-widest" id="count-SNR">0</span>
+                    </div>
+                    <div class="shrink-0 grid px-4 py-1.5 border-b border-gray-200 bg-gray-100 text-[8px] md:text-[9px] font-black uppercase tracking-widest text-gray-500" style="grid-template-columns: 2rem 1fr auto;">
+                        <span>S/N</span><span>Church</span><span class="text-right">Attempts</span>
+                    </div>
+                    <div id="list-SNR" class="flex-grow overflow-hidden">
+                        <div class="flex items-center justify-center h-full text-gray-300 text-xs font-bold uppercase tracking-widest">Loading...</div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Zoom Control Bar (separate from nav/menu) -->
+    <div id="zoom-bar" class="fixed bottom-4 right-4 z-[9999] flex items-center gap-1 bg-blue-900/95 backdrop-blur border border-blue-700 rounded-xl shadow-2xl px-2 py-1.5 select-none" style="touch-action:none;">
+        <span id="zoom-drag-handle" title="Drag to move" class="cursor-grab active:cursor-grabbing text-blue-300 hover:text-white px-1.5 text-xs font-black tracking-widest">⠿⠿</span>
+        <span class="text-blue-200 text-[8px] font-black uppercase tracking-widest px-1.5 hidden sm:block">Zoom</span>
+        <button onclick="zoomOut()" title="Zoom out" class="w-8 h-8 flex items-center justify-center bg-white/10 hover:bg-white/20 active:bg-white/30 text-white font-black text-base rounded-lg transition">−</button>
+        <span id="zoom-level" class="text-white text-[10px] font-black uppercase tracking-widest w-11 text-center tabular-nums">100%</span>
+        <button onclick="zoomIn()" title="Zoom in" class="w-8 h-8 flex items-center justify-center bg-white/10 hover:bg-white/20 active:bg-white/30 text-white font-black text-base rounded-lg transition">+</button>
+        <div class="w-px h-5 bg-white/20 mx-0.5"></div>
+        <button onclick="zoomReset()" title="Reset zoom" class="px-2.5 h-8 flex items-center justify-center bg-yellow-500 hover:bg-yellow-400 text-blue-900 text-[9px] font-black uppercase rounded-lg transition tracking-wide">Reset</button>
+    </div>
+
+    <script src="shared.js"></script>
+    <script>
+        loadSharedNav();
+
+        let liveRefreshInterval = null;
+        let scrollIntervals = { JNR: null, INT: null, SNR: null };
+        let scrollDirections = { JNR: null, INT: null, SNR: null };
+        let columnVisible = { JNR: true, INT: true, SNR: true };
+        let cbtTimerInterval = null;
+
+        const SCROLL_SPEEDS = [
+            { key: 'slow',   label: '⚡ Slow',   speed: 0.5, interval: 30 },
+            { key: 'normal', label: '⚡ Normal', speed: 1,   interval: 30 },
+            { key: 'fast',   label: '⚡ Fast',   speed: 2.5, interval: 20 }
+        ];
+        let scrollSpeedIndex = { JNR: 1, INT: 1, SNR: 1 }; // default = 'normal'
+
+        function cycleScrollSpeed(cat) {
+            scrollSpeedIndex[cat] = (scrollSpeedIndex[cat] + 1) % SCROLL_SPEEDS.length;
+            const btn = document.getElementById(`speed-${cat}`);
+            if (btn) btn.textContent = SCROLL_SPEEDS[scrollSpeedIndex[cat]].label;
+
+            // If this column is actively auto-scrolling, restart it live with the new speed
+            if (scrollIntervals[cat] && scrollDirections[cat]) {
+                startScroll(cat, scrollDirections[cat]);
+            }
+        }
+
+        function renderList(cat, rows) {
+            const container = document.getElementById(`list-${cat}`);
+            const countEl = document.getElementById(`count-${cat}`);
+            if (!container) return;
+            countEl.textContent = rows.length;
+
+            if (rows.length === 0) {
+                container.innerHTML = `<div class="flex items-center justify-center h-full text-gray-300 text-xs font-bold uppercase tracking-widest">No data yet</div>`;
+                return;
+            }
+
+            const rowsHtml = rows.map((r, i) => {
+                const pct = r.total > 0 ? Math.round((r.attempts / r.total) * 100) : 0;
+                const isTop = i === 0;
+                const rowBg = isTop
+                    ? 'background: #fefce8; border-left: 3px solid #eab308;'
+                    : (i % 2 === 0 ? 'background: #ffffff;' : 'background: #f9fafb;');
+                return `
+                    <div class="grid items-center px-4 py-2.5 border-b border-gray-100 transition-all" style="grid-template-columns: 2rem 1fr auto; ${rowBg}" data-name="${r.name.toLowerCase()}">
+                        <span class="font-black text-gray-400 text-xs md:text-sm">${i + 1}</span>
+                        <div class="min-w-0 pr-2">
+                            <p class="font-bold text-blue-900 truncate text-xs md:text-sm leading-tight">${r.name}</p>
+                            <div class="mt-1 h-1.5 rounded-full bg-gray-200 overflow-hidden">
+                                <div class="h-full rounded-full bg-yellow-500 transition-all duration-700" style="width: ${pct}%"></div>
+                            </div>
+                        </div>
+                        <div class="text-right shrink-0">
+                            <span class="font-black text-blue-900 text-sm md:text-base">${r.attempts}</span>
+                            <span class="text-gray-400 text-[9px] font-bold">/${r.total}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = `<div id="inner-${cat}" class="w-full">${rowsHtml}</div>`;
+        }
+
+        async function fetchLiveData() {
+            try {
+                const params = new URLSearchParams();
+                params.append('action', 'getLiveAttempts');
+                const resp = await fetch(scriptURL, { method: 'POST', body: params });
+                const data = await resp.json();
+                if (data.success) {
+                    ['JNR', 'INT', 'SNR'].forEach(cat => {
+                        renderList(cat, data.data[cat] || []);
+                    });
+                    const now = new Date();
+                    const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                    const el = document.getElementById('live-last-updated');
+                    if (el) el.textContent = `Updated ${timeStr}`;
+                }
+            } catch (err) {}
+        }
+
+        function toggleColumn(cat) {
+            const col = document.getElementById(`col-${cat}`);
+            const btn = document.getElementById(`toggle-${cat}`);
+            columnVisible[cat] = !columnVisible[cat];
+            if (columnVisible[cat]) {
+                col.classList.remove('hidden');
+                btn.textContent = 'Hide';
+                btn.classList.remove('bg-white/10');
+                btn.classList.add('bg-blue-900/60');
+            } else {
+                col.classList.add('hidden');
+                btn.textContent = 'Show';
+                btn.classList.remove('bg-blue-900/60');
+                btn.classList.add('bg-white/10');
+            }
+        }
+
+        function startScroll(cat, direction) {
+            stopScroll(cat);
+            const container = document.getElementById(`list-${cat}`);
+            if (!container) return;
+
+            const chosen = SCROLL_SPEEDS[scrollSpeedIndex[cat]];
+            const speed = chosen.speed;
+            const interval = chosen.interval;
+            scrollDirections[cat] = direction;
+
+            scrollIntervals[cat] = setInterval(() => {
+                const inner = document.getElementById(`inner-${cat}`);
+                if (!inner) return;
+                const maxScroll = inner.scrollHeight - container.clientHeight;
+                if (direction === 'down') {
+                    container.scrollTop = (container.scrollTop || 0) + speed;
+                    if (container.scrollTop >= maxScroll) container.scrollTop = 0;
+                } else {
+                    container.scrollTop = (container.scrollTop || 0) - speed;
+                    if (container.scrollTop <= 0) container.scrollTop = maxScroll;
+                }
+            }, interval);
+
+            container.style.overflowY = 'scroll';
+            container.style.scrollbarWidth = 'none';
+        }
+
+        function stopScroll(cat) {
+            clearInterval(scrollIntervals[cat]);
+            scrollIntervals[cat] = null;
+            scrollDirections[cat] = null;
+        }
+
+        async function fetchCbtTimerStatus() {
+            try {
+                const params = new URLSearchParams();
+                params.append('action', 'getTimingData');
+                params.append('sheet', 'cbt_time');
+                params.append('category', 'JNR');
+                const resp = await fetch(scriptURL, { method: 'POST', body: params });
+                const data = await resp.json();
+                if (!data.success) {
+                    updateCbtTimerDisplay('—', 'No schedule set');
+                    return;
+                }
+                const baseTime = new Date(data.timestamp).getTime();
+                const startTime = baseTime + (Number(data.start) * 60 * 1000);
+                const endTime   = baseTime + (Number(data.end) * 60 * 1000);
+                const now = Date.now();
+
+                clearInterval(cbtTimerInterval);
+
+                if (now < startTime) {
+                    cbtTimerInterval = setInterval(() => {
+                        const diff = startTime - Date.now();
+                        if (diff <= 0) {
+                            clearInterval(cbtTimerInterval);
+                            fetchCbtTimerStatus();
+                            return;
+                        }
+                        const m = Math.floor(diff / 60000);
+                        const s = Math.floor((diff % 60000) / 1000);
+                        updateCbtTimerDisplay(
+                            `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`,
+                            'Starting in'
+                        );
+                    }, 1000);
+                } else if (now >= startTime && now < endTime) {
+                    cbtTimerInterval = setInterval(() => {
+                        const diff = endTime - Date.now();
+                        if (diff <= 0) {
+                            clearInterval(cbtTimerInterval);
+                            updateCbtTimerDisplay('DONE', 'CBT Exam Over');
+                            return;
+                        }
+                        const m = Math.floor(diff / 60000);
+                        const s = Math.floor((diff % 60000) / 1000);
+                        updateCbtTimerDisplay(
+                            `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`,
+                            'Time Remaining'
+                        );
+                    }, 1000);
+                } else {
+                    updateCbtTimerDisplay('—', 'Not in Session');
+                }
+            } catch (err) {
+                updateCbtTimerDisplay('—', 'Not in Session');
+            }
+        }
+
+        function updateCbtTimerDisplay(time, label) {
+            const timerEl = document.getElementById('live-cbt-timer');
+            const labelEl = document.getElementById('live-cbt-label');
+            if (!timerEl) return;
+
+            timerEl.textContent = time;
+            if (labelEl) labelEl.textContent = label;
+
+            timerEl.className = 'font-black font-mono tracking-widest text-base md:text-xl';
+            if (label === 'Time Remaining') {
+                const parts = time.split(':');
+                const totalSec = (parseInt(parts[0]) * 60) + parseInt(parts[1]);
+                if (totalSec <= 300) {
+                    timerEl.classList.add('text-red-300', 'animate-pulse');
+                } else {
+                    timerEl.classList.add('text-white');
+                }
+            } else if (label === 'Starting in') {
+                timerEl.classList.add('text-yellow-400');
+            } else {
+                timerEl.classList.add('text-blue-200');
+            }
+        }
+
+        function filterLive(query) {
+            const q = query.toLowerCase().trim();
+            ['JNR', 'INT', 'SNR'].forEach(cat => {
+                const inner = document.getElementById(`inner-${cat}`);
+                if (!inner) return;
+                const rows = inner.querySelectorAll('[data-name]');
+                rows.forEach(row => {
+                    const name = row.getAttribute('data-name').toLowerCase();
+                    row.style.display = (!q || name.includes(q)) ? '' : 'none';
+                });
+            });
+        }
+
+        // ===== Zoom control (page content, independent of nav/menu) =====
+        const ZOOM_MIN = 50;
+        const ZOOM_MAX = 200;
+        const ZOOM_STEP = 10;
+        const ZOOM_STORAGE_KEY = 'yetay_zoom_level';
+
+        let zoomLevel = parseInt(localStorage.getItem(ZOOM_STORAGE_KEY), 10);
+        if (isNaN(zoomLevel) || zoomLevel < ZOOM_MIN || zoomLevel > ZOOM_MAX) {
+            zoomLevel = 100;
+        }
+
+        function applyZoom() {
+            const target = document.getElementById('page-root');
+            if (target) {
+                // 'zoom' reflows content cleanly (Chrome/Edge/new Firefox);
+                // fallback keeps older browsers working too.
+                if (CSS.supports('zoom', '1')) {
+                    target.style.zoom = zoomLevel / 100;
+                } else {
+                    target.style.transformOrigin = 'top left';
+                    target.style.transform = `scale(${zoomLevel / 100})`;
+                    target.style.width = `${10000 / zoomLevel}%`;
+                }
+            }
+            const label = document.getElementById('zoom-level');
+            if (label) label.textContent = zoomLevel + '%';
+            localStorage.setItem(ZOOM_STORAGE_KEY, zoomLevel);
+        }
+
+        function zoomIn() {
+            if (zoomLevel < ZOOM_MAX) {
+                zoomLevel += ZOOM_STEP;
+                applyZoom();
+
+        // ===== Drag to reposition the zoom bar =====
+        function makeZoomBarDraggable() {
+            const bar = document.getElementById('zoom-bar');
+            const handle = document.getElementById('zoom-drag-handle');
+            if (!bar || !handle) return;
+
+            const POS_KEY = 'yetay_zoom_bar_pos';
+            let dragging = false, offsetX = 0, offsetY = 0;
+
+            function setPosition(x, y) {
+                const maxX = window.innerWidth - bar.offsetWidth;
+                const maxY = window.innerHeight - bar.offsetHeight;
+                x = Math.min(Math.max(x, 0), Math.max(maxX, 0));
+                y = Math.min(Math.max(y, 0), Math.max(maxY, 0));
+                bar.style.left = x + 'px';
+                bar.style.top = y + 'px';
+                bar.style.right = 'auto';
+                bar.style.bottom = 'auto';
+            }
+
+            const savedPos = JSON.parse(localStorage.getItem(POS_KEY) || 'null');
+            if (savedPos) setPosition(savedPos.x, savedPos.y);
+
+            handle.addEventListener('pointerdown', (e) => {
+                dragging = true;
+                const rect = bar.getBoundingClientRect();
+                offsetX = e.clientX - rect.left;
+                offsetY = e.clientY - rect.top;
+                handle.setPointerCapture(e.pointerId);
+            });
+
+            handle.addEventListener('pointermove', (e) => {
+                if (!dragging) return;
+                setPosition(e.clientX - offsetX, e.clientY - offsetY);
+            });
+
+            ['pointerup', 'pointercancel'].forEach(evt => {
+                handle.addEventListener(evt, () => {
+                    if (!dragging) return;
+                    dragging = false;
+                    const rect = bar.getBoundingClientRect();
+                    localStorage.setItem(POS_KEY, JSON.stringify({ x: rect.left, y: rect.top }));
+                });
+            });
+        }
+
+        makeZoomBarDraggable();
+            }
+        }
+
+        function zoomOut() {
+            if (zoomLevel > ZOOM_MIN) {
+                zoomLevel -= ZOOM_STEP;
+                applyZoom();
+
+        // ===== Drag to reposition the zoom bar =====
+        function makeZoomBarDraggable() {
+            const bar = document.getElementById('zoom-bar');
+            const handle = document.getElementById('zoom-drag-handle');
+            if (!bar || !handle) return;
+
+            const POS_KEY = 'yetay_zoom_bar_pos';
+            let dragging = false, offsetX = 0, offsetY = 0;
+
+            function setPosition(x, y) {
+                const maxX = window.innerWidth - bar.offsetWidth;
+                const maxY = window.innerHeight - bar.offsetHeight;
+                x = Math.min(Math.max(x, 0), Math.max(maxX, 0));
+                y = Math.min(Math.max(y, 0), Math.max(maxY, 0));
+                bar.style.left = x + 'px';
+                bar.style.top = y + 'px';
+                bar.style.right = 'auto';
+                bar.style.bottom = 'auto';
+            }
+
+            const savedPos = JSON.parse(localStorage.getItem(POS_KEY) || 'null');
+            if (savedPos) setPosition(savedPos.x, savedPos.y);
+
+            handle.addEventListener('pointerdown', (e) => {
+                dragging = true;
+                const rect = bar.getBoundingClientRect();
+                offsetX = e.clientX - rect.left;
+                offsetY = e.clientY - rect.top;
+                handle.setPointerCapture(e.pointerId);
+            });
+
+            handle.addEventListener('pointermove', (e) => {
+                if (!dragging) return;
+                setPosition(e.clientX - offsetX, e.clientY - offsetY);
+            });
+
+            ['pointerup', 'pointercancel'].forEach(evt => {
+                handle.addEventListener(evt, () => {
+                    if (!dragging) return;
+                    dragging = false;
+                    const rect = bar.getBoundingClientRect();
+                    localStorage.setItem(POS_KEY, JSON.stringify({ x: rect.left, y: rect.top }));
+                });
+            });
+        }
+
+        makeZoomBarDraggable();
+            }
+        }
+
+        function zoomReset() {
+            zoomLevel = 100;
+            applyZoom();
+
+        // ===== Drag to reposition the zoom bar =====
+        function makeZoomBarDraggable() {
+            const bar = document.getElementById('zoom-bar');
+            const handle = document.getElementById('zoom-drag-handle');
+            if (!bar || !handle) return;
+
+            const POS_KEY = 'yetay_zoom_bar_pos';
+            let dragging = false, offsetX = 0, offsetY = 0;
+
+            function setPosition(x, y) {
+                const maxX = window.innerWidth - bar.offsetWidth;
+                const maxY = window.innerHeight - bar.offsetHeight;
+                x = Math.min(Math.max(x, 0), Math.max(maxX, 0));
+                y = Math.min(Math.max(y, 0), Math.max(maxY, 0));
+                bar.style.left = x + 'px';
+                bar.style.top = y + 'px';
+                bar.style.right = 'auto';
+                bar.style.bottom = 'auto';
+            }
+
+            const savedPos = JSON.parse(localStorage.getItem(POS_KEY) || 'null');
+            if (savedPos) setPosition(savedPos.x, savedPos.y);
+
+            handle.addEventListener('pointerdown', (e) => {
+                dragging = true;
+                const rect = bar.getBoundingClientRect();
+                offsetX = e.clientX - rect.left;
+                offsetY = e.clientY - rect.top;
+                handle.setPointerCapture(e.pointerId);
+            });
+
+            handle.addEventListener('pointermove', (e) => {
+                if (!dragging) return;
+                setPosition(e.clientX - offsetX, e.clientY - offsetY);
+            });
+
+            ['pointerup', 'pointercancel'].forEach(evt => {
+                handle.addEventListener(evt, () => {
+                    if (!dragging) return;
+                    dragging = false;
+                    const rect = bar.getBoundingClientRect();
+                    localStorage.setItem(POS_KEY, JSON.stringify({ x: rect.left, y: rect.top }));
+                });
+            });
+        }
+
+        makeZoomBarDraggable();
+        }
+
+        applyZoom();
+
+        // ===== Drag to reposition the zoom bar =====
+        function makeZoomBarDraggable() {
+            const bar = document.getElementById('zoom-bar');
+            const handle = document.getElementById('zoom-drag-handle');
+            if (!bar || !handle) return;
+
+            const POS_KEY = 'yetay_zoom_bar_pos';
+            let dragging = false, offsetX = 0, offsetY = 0;
+
+            function setPosition(x, y) {
+                const maxX = window.innerWidth - bar.offsetWidth;
+                const maxY = window.innerHeight - bar.offsetHeight;
+                x = Math.min(Math.max(x, 0), Math.max(maxX, 0));
+                y = Math.min(Math.max(y, 0), Math.max(maxY, 0));
+                bar.style.left = x + 'px';
+                bar.style.top = y + 'px';
+                bar.style.right = 'auto';
+                bar.style.bottom = 'auto';
+            }
+
+            const savedPos = JSON.parse(localStorage.getItem(POS_KEY) || 'null');
+            if (savedPos) setPosition(savedPos.x, savedPos.y);
+
+            handle.addEventListener('pointerdown', (e) => {
+                dragging = true;
+                const rect = bar.getBoundingClientRect();
+                offsetX = e.clientX - rect.left;
+                offsetY = e.clientY - rect.top;
+                handle.setPointerCapture(e.pointerId);
+            });
+
+            handle.addEventListener('pointermove', (e) => {
+                if (!dragging) return;
+                setPosition(e.clientX - offsetX, e.clientY - offsetY);
+            });
+
+            ['pointerup', 'pointercancel'].forEach(evt => {
+                handle.addEventListener(evt, () => {
+                    if (!dragging) return;
+                    dragging = false;
+                    const rect = bar.getBoundingClientRect();
+                    localStorage.setItem(POS_KEY, JSON.stringify({ x: rect.left, y: rect.top }));
+                });
+            });
+        }
+
+        makeZoomBarDraggable();
+
+        // This page IS the Live tab, so start refreshing immediately
+        // (this used to run only when openTab('tab-live') fired).
+        fetchLiveData();
+        fetchCbtTimerStatus();
+        liveRefreshInterval = setInterval(fetchLiveData, 5000);
+    </script>
+</body>
+</html>
